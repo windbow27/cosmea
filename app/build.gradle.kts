@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.cosmea"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -40,7 +40,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.8"
     }
     packaging {
         resources {
@@ -58,6 +58,11 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.common.ktx)
+    implementation(project(":core:designsystem"))
+    implementation(project(":feature:profile"))
+    implementation(project(":feature:servers"))
+    implementation(project(":feature:messages"))
+    implementation(project(":feature:notifications"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -68,5 +73,4 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
-    implementation(project(":feature:home"))
 }

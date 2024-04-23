@@ -1,4 +1,4 @@
-import com.android.build.api.dsl.CommonExtension
+
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
@@ -19,13 +19,14 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 configureKotlinAndroid(this)
                 defaultConfig.targetSdk = 34
             }
+
         }
     }
 
     private fun Project.configureKotlinAndroid(
-        commonExtension: CommonExtension<*, *, *, *, *>,
+        libraryExtension: LibraryExtension,
     ) {
-        commonExtension.apply {
+        libraryExtension.apply {
             compileSdk = 34
 
             defaultConfig {
@@ -35,6 +36,14 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             compileOptions {
                 sourceCompatibility = JavaVersion.VERSION_11
                 targetCompatibility = JavaVersion.VERSION_11
+            }
+
+            buildFeatures {
+                compose = true
+            }
+
+            composeOptions {
+                kotlinCompilerExtensionVersion = "1.5.8"
             }
         }
 
