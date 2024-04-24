@@ -10,6 +10,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
+internal fun ProfileRoute(
+    onTopicClick: (String) -> Unit
+) {
+    ProfileScreen()
+}
+
+@Composable
 fun ProfileScreen() {
     Column(
         modifier = Modifier
