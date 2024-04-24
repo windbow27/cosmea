@@ -1,16 +1,21 @@
 package com.example.profile.navigation
 
-import androidx.compose.runtime.Composable
-import androidx.navigation.compose.NavHost
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.profile.ProfileScreen
+import com.example.profile.ProfileRoute
 
-@Composable
-fun ProfileNavigation() {
-    val navController = rememberNavController()
+const val PROFILE_ROUTE = "profile"
 
-    NavHost(navController = navController, startDestination = "profile") {
-        composable("profile") { ProfileScreen() }
+fun NavController.navigateToProfile(navOptions: NavOptions? = null) {
+    navigate(PROFILE_ROUTE, navOptions)
+}
+
+fun NavGraphBuilder.profileScreen(
+    onTopicClick: (String) -> Unit
+) {
+    composable(PROFILE_ROUTE) {
+        ProfileRoute(onTopicClick)
     }
 }

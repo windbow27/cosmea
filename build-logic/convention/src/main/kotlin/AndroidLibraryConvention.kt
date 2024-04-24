@@ -19,7 +19,6 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 configureKotlinAndroid(this)
                 defaultConfig.targetSdk = 34
             }
-
         }
     }
 
