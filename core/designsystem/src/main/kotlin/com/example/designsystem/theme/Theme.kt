@@ -16,27 +16,72 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Blue80,
-    secondary = BlueGrey40,
-    tertiary = Blue40
+    primary = primaryDark,
+    onPrimary = onPrimaryDark,
+    secondary = secondaryDark,
+    onSecondary = onSecondaryDark,
+    background = backgroundDark,
+    onBackground = onBackgroundDark,
+    surface = surfaceDark,
+    onSurface = onSurfaceDark,
+    error = errorDark,
+    onError = onErrorDark,
+    primaryContainer = primaryContainerDark,
+    onPrimaryContainer = onPrimaryContainerDark,
+    secondaryContainer = secondaryContainerDark,
+    onSecondaryContainer = onSecondaryContainerDark,
+    errorContainer = errorContainerDark,
+    onErrorContainer = onErrorContainerDark,
+    surfaceVariant = surfaceVariantDark,
+    onSurfaceVariant = onSurfaceVariantDark,
+    outline = outlineDark,
+    outlineVariant = outlineVariantDark,
+    scrim = scrimDark,
+    inverseSurface = inverseSurfaceDark,
+    inverseOnSurface = inverseOnSurfaceDark,
+    inversePrimary = inversePrimaryDark,
+    surfaceDim = surfaceDimDark,
+    surfaceBright = surfaceBrightDark,
+    surfaceContainerLowest = surfaceContainerLowestDark,
+    surfaceContainerLow = surfaceContainerLowDark,
+    surfaceContainer = surfaceContainerDark,
+    surfaceContainerHigh = surfaceContainerHighDark,
+    surfaceContainerHighest = surfaceContainerHighestDark
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Blue80,
-    secondary = BlueGrey40,
-    tertiary = Blue40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+val LightColorScheme = lightColorScheme(
+    primary = primaryLight,
+    onPrimary = onPrimaryLight,
+    secondary = secondaryLight,
+    onSecondary = onSecondaryLight,
+    background = backgroundLight,
+    onBackground = onBackgroundLight,
+    surface = surfaceLight,
+    onSurface = onSurfaceLight,
+    error = errorLight,
+    onError = onErrorLight,
+    primaryContainer = primaryContainerLight,
+    onPrimaryContainer = onPrimaryContainerLight,
+    secondaryContainer = secondaryContainerLight,
+    onSecondaryContainer = onSecondaryContainerLight,
+    errorContainer = errorContainerLight,
+    onErrorContainer = onErrorContainerLight,
+    surfaceVariant = surfaceVariantLight,
+    onSurfaceVariant = onSurfaceVariantLight,
+    outline = outlineLight,
+    outlineVariant = outlineVariantLight,
+    scrim = scrimLight,
+    inverseSurface = inverseSurfaceLight,
+    inverseOnSurface = inverseOnSurfaceLight,
+    inversePrimary = inversePrimaryLight,
+    surfaceDim = surfaceDimLight,
+    surfaceBright = surfaceBrightLight,
+    surfaceContainerLowest = surfaceContainerLowestLight,
+    surfaceContainerLow = surfaceContainerLowLight,
+    surfaceContainer = surfaceContainerLight,
+    surfaceContainerHigh = surfaceContainerHighLight,
+    surfaceContainerHighest = surfaceContainerHighestLight
 )
-
 @Composable
 fun CosmeaTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -68,3 +113,4 @@ fun CosmeaTheme(
         content = content
     )
 }
+

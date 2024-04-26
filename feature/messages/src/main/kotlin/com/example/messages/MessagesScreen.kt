@@ -9,12 +9,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.designsystem.component.Background
+import com.example.designsystem.component.SearchToolbar
 import com.example.ui.UserHead
 
 @Composable
@@ -27,31 +28,28 @@ internal fun MessagesRoute(
 @Preview
 @Composable
 fun MessagesScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text(text = "Messages", style = MaterialTheme.typography.titleLarge)
-        SearchBar()
-        LazyColumn {
-            items(messages) { message ->
-                MessageItem(message = message)
+    Background {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Text(
+                modifier = Modifier.padding(bottom = 16.dp),
+                text = "Messages", style = MaterialTheme.typography.titleLarge
+            )
+            SearchToolbar(
+                searchQuery = "",
+                onSearchQueryChanged = {},
+                onSearchTriggered = {},
+            )
+            LazyColumn {
+                items(messages) { message ->
+                    MessageItem(message = message)
+                }
             }
         }
     }
-}
-
-@Composable
-fun SearchBar() {
-    TextField(
-        value = "",
-        onValueChange = {},
-        label = { Text("Search") },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp)
-    )
 }
 
 @Composable

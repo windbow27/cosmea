@@ -16,6 +16,7 @@ navigationFragmentKtx = "2.7.7"
 navigationUiKtx = "2.7.7"
 androidGradlePlugin = "8.3.2"
 jetbrainsKotlinJvm = "1.9.22"
+uiTooling = "1.6.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -41,6 +42,7 @@ androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 androidx-compose-material-iconsExtended = { group = "androidx.compose.material", name = "material-icons-extended" }
+ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "uiTooling" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
