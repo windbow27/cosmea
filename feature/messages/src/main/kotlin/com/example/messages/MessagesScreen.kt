@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.component.Background
-import com.example.designsystem.component.SearchToolbar
+import com.example.ui.SearchToolbar
 import com.example.ui.UserHead
 
 @Composable

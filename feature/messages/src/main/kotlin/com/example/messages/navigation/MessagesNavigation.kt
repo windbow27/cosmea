@@ -13,9 +13,9 @@ fun NavController.navigateToMessages(navOptions: NavOptions? = null) {
 }
 
 fun NavGraphBuilder.messagesScreen(
-    onTopicClick: (String) -> Unit
+    onChannelClick: (String) -> Unit
 ) {
     composable(MESSAGES_ROUTE) {
-        MessagesRoute(onTopicClick)
+        MessagesRoute(onChannelClick)
     }
 }

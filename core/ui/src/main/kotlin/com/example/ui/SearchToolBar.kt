@@ -1,4 +1,4 @@
-package com.example.designsystem.component
+package com.example.ui
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

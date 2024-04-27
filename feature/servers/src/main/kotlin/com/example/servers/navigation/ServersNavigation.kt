@@ -13,9 +13,9 @@ fun NavController.navigateToServers(navOptions: NavOptions? = null) {
 }
 
 fun NavGraphBuilder.serversScreen(
-    onTopicClick: (String) -> Unit
+    onChannelClick: (String) -> Unit
 ) {
     composable(SERVERS_ROUTE) {
-        ServersRoute(onTopicClick)
+        ServersRoute(onChannelClick)
     }
 }

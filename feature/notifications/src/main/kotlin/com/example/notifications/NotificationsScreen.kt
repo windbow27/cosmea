@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.designsystem.component.Background
 import com.example.ui.UserHead
 
 @Composable
@@ -26,15 +27,17 @@ internal fun NotificationsRoute(
 @Preview
 @Composable
 fun NotificationsScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text(text = "Notifications", style = MaterialTheme.typography.titleLarge)
-        LazyColumn {
-            items(notifications) { notification ->
-                NotificationItem(notification = notification)
+    Background{
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Text(text = "Notifications", style = MaterialTheme.typography.titleLarge)
+            LazyColumn {
+                items(notifications) { notification ->
+                    NotificationItem(notification = notification)
+                }
             }
         }
     }

@@ -63,6 +63,7 @@ dependencies {
     implementation(project(":feature:servers"))
     implementation(project(":feature:messages"))
     implementation(project(":feature:notifications"))
+    implementation(project(":feature:conversation"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
