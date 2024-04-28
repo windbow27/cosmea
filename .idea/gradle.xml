@@ -31,9 +31,11 @@
             <option value="$PROJECT_DIR$/core/ui" />
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/conversation" />
+            <option value="$PROJECT_DIR$/feature/login" />
             <option value="$PROJECT_DIR$/feature/messages" />
             <option value="$PROJECT_DIR$/feature/notifications" />
             <option value="$PROJECT_DIR$/feature/profile" />
+            <option value="$PROJECT_DIR$/feature/register" />
             <option value="$PROJECT_DIR$/feature/servers" />
           </set>
         </option>

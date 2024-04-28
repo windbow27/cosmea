@@ -64,7 +64,7 @@ fun ServersScreen(
                             modifier = Modifier
                                 .width(4.dp)
                                 .height(40.dp)
-                                .padding(end = 1.dp)
+                                .padding(end = 2.dp)
                                 .background(if (selectedServerId == server.avatar) MaterialTheme.colorScheme.onSurface else Color.Transparent)
                         )
                         UserHead(
@@ -163,6 +163,18 @@ fun ServerChannel(channels: List<String>, listener: ChannelListener) {
 @Composable
 fun PreviewServersScreen() {
     CosmeaTheme {
+        ServersScreen(
+            servers = mockServers
+        ) {
+            // no-op
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewServersScreenDark() {
+    CosmeaTheme(darkTheme = true) {
         ServersScreen(
             servers = mockServers
         ) {

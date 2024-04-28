@@ -463,3 +463,13 @@ fun ConversationScreenPreview() {
         ) { }
     }
 }
+
+@Preview
+@Composable
+fun ConversationScreenDarkPreview() {
+    CosmeaTheme(darkTheme = true) {
+        ConversationScreen(
+            conversation = mockServers.flatMap { it.categories }.flatMap { it.channels }.first(),
+        ) { }
+    }
+}
