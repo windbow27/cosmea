@@ -7,15 +7,41 @@ import com.example.model.ServerData
 import com.example.model.UserData
 
 val mockUsers = listOf(
-    UserData("User1", "User 1", "1"),
-    UserData("User2", "User 2", "2"),
-    UserData("User3", "User 3", "3"),
-    UserData("User4", "User 4", "4"),
-    UserData("User5", "User 5", "5"),
-    UserData("User6", "User 6", "6"),
-    UserData("User7", "User 7", "7"),
-    UserData("User8", "User 8", "8"),
-    UserData("User9", "User 9", "9"),
+    UserData("User1", "User 1", "1", 1, listOf("Server1", "Server2"), listOf("1", "2", "3"), listOf()),
+    UserData("User2", "User 2", "2", 2, listOf("Server1", "Server2"), listOf("1", "2", "3"), listOf()),
+    UserData("User3", "User 3", "3", 3, listOf("Server1", "Server2"), listOf("1", "2", "3"), listOf()),
+    UserData("User4", "User 4", "4", 4, listOf("Server1", "Server2"), listOf("1", "2", "3"), listOf()),
+    UserData("User5", "User 5", "5", 5, listOf("Server1", "Server2"), listOf("1", "2", "3"), listOf()),
+    UserData("User6", "User 6", "6", 6, listOf("Server1", "Server2"), listOf("1", "2", "3"), listOf()),
+)
+
+val mockDirectMessages = listOf(
+    ChannelData(
+        id = "1",
+        name = "DM 1",
+        members = mockUsers,
+        messages = listOf(
+            MessageData("1" ,"User1", "Hello", "12:00"),
+            MessageData("2","User2", "Hi", "12:01"),
+            MessageData("3","User3", "Hey, what's up?", "12:02"),
+            MessageData("4", "User1", "Nothing much", "12:03"),
+            MessageData("5","User2", "Cool", "12:04"),
+            MessageData("6","User3", "Yeah", "12:05"),
+        )
+    ),
+    ChannelData(
+        id = "2",
+        name = "DM 1",
+        members = mockUsers,
+        messages = listOf(
+            MessageData("1" ,"User1", "Hello", "12:00"),
+            MessageData("2","User2", "Hi", "12:01"),
+            MessageData("3","User3", "Hey, what's up?", "12:02"),
+            MessageData("4", "User1", "Nothing much", "12:03"),
+            MessageData("5","User2", "Cool", "12:04"),
+            MessageData("6","User3", "Yeah", "12:05"),
+        )
+    ),
 )
 
 val mockChannels = listOf(

@@ -7,6 +7,6 @@ data class ChannelData (
     val messages: List<MessageData>
 )
 
-interface ChannelListener {
+fun interface ChannelListener {
     fun onChannelSelected(channel: String)
 }

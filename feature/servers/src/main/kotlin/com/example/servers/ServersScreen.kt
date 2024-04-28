@@ -1,11 +1,15 @@
 package com.example.servers
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -19,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.data.mockServers
@@ -34,13 +39,8 @@ internal fun ServersRoute(
     onChannelClick: (String) -> Unit
 ) {
     ServersScreen(
-        servers = mockServers,
-        listener = object : ChannelListener {
-            override fun onChannelSelected(channel: String) {
-                onChannelClick(channel)
-            }
-        }
-    )
+        servers = mockServers
+    ) { channel -> onChannelClick(channel) }
 }
 @Composable
 fun ServersScreen(
@@ -59,11 +59,21 @@ fun ServersScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 servers.forEach { server ->
-                    UserHead(
-                        id = server.avatar,
-                        name = server.name,
-                        modifier = Modifier.clickable { selectedServerId = server.avatar }
-                    )
+                    Row {
+                        Spacer(
+                            modifier = Modifier
+                                .width(4.dp)
+                                .height(40.dp)
+                                .padding(end = 1.dp)
+                                .background(if (selectedServerId == server.avatar) MaterialTheme.colorScheme.onSurface else Color.Transparent)
+                        )
+                        UserHead(
+                            id = server.avatar,
+                            name = server.name,
+                            modifier = Modifier
+                                .clickable { selectedServerId = server.avatar }
+                        )
+                    }
                 }
             }
             // Server details
@@ -111,7 +121,7 @@ fun ServerCategory(
     channels: List<String>,
     listener: ChannelListener
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier.padding(top = 16.dp)
@@ -154,12 +164,9 @@ fun ServerChannel(channels: List<String>, listener: ChannelListener) {
 fun PreviewServersScreen() {
     CosmeaTheme {
         ServersScreen(
-            servers = mockServers,
-            listener = object : ChannelListener {
-                override fun onChannelSelected(channel: String) {
-                    // no-op
-                }
-            }
-        )
+            servers = mockServers
+        ) {
+            // no-op
+        }
     }
 }

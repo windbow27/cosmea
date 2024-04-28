@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.component.Background
+import com.example.model.ChannelListener
 import com.example.ui.SearchToolbar
 import com.example.ui.UserHead
 
@@ -24,13 +25,13 @@ internal fun MessagesRoute(
     onChannelClick: (String) -> Unit,
 ) {
     MessagesScreen(
-        onChannelClick = { userId ->
-            onChannelClick(userId)
-        }
-    )
+
+    ) { channel -> onChannelClick(channel) }
 }
 @Composable
-fun MessagesScreen(onChannelClick: (String) -> Unit) {
+fun MessagesScreen(
+    listener: ChannelListener
+) {
     Background {
         Column(
             modifier = Modifier
@@ -48,7 +49,7 @@ fun MessagesScreen(onChannelClick: (String) -> Unit) {
             )
             LazyColumn {
                 items(messages) { message ->
-                    MessageItem(message = message, onChannelClick = onChannelClick)
+                    MessageItem(message = message, listener = listener)
                 }
             }
         }
@@ -56,12 +57,12 @@ fun MessagesScreen(onChannelClick: (String) -> Unit) {
 }
 
 @Composable
-fun MessageItem(message: Message, onChannelClick: (String) -> Unit) {
+fun MessageItem(message: Message, listener: ChannelListener) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .clickable { onChannelClick(message.userId) },
+            .clickable { listener.onChannelSelected(message.userId) },
         verticalAlignment = Alignment.CenterVertically
     ) {
         UserHead(id = message.userId, name = message.userName)
@@ -90,5 +91,7 @@ val messages = listOf(
 @Preview
 @Composable
 fun PreviewMessagesScreen() {
-    MessagesScreen(onChannelClick = {})
+    MessagesScreen {
+        // Handle channel selection
+    }
 }
