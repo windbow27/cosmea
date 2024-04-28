@@ -25,9 +25,9 @@ fun AppNavHost(
     ) {
         serversScreen(onChannelClick = navController::navigateToConversation)
         conversationScreen(
-            onNavIconPressed = navController::popBackStack,
+            onNavIconPressed = navController::popBackStack
         )
-        messagesScreen {}
+        messagesScreen(onChannelClick = navController::navigateToConversation)
         notificationsScreen {}
         profileScreen {}
     }

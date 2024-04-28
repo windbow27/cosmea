@@ -23,6 +23,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(project(":core:ui"))
     implementation(project(":core:designsystem"))
+    implementation(project(":core:data"))
+    implementation(project(":core:model"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

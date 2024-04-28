@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.foundation.layout.size
@@ -25,8 +27,8 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -54,29 +56,42 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.data.mockServers
 import com.example.designsystem.theme.CosmeaTheme
+import com.example.model.ChannelData
+import com.example.model.MessageData
 import com.example.ui.AppBar
 import com.example.ui.UserHead
+import com.example.ui.UserInput
 
 @Composable
 fun ConversationRoute(
     conversationId: String?,
-    onNavIconPressed: () -> Unit
+    onNavIconPressed: () -> Unit,
 ) {
-    ConversationScreen(
-        conversationId = conversationId,
-        onNavIconPressed = onNavIconPressed,
-    )
+    println("Conversation ID: $conversationId")
+
+    val conversation = mockServers
+        .flatMap { it.categories }
+        .flatMap { it.channels }
+        .find { it.id == conversationId }
+
+    if (conversation != null) {
+        ConversationScreen(
+            conversation = conversation,
+            onNavIconPressed = onNavIconPressed,
+        )
+    } else {
+        Text("Conversation not found")
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConversationScreen(
-    conversationId: String?,
-//    uiState: ConversationUIState,
-//    navigateToProfile: (String) -> Unit
+    conversation: ChannelData,
     modifier: Modifier = Modifier,
-    onNavIconPressed: () -> Unit = {}
+    onNavIconPressed: () -> Unit = {},
 ) {
     val authorMe = "Me"
     val timeNow = "Now"
@@ -90,10 +105,8 @@ fun ConversationScreen(
     Scaffold(
         topBar = {
             ChannelNameBar(
-//                channelName = uiState.channelName,
-//                channelMembers = uiState.channelMembers,
-                channelName = "Channel Name",
-                channelMembers = 10,
+                channelName = conversation.name,
+                channelMembers = conversation.members.size,
                 onNavIconPressed = onNavIconPressed,
                 scrollBehavior = scrollBehavior,
             )
@@ -103,53 +116,32 @@ fun ConversationScreen(
             .contentWindowInsets
             .exclude(WindowInsets.navigationBars)
             .exclude(WindowInsets.ime),
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+        modifier = modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { paddingValues ->
         Column(
             Modifier
                 .fillMaxSize()
                 .padding(paddingValues)) {
             Messages(
-//                messages = uiState.messages,
-//                navigateToProfile = navigateToProfile,
-                messages = listOf(
-                    Message(authorMe, "Hello", timeNow),
-                    Message("Someone", "Hi", timeNow),
-                    Message(authorMe, "How are you?", timeNow),
-                    Message("Someone", "I'm good, thanks!", timeNow),
-                    Message(authorMe, "That's great to hear!", timeNow),
-                    Message("Someone", "Yeah", timeNow),
-                    Message(authorMe, "I'm going to the park later", timeNow),
-                    Message("Someone", "Cool", timeNow),
-                    Message(authorMe, "Do you want to come?", timeNow),
-                    Message("Someone", "I can't, I'm busy", timeNow),
-                    Message(authorMe, "No worries", timeNow),
-                    Message("Someone", "Maybe next time", timeNow),
-                    Message(authorMe, "Sure", timeNow),
-                    Message("Someone", "Bye", timeNow),
-                    Message(authorMe, "Bye", timeNow),
-                ),
+                messageData = conversation.messages,
                 navigateToProfile = { },
                 modifier = Modifier.weight(1f),
                 scrollState = scrollState
             )
-//            UserInput(
-//                onMessageSent = { content ->
-//                    uiState.addMessage(
-//                        Message(authorMe, content, timeNow)
-//                    )
-//                },
-//                resetScroll = {
-//                    scope.launch {
-//                        scrollState.scrollToItem(0)
-//                    }
-//                },
-//                // let this element handle the padding so that the elevation is shown behind the
-//                // navigation bar
-//                modifier = Modifier
-//                    .navigationBarsPadding()
-//                    .imePadding()
-//            )
+            UserInput(
+                onMessageSent = {
+
+                },
+                resetScroll = {
+
+                },
+                // let this element handle the padding so that the elevation is shown behind the
+                // navigation bar
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .imePadding()
+            )
         }
     }
 }
@@ -215,7 +207,7 @@ const val ConversationTestTag = "ConversationTestTag"
 
 @Composable
 fun Messages(
-    messages: List<Message>,
+    messageData: List<MessageData>,
     navigateToProfile: (String) -> Unit,
     scrollState: LazyListState,
     modifier: Modifier = Modifier
@@ -231,15 +223,15 @@ fun Messages(
                 .testTag(ConversationTestTag)
                 .fillMaxSize()
         ) {
-            for (index in messages.indices) {
-                val prevAuthor = messages.getOrNull(index - 1)?.author
-                val nextAuthor = messages.getOrNull(index + 1)?.author
-                val content = messages[index]
+            for (index in messageData.indices) {
+                val prevAuthor = messageData.getOrNull(index - 1)?.author
+                val nextAuthor = messageData.getOrNull(index + 1)?.author
+                val content = messageData[index]
                 val isFirstMessageByAuthor = prevAuthor != content.author
                 val isLastMessageByAuthor = nextAuthor != content.author
 
                 // Hardcode day dividers for simplicity
-                if (index == messages.size - 1) {
+                if (index == messageData.size - 1) {
                     item {
                         DayHeader("20 Aug")
                     }
@@ -266,7 +258,7 @@ fun Messages(
 @Composable
 fun Message(
     onAuthorClick: (String) -> Unit,
-    msg: Message,
+    msg: MessageData,
     isUserMe: Boolean,
     isFirstMessageByAuthor: Boolean,
     isLastMessageByAuthor: Boolean
@@ -285,7 +277,7 @@ fun Message(
                 modifier = Modifier
                     .padding(8.dp)
             ) {
-                UserHead(id = "4", firstName = "Test", lastName = "User")
+                UserHead(id = "4", name = "Test")
             }
         } else {
             // Space under avatar
@@ -306,7 +298,7 @@ fun Message(
 
 @Composable
 fun AuthorAndTextMessage(
-    msg: Message,
+    msg: MessageData,
     isUserMe: Boolean,
     isFirstMessageByAuthor: Boolean,
     isLastMessageByAuthor: Boolean,
@@ -329,7 +321,7 @@ fun AuthorAndTextMessage(
 }
 
 @Composable
-private fun AuthorNameTimestamp(msg: Message) {
+private fun AuthorNameTimestamp(msg: MessageData) {
     // Combine author and timestamp for a11y.
     Row(modifier = Modifier.semantics(mergeDescendants = true) {}) {
         Text(
@@ -371,7 +363,7 @@ fun DayHeader(dayString: String) {
 
 @Composable
 private fun RowScope.DayHeaderLine() {
-    Divider(
+    HorizontalDivider(
         modifier = Modifier
             .weight(1f)
             .align(Alignment.CenterVertically),
@@ -381,7 +373,7 @@ private fun RowScope.DayHeaderLine() {
 
 @Composable
 fun ChatItemBubble(
-    message: Message,
+    messageData: MessageData,
     isUserMe: Boolean,
     authorClicked: (String) -> Unit
 ) {
@@ -398,13 +390,13 @@ fun ChatItemBubble(
             shape = ChatBubbleShape
         ) {
             ClickableMessage(
-                message = message,
+                messageData = messageData,
                 isUserMe = isUserMe,
                 authorClicked = authorClicked
             )
         }
 
-        message.image?.let {
+        messageData.image?.let {
             Spacer(modifier = Modifier.height(4.dp))
             Surface(
                 color = backgroundBubbleColor,
@@ -423,14 +415,14 @@ fun ChatItemBubble(
 
 @Composable
 fun ClickableMessage(
-    message: Message,
+    messageData: MessageData,
     isUserMe: Boolean,
     authorClicked: (String) -> Unit
 ) {
     val uriHandler = LocalUriHandler.current
 
     val styledMessage = messageFormatter(
-        text = message.content,
+        text = messageData.content,
         primary = isUserMe
     )
 
@@ -457,6 +449,8 @@ fun ClickableMessage(
 @Composable
 fun ConversationScreenPreview() {
     CosmeaTheme {
-        ConversationScreen("123")
+        ConversationScreen(
+            conversation = mockServers.flatMap { it.categories }.flatMap { it.channels }.first(),
+        ) { }
     }
 }

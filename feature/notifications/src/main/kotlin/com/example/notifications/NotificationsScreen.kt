@@ -51,7 +51,7 @@ fun NotificationItem(notification: Notification) {
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        UserHead(id = notification.userId, firstName = notification.userName, lastName = "")
+        UserHead(id = notification.userId, name = notification.userName)
         Column(
             modifier = Modifier
                 .weight(1f)

@@ -6,15 +6,15 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.example.conversation.ConversationRoute
 
-// In ConversationNavigation.kt
 const val CONVERSATION_ROUTE = "conversation/{id}"
 
 fun NavController.navigateToConversation(id: String, navOptions: NavOptions? = null) {
-    navigate(CONVERSATION_ROUTE.replace("{id}", id), navOptions)
+    val route = "conversation/$id"
+    navigate(route, navOptions)
 }
 
 fun NavGraphBuilder.conversationScreen(
-    onNavIconPressed: () -> Unit
+    onNavIconPressed: () -> Unit,
 ) {
     composable(CONVERSATION_ROUTE) { backStackEntry ->
         val id = backStackEntry.arguments?.getString("id")

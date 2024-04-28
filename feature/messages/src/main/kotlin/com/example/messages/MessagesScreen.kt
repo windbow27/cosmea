@@ -1,5 +1,6 @@
 package com.example.messages
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,14 +21,16 @@ import com.example.ui.UserHead
 
 @Composable
 internal fun MessagesRoute(
-    onTopicClick: (String) -> Unit
+    onChannelClick: (String) -> Unit,
 ) {
-    MessagesScreen()
+    MessagesScreen(
+        onChannelClick = { userId ->
+            onChannelClick(userId)
+        }
+    )
 }
-
-@Preview
 @Composable
-fun MessagesScreen() {
+fun MessagesScreen(onChannelClick: (String) -> Unit) {
     Background {
         Column(
             modifier = Modifier
@@ -45,7 +48,7 @@ fun MessagesScreen() {
             )
             LazyColumn {
                 items(messages) { message ->
-                    MessageItem(message = message)
+                    MessageItem(message = message, onChannelClick = onChannelClick)
                 }
             }
         }
@@ -53,14 +56,15 @@ fun MessagesScreen() {
 }
 
 @Composable
-fun MessageItem(message: Message) {
+fun MessageItem(message: Message, onChannelClick: (String) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp)
+            .clickable { onChannelClick(message.userId) },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        UserHead(id = message.userId, firstName = message.userName, lastName = "")
+        UserHead(id = message.userId, name = message.userName)
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -71,7 +75,6 @@ fun MessageItem(message: Message) {
         }
     }
 }
-
 data class Message(
     val userId: String,
     val userName: String,
@@ -83,3 +86,9 @@ val messages = listOf(
     Message(userId = "2", userName = "User 2", lastMessage = "How are you?"),
     // Add more messages here
 )
+
+@Preview
+@Composable
+fun PreviewMessagesScreen() {
+    MessagesScreen(onChannelClick = {})
+}

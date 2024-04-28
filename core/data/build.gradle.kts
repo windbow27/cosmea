@@ -5,8 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.notifications"
-    compileSdk = 34
+    namespace = "com.example.data"
 }
 
 dependencies {
@@ -21,9 +20,6 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.common.ktx)
     implementation(libs.androidx.navigation.compose)
-    implementation(project(":core:ui"))
-    implementation(project(":core:designsystem"))
-    implementation(project(":core:data"))
     implementation(project(":core:model"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
@@ -23,20 +22,16 @@ import kotlin.math.absoluteValue
 @Composable
 fun UserHead(
     id: String,
-    firstName: String,
-    lastName: String,
+    name: String,
     modifier: Modifier = Modifier,
     size: Dp = 40.dp,
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
 ) {
     Box(modifier.size(size), contentAlignment = Alignment.Center) {
-        val color = remember(id, firstName, lastName) {
-            val name = listOf(firstName, lastName)
-                .joinToString(separator = "")
-                .uppercase()
+        val color = remember(id, name) {
             Color("$id / $name".toHslColor())
         }
-        val initials = (firstName.take(1) + lastName.take(1)).uppercase()
+        val initials = name.take(1).uppercase()
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawCircle(SolidColor(color))
         }

@@ -14,17 +14,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.cosmea.navigation.TopLevelDestination
 
 @Composable
 fun App(appState: AppState) {
+    val currentRoute = appState.navController.currentBackStackEntryAsState().value?.destination?.route
+    println("currentRoute: $currentRoute")
     Scaffold(
         bottomBar = {
-            BottomBar(
-                destinations = appState.topLevelDestinations,
-                onNavigateToDestination = appState::navigateToTopLevelDestination,
-                currentDestination = appState.currentDestination,
-            )
+            if (currentRoute != "conversation/{id}") {
+                BottomBar(
+                    destinations = appState.topLevelDestinations,
+                    onNavigateToDestination = appState::navigateToTopLevelDestination,
+                    currentDestination = appState.currentDestination,
+                )
+            }
         }
     ) { padding ->
         Row(

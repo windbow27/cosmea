@@ -45,7 +45,7 @@ fun ProfileScreen() {
 
 @Composable
 fun UserAvatar() {
-    UserHead(id = "1", firstName = "User", lastName = "Name")
+    UserHead(id = "1", name = "User")
 }
 
 @Composable
