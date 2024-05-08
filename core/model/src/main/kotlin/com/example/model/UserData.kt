@@ -1,6 +1,6 @@
 package com.example.model
 
-class UserData (
+data class UserData (
     val id: String,
     val name: String,
     val email: String,
