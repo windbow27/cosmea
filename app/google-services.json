@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "615370909968",
+    "firebase_url": "https://cosmea-69930-default-rtdb.firebaseio.com",
+    "project_id": "cosmea-69930",
+    "storage_bucket": "cosmea-69930.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615370909968:android:17ff3c980b2553e7f75d95",
+        "android_client_info": {
+          "package_name": "com.example.cosmea"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "615370909968-r7fpqj6au1cq6hnbgb5mduvm70jkhe3v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADGrQ_LXjmExxcyfhvihzzR8W3HzK0Ssk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "615370909968-r7fpqj6au1cq6hnbgb5mduvm70jkhe3v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
