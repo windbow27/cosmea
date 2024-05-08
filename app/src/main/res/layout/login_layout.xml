@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#5E399F"
+    tools:context=".ui.LoginActivity">
+
+    <LinearLayout
+        android:id="@+id/loginBox"
+        android:layout_width="346dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="35dp"
+        android:layout_marginEnd="31dp"
+        android:layout_marginBottom="133dp"
+        android:background="@drawable/box_background"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <EditText
+            android:id="@+id/editTextUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_background"
+            android:drawableLeft="@drawable/ic_person"
+            android:drawablePadding="8dp"
+            android:hint="Username"
+            android:inputType="text"
+            android:padding="10dp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <EditText
+                android:id="@+id/editTextPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_text_background"
+                android:drawableLeft="@drawable/ic_lock"
+                android:drawablePadding="8dp"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:padding="10dp" />
+
+            <ImageButton
+                android:id="@+id/showPasswordButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?android:selectableItemBackground"
+                android:contentDescription="@string/show_password"
+                android:padding="10dp"
+                android:src="@drawable/ic_eye" />
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/loginButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Log In" />
+
+        <TextView
+            android:id="@+id/registerTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="10dp"
+            android:text="Don't have an account? Register"
+            android:textColor="#FBFBFB" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="69dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="62dp"
+        android:text="Log in to Cosmea"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="34sp" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="335dp"
+        android:layout_height="62dp"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="39dp"
+        android:layout_marginTop="46dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginBottom="241dp"
+        android:text="Welcome back! Sign in using social account or email to continue us"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="310dp"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/loginBox"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="51dp"
+        android:layout_marginBottom="16dp"
+        android:text="-------------------- OR --------------------"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="122dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/loginBox"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="144dp"
+        android:layout_marginTop="-106dp"
+        android:layout_marginEnd="145dp"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/facebookLoginButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:selectableItemBackground"
+            android:contentDescription="Facebook Login"
+            android:src="@drawable/facebook_icon" />
+
+        <ImageButton
+            android:id="@+id/googleLoginButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:background="?android:selectableItemBackground"
+            android:contentDescription="Google Login"
+            android:src="@drawable/google_icon" />
+    </LinearLayout>
+
+</RelativeLayout>

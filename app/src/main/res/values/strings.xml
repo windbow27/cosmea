@@ -8,4 +8,5 @@
     <string name="title_text_messages">Messages</string>
     <string name="title_text_notifications">Notifications</string>
     <string name="title_text_profile">Profile</string>
+    <string name="show_password">Show password</string>
 </resources>
