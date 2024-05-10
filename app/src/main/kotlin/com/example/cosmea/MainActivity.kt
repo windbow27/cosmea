@@ -4,15 +4,17 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.lifecycle.lifecycleScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.cosmea.ui.App
 import com.example.cosmea.ui.rememberAppState
+import com.example.data.service.UserService
 import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.UserData
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,13 +26,15 @@ class MainActivity : ComponentActivity() {
             }
         }
         FirebaseApp.initializeApp(this)
-        val userData = UserData("User1", "User 1", "1", 1, listOf("Server1", "Server2"), listOf("1", "2", "3"), listOf())
-        val firestore = FirebaseFirestore.getInstance()
-        try {
-            firestore.collection("users").add(userData)
-            Log.d("USER", "Created user successfully")
-        } catch (e: Exception) {
-            Log.e("ERROR","Error adding user data to Firestore: $e") // Re-throw with clear message
+        val userData = UserData("User1", "cheesedz", "123","1", 1,
+            listOf("Server1", "Server2"), listOf("1", "2", "3"))
+        val userService = UserService(FirebaseFirestore.getInstance())
+        lifecycleScope.launch {
+            userService.addUserData(userData)
+            userService.getUserDataById("User1")
+            userService.getUserDataByUsername("cheesedz")
+            userService.updateUserData("User1", userData)
+            userService.deleteUserDataById("User1")
         }
     }
 

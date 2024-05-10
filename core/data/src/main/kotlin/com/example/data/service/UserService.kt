@@ -4,55 +4,94 @@ import android.util.Log
 import com.example.data.repo.UserRepository
 import com.example.model.UserData
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.tasks.await
 
 class UserService(private val firestore: FirebaseFirestore): UserRepository {
     override suspend fun addUserData(userData: UserData) {
-        try {
-            firestore.collection("users").add(userData).await()
-        } catch (e: Exception) {
-            Log.e("ERROR","Error adding user data to Firestore: $e") // Re-throw with clear message
+        val username = userData.username
+        val usernamesRef = firestore.collection("users")
+            .whereEqualTo("username", username)
+        val querySnapshot = usernamesRef.get().await()
+        if (!querySnapshot.isEmpty) {
+            throw IllegalStateException("Username '$username' already exists. Please choose a different one.")
         }
-        Log.d("USER", "Created user successfully")
+
+        firestore.collection("users").
+            document(userData.id.toString()).set(userData)
+                .addOnSuccessListener {
+                    Log.d("FIRESTORE", "Created user successfully: $userData")
+                }
+                .addOnFailureListener {exception ->
+                    Log.e("FIRESTORE ERROR", "Error adding user data to Firestore: $exception")
+                }.await()
     }
 
-    override suspend fun getUserDataById(userId: String): UserData? {
-        val user = firestore.collection("users").document(userId).get().await()
-        if (user.exists()) {
-            Log.d("USER", "Get user successfully")
-            return user.toObject(UserData::class.java)
-        }
-        Log.e("ERROR", "User with id = $userId not found")
-        return null
+    override suspend fun getUserDataById(userId: String): String? {
+        var user: String? = null
+        firestore.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    user = document.data.toString()
+                    Log.d("FIRESTORE", "Get user with ID: $userId successfully")
+                    Log.d("FIRESTORE", "User: $user")
+                } else {
+                    Log.d("FIRESTORE ERROR", "User not found with ID: $userId")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FIRESTORE ERROR", "Error getting user: ", exception)
+            }.await()
+        return user
     }
 
-    override suspend fun getUserDataByUsername(userName: String): QuerySnapshot? {
-        val user = firestore.collection("users")
-            .whereEqualTo("username", userName).get().await()
-        if (!user.isEmpty) {
-            Log.d("USER", "Get user successfully")
-            return user
-        }
-        Log.e("ERROR", "User with username = $userName not found")
-        return null
+    override suspend fun getUserDataByUsername(userName: String): String? {
+        var user: String? = null
+        firestore.collection("users")
+            .whereEqualTo("username", userName).get()
+            .addOnSuccessListener { querySnapshot ->
+                if (querySnapshot != null) {
+                    user = querySnapshot.documents[0].data.toString()
+                    Log.d("FIRESTORE", "Get user with username: $userName successfully")
+                    Log.d("FIRESTORE", "User: $user")
+                } else {
+                    Log.d("FIRESTORE ERROR", "User not found with username: $userName")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FIRESTORE ERROR", "Error getting user: ", exception)
+            }.await()
+        return user
     }
 
     override suspend fun updateUserData(userId: String, userData: UserData) {
         val user = getUserDataById(userId)
         if (user != null) {
-            firestore.collection("user").document(userId).set(userData)
-            Log.d("USER", "Update user successfully")
+            firestore.collection("users").document(userId).set(userData)
+                .addOnSuccessListener {
+                    Log.d("FIRESTORE", "Updated user successfully: $userData")
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("FIRESTORE ERROR", "Error update user data to Firestore: $exception")
+                }.await()
         }
-        Log.d("ERROR", "Update user failed")
+        else {
+            Log.d("FIRESTORE ERROR", "User not found with ID: $userId")
+        }
     }
 
     override suspend fun deleteUserDataById(userId: String) {
         val user = getUserDataById(userId)
         if (user != null) {
-            firestore.collection("user").document(userId).delete()
-            Log.d("USER", "Delete user successfully")
+            firestore.collection("users").document(userId).delete()
+                .addOnSuccessListener {
+                    Log.d("FIRESTORE", "Deleted user with ID: $userId successfully")
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("FIRESTORE ERROR", "Error deleting user data: $exception")
+                }.await()
         }
-        Log.d("ERROR", "Delete user failed")
+        else {
+            Log.d("FIRESTORE ERROR", "User not found with ID: $userId")
+        }
     }
 }

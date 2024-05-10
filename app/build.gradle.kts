@@ -75,6 +75,7 @@ dependencies {
     implementation(project(":feature:notifications"))
     implementation(project(":feature:conversation"))
     implementation(project(":core:model"))
+    implementation(project(":core:data"))
     testImplementation(libs.junit)
     testImplementation("io.mockk:mockk-android:1.13.10")
     androidTestImplementation(libs.androidx.junit)
