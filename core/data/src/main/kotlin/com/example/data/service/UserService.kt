@@ -2,20 +2,13 @@ package com.example.data.service
 
 import android.util.Log
 import com.example.data.repo.UserRepository
+import com.example.model.ProfileData
 import com.example.model.UserData
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 class UserService(private val firestore: FirebaseFirestore): UserRepository {
     override suspend fun addUserData(userData: UserData) {
-        val username = userData.username
-        val usernamesRef = firestore.collection("users")
-            .whereEqualTo("username", username)
-        val querySnapshot = usernamesRef.get().await()
-        if (!querySnapshot.isEmpty) {
-            throw IllegalStateException("Username '$username' already exists. Please choose a different one.")
-        }
-
         firestore.collection("users").
             document(userData.id.toString()).set(userData)
                 .addOnSuccessListener {
@@ -88,6 +81,33 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
                 }
                 .addOnFailureListener { exception ->
                     Log.e("FIRESTORE ERROR", "Error deleting user data: $exception")
+                }.await()
+        }
+        else {
+            Log.d("FIRESTORE ERROR", "User not found with ID: $userId")
+        }
+    }
+
+    override suspend fun checkUsernameAvailability(userName: String): Boolean {
+        val usernamesRef = firestore.collection("users")
+            .whereEqualTo("username", userName)
+        val querySnapshot = usernamesRef.get().await()
+        if (!querySnapshot.isEmpty) {
+            Log.e("FIRESTORE ERROR", "Username '$userName' already exists. Please choose a different one.")
+            return true
+        }
+        return false
+    }
+
+    override suspend fun updateUserProfile(userId: String, profileData: ProfileData) {
+        val user = getUserDataById(userId)
+        if (user != null) {
+            firestore.collection("users").document(userId).update("profile", profileData)
+                .addOnSuccessListener {
+                    Log.d("FIRESTORE", "Updated user's profile successfully: $profileData")
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("FIRESTORE ERROR", "Error update user's profile data to Firestore: $exception")
                 }.await()
         }
         else {
