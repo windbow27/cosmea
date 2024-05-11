@@ -1,9 +1,26 @@
 package com.example.model
 
-data class ServerData(
-    val id: String,
-    val name: String,
-    val avatar: String,
-    val members: List<UserData>,
-    val categories: List<CategoryData>
-)
+class ServerData(
+    var id: String? = null,
+    var adminId: String,
+    var name: String,
+    var avatar: String,
+    var members: MutableList<UserData> = mutableListOf(),
+    var categories: MutableList<CategoryData> = mutableListOf()
+) {
+    fun addMember(userData: UserData) {
+        members.add(userData)
+    }
+
+    fun kickMember(userData: UserData) {
+        members.remove(userData)
+    }
+
+    fun addCategory(categoryData: CategoryData) {
+        categories.add(categoryData)
+    }
+
+    fun deleteCategory(categoryData: CategoryData) {
+        categories.remove(categoryData)
+    }
+}
