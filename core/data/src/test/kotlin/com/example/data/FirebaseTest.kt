@@ -1,23 +1,13 @@
 package com.example.data
 
-import com.example.data.repo.UserRepository
 import com.example.data.service.UserService
 import com.example.model.UserData
-import com.google.android.gms.tasks.Task
-import com.google.common.base.CharMatcher.any
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
-import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
-import org.junit.jupiter.api.BeforeEach
-import io.mockk.mockk as mockk
 
 class FirebaseTest {
 

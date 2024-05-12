@@ -6,8 +6,8 @@ class UserData(
     var password: String,
     var email: String,
     var image: Int? = null,
-    var joinedServers: MutableList<String>,
-    var friends: MutableList<String>,
+    var joinedServers: List<String>,
+    var friends: List<String>,
     var profile: ProfileData? = null
     // var status: String
 //     var about: String? = null
