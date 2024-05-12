@@ -1,10 +1,12 @@
 package com.example.model
 
-data class MessageData(
-    val id: String,
-    val author: String,
-    val content: String,
-    val timestamp: String,
-    val image: Int? = null,
-    val authorImage: Int? = null
+class MessageData(
+    var id: String? = null,
+    var author: String,
+    var receiver: String,
+    var content: String,
+    var timestamp: String,
+    var image: Int? = null,
+    var file: Int? = null,
+    var authorImage: Int? = null
 )
