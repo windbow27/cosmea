@@ -23,9 +23,9 @@ class FirebaseTest {
 
     @Test
     fun `testAddUserData_success`() = runBlocking {
-        coEvery { userService.addUserData(UserData("User1", "User 1", "1", 1, listOf("Server1", "Server2"), listOf("1", "2", "3"), listOf())) }
+        coEvery { userService.addUserData(UserData("User1", "User 1", "1", "1", listOf("Server1", "Server2"), listOf("1", "2", "3"), listOf())) }
 
-        val userData = UserData("User1", "User 1", "1", 1, listOf("Server1", "Server2"), listOf("1", "2", "3"), listOf())
+        val userData = UserData("User1", "User 1", "1", "1", listOf("Server1", "Server2"), listOf("1", "2", "3"), listOf())
         userService.addUserData(userData)
 
         verify { firestore.collection("user").add(userData) }
