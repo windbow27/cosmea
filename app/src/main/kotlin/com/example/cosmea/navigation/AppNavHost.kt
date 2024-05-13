@@ -9,6 +9,8 @@ import com.example.messages.navigation.messagesScreen
 import com.example.notifications.navigation.notificationsScreen
 import com.example.profile.navigation.profileScreen
 import com.example.servers.navigation.SERVERS_ROUTE
+import com.example.servers.navigation.createServerScreen
+import com.example.servers.navigation.navigateToCreateServer
 import com.example.servers.navigation.serversScreen
 
 @Composable
@@ -23,9 +25,10 @@ fun AppNavHost(
         navController = navController,
         startDestination = startDestination,
     ) {
-        serversScreen(onChannelClick = navController::navigateToConversation)
+        serversScreen(onChannelClick = navController::navigateToConversation, onCreateServerClick = navController::navigateToCreateServer)
+        createServerScreen(onBackPressed = navController::popBackStack)
         conversationScreen(
-            onNavIconPressed = navController::popBackStack
+            onBackPressed = navController::popBackStack
         )
         messagesScreen(onChannelClick = navController::navigateToConversation)
         notificationsScreen {}
