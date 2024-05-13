@@ -13,6 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.ui.UserHead
 
 @Composable
@@ -25,6 +27,7 @@ internal fun ProfileRoute(
 @Preview
 @Composable
 fun ProfileScreen() {
+    val navController: NavHostController = rememberNavController()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -33,9 +36,10 @@ fun ProfileScreen() {
     ) {
         UserAvatar()
         Text(text = "User Name", style = MaterialTheme.typography.titleLarge)
-//        Button(onClick = { /* Handle Add Status */ }) {
-//            Text("Add Status")
-//        }
+        Button(onClick = { /* Handle Add Status */
+        }) {
+            Text("Register new account")
+        }
         Button(onClick = { /* Handle Edit Profile */ }) {
             Text("Edit Profile")
         }

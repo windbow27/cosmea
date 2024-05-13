@@ -57,6 +57,7 @@ android {
             excludes +="META-INF/*.kotlin_module"
         }
     }
+
 }
 
 dependencies {
@@ -74,10 +75,11 @@ dependencies {
     implementation(project(":feature:messages"))
     implementation(project(":feature:notifications"))
     implementation(project(":feature:conversation"))
-    implementation(project(":core:model"))
     implementation(project(":core:data"))
+    implementation(project(":core:model"))
+    implementation(project(":feature:register"))
+    implementation(project(":feature:login"))
     testImplementation(libs.junit)
-    testImplementation("io.mockk:mockk-android:1.13.10")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -91,4 +93,5 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+    testImplementation("io.mockk:mockk-android:1.13.10")
 }

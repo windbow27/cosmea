@@ -22,6 +22,7 @@ dependencies {
     implementation(project(":core:model"))
     implementation("org.junit.jupiter:junit-jupiter:5.8.2")
     implementation(libs.androidx.appcompat)
+    implementation(libs.firebase.firestore.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

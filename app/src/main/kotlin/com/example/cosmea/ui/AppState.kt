@@ -3,6 +3,7 @@ package com.example.cosmea.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.util.trace
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -21,6 +22,7 @@ import com.example.servers.navigation.SERVERS_ROUTE
 import com.example.servers.navigation.navigateToServers
 
 
+@Preview
 @Composable
 fun rememberAppState(
     navController: NavHostController = rememberNavController()

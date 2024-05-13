@@ -16,6 +16,8 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.cosmea.navigation.TopLevelDestination
+import com.example.login.navigation.LOGIN_ROUTE
+import com.example.register.navigation.REGISTER_ROUTE
 
 @Composable
 fun App(appState: AppState) {
@@ -23,7 +25,7 @@ fun App(appState: AppState) {
     println("currentRoute: $currentRoute")
     Scaffold(
         bottomBar = {
-            if (currentRoute != "conversation/{id}") {
+            if (currentRoute != "conversation/{id}" && currentRoute != REGISTER_ROUTE && currentRoute != LOGIN_ROUTE) {
                 BottomBar(
                     destinations = appState.topLevelDestinations,
                     onNavigateToDestination = appState::navigateToTopLevelDestination,
