@@ -13,15 +13,4 @@
 .externalNativeBuild
 .cxx
 local.properties
-/build-logic
 .idea/misc.xml
-/build-logic
-/build-logic
-build-logic/convention/build/libs/convention.jar
-build-logic/convention/build/kotlin/compileKotlin/local-state/build-history.bin
-build-logic/convention/build/kotlin/compileKotlin/cacheable/last-build.bin
-build-logic/convention/build/kotlin/compileKotlin/cacheable/caches-jvm/lookups/counters.tab
-build-logic/convention/build/libs/convention.jar
-build-logic/convention/build/kotlin/compileKotlin/local-state/build-history.bin
-build-logic/convention/build/kotlin/compileKotlin/cacheable/last-build.bin
-build-logic/convention/build/kotlin/compileKotlin/cacheable/caches-jvm/lookups/counters.tab
