@@ -29,9 +29,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         FirebaseApp.initializeApp(this)
-        val userData = UserData("chisnghia", "nghia", "123","1",
-            mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3")
-        )
+        val userData = UserData("chisnghia", "nghia", "123", mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3"))
         val profile = ProfileData("nghia", "08-06-2004", "avatar.png", "Fuck this life")
         val server =  ServerData(
             id = "Server2",

@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.cosmea" />
+                  <option name="mobileSdkAppId" value="1:615370909968:android:17ff3c980b2553e7f75d95" />
+                  <option name="projectId" value="cosmea-69930" />
+                  <option name="projectNumber" value="615370909968" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
