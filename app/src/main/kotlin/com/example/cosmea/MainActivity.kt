@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         FirebaseApp.initializeApp(this)
-        val userData = UserData("User1", "cheesedz", "123","1", 1,
+        /*val userData = UserData("User1", "cheesedz", "123","1", null,
             listOf("Server1", "Server2"), listOf("1", "2", "3"))
         val userService = UserService(FirebaseFirestore.getInstance())
         lifecycleScope.launch {
@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
             userService.getUserDataByUsername("cheesedz")
             userService.updateUserData("User1", userData)
             userService.deleteUserDataById("User1")
-        }
+        }*/
     }
 
 }
