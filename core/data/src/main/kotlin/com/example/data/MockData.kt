@@ -7,12 +7,12 @@ import com.example.model.ServerData
 import com.example.model.UserData
 
 val mockUsers = mutableListOf(
-    UserData("User 1","User 1", "1","1", 1, mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3")),
-    UserData( "User 2","User 2", "2","2", 2, mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3")),
-    UserData("User 3","User 3", "3","3", 3, mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3")),
-    UserData( "User 4","User 4", "4", "4", 4, mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3")),
-    UserData( "User 5","User 5", "5","5", 5, mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3")),
-    UserData( "User 6","User 6", "6","6", 6, mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3")),
+    UserData("User 1","User 1", "1", mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3")),
+    UserData( "User 2","User 2", "2", mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3")),
+    UserData("User 3","User 3", "3", mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3")),
+    UserData( "User 4","User 4", "4",  mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3")),
+    UserData( "User 5","User 5", "5", mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3")),
+    UserData( "User 6","User 6", "6", mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3")),
 )
 
 val mockDirectMessages = mutableListOf(

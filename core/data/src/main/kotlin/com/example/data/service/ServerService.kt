@@ -70,19 +70,19 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
         }
     }
 
-//    override suspend fun addCategory(serverId: String, categoryData: CategoryData) {
-//        val server = getServerDataById(serverId)
-//        if (server != null) {
-//            firestore.collection("servers").document(serverId).get()
-//                .addOnSuccessListener {document ->
-//                    document.data?.put("categories", categoryData)
-//                    Log.d("FIRESTORE", "Added category successfully: ${document.data.toString()}")
-//                }
-//                .addOnFailureListener { exception ->
-//                    Log.e("FIRESTORE ERROR", "Error getting categories: $exception")
-//                }.await()
-//        }
-//    }
+    override suspend fun addCategory(serverId: String, categoryData: CategoryData) {
+        val server = getServerDataById(serverId)
+        if (server != null) {
+            firestore.collection("servers").document(serverId)
+                .collection(categoryData.id).add(categoryData)
+                .addOnSuccessListener {
+                    Log.d("FIRESTORE", "Added category successfully: ${categoryData.toString()}")
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("FIRESTORE ERROR", "Error getting categories: $exception")
+                }.await()
+        }
+    }
 
     override suspend fun getAllCategories(serverId: String): String? {
         var categories: String? = null
