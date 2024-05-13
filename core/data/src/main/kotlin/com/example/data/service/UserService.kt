@@ -8,15 +8,18 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 class UserService(private val firestore: FirebaseFirestore): UserRepository {
-    override suspend fun addUserData(userData: UserData) {
+    override suspend fun addUserData(userData: UserData): String? {
+        var result: String? = null
         firestore.collection("users").
             document(userData.id.toString()).set(userData)
                 .addOnSuccessListener {
                     Log.d("FIRESTORE", "Created user successfully: $userData")
+                    result = userData.toString()
                 }
                 .addOnFailureListener {exception ->
                     Log.e("FIRESTORE ERROR", "Error adding user data to Firestore: $exception")
                 }.await()
+        return result
     }
 
     override suspend fun getUserDataById(userId: String): String? {
@@ -96,6 +99,29 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
             Log.e("FIRESTORE ERROR", "Username '$userName' already exists. Please choose a different one.")
             return true
         }
+        return false
+    }
+
+    override suspend fun checkEmailAvailability(email: String): Boolean {
+        val usernamesRef = firestore.collection("users")
+            .whereEqualTo("email", email)
+        val querySnapshot = usernamesRef.get().await()
+        if (!querySnapshot.isEmpty) {
+            Log.e("FIRESTORE ERROR", "Email '$email' already exists. Please choose a different one.")
+            return true
+        }
+        return false
+    }
+
+    override suspend fun verifyLoginInfo(userName: String, password: String): Boolean {
+        val usernamesRef = firestore.collection("users")
+            .whereEqualTo("username", userName).whereEqualTo("password", password)
+        val querySnapshot = usernamesRef.get().await()
+        if (!querySnapshot.isEmpty) {
+            Log.d("FIRESTORE", "Login successfully")
+            return true
+        }
+        Log.e("FIRESTORE", "Login info incorrect")
         return false
     }
 
