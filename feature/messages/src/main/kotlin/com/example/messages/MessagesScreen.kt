@@ -11,6 +11,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,6 +34,7 @@ internal fun MessagesRoute(
 fun MessagesScreen(
     listener: ChannelListener
 ) {
+    var searchQuery = remember { mutableStateOf("") }
     Background {
         Column(
             modifier = Modifier
@@ -43,12 +46,14 @@ fun MessagesScreen(
                 text = "Messages", style = MaterialTheme.typography.titleLarge
             )
             SearchToolbar(
-                searchQuery = "",
-                onSearchQueryChanged = {},
+                searchQuery = searchQuery.value,
+                onSearchQueryChanged = {searchQuery.value = it},
                 onSearchTriggered = {},
             )
+            val filtered_messages = messages.filter { it.userName.contains(searchQuery.value,ignoreCase = true) }
+
             LazyColumn {
-                items(messages) { message ->
+                items(filtered_messages) { message ->
                     MessageItem(message = message, listener = listener)
                 }
             }
@@ -82,9 +87,12 @@ data class Message(
     val lastMessage: String
 )
 
+
 val messages = listOf(
     Message(userId = "1", userName = "User 1", lastMessage = "Hello!"),
     Message(userId = "2", userName = "User 2", lastMessage = "How are you?"),
+    Message(userId = "3", userName = "Anna", lastMessage = "Hello!"),
+    Message(userId = "4", userName = "Bob", lastMessage = "How are you?"),
     // Add more messages here
 )
 

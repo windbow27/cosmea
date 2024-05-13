@@ -1,5 +1,6 @@
 package com.example.notifications
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.component.Background
+import com.example.model.ChannelListener
 import com.example.ui.UserHead
 
 @Composable
@@ -22,11 +24,12 @@ internal fun NotificationsRoute(
     onTopicClick: (String) -> Unit
 ) {
     NotificationsScreen()
+    { channel -> onTopicClick(channel) }
 }
 
-@Preview
+
 @Composable
-fun NotificationsScreen() {
+fun NotificationsScreen(listener: ChannelListener) {
     Background{
         Column(
             modifier = Modifier
@@ -36,7 +39,7 @@ fun NotificationsScreen() {
             Text(text = "Notifications", style = MaterialTheme.typography.titleLarge)
             LazyColumn {
                 items(notifications) { notification ->
-                    NotificationItem(notification = notification)
+                    NotificationItem(notification = notification,listener = listener)
                 }
             }
         }
@@ -44,12 +47,14 @@ fun NotificationsScreen() {
 }
 
 @Composable
-fun NotificationItem(notification: Notification) {
+fun NotificationItem(notification: Notification, listener: ChannelListener) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 8.dp)
+            .clickable { listener.onChannelSelected(notification.userId)},
+        verticalAlignment = Alignment.CenterVertically,
+
     ) {
         UserHead(id = notification.userId, name = notification.userName)
         Column(

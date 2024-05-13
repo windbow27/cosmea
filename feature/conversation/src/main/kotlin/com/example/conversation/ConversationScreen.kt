@@ -62,6 +62,7 @@ import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.ChannelData
 import com.example.model.MessageData
 import com.example.ui.AppBar
+import com.example.ui.SearchToolbar
 import com.example.ui.UserHead
 import com.example.ui.UserInput
 
@@ -165,6 +166,8 @@ fun ChannelNameBar(
     onNavIconPressed: () -> Unit = { }
 ) {
     var functionalityNotAvailablePopupShown by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+    var isSearchVisible by remember { mutableStateOf(false) }
 //    if (functionalityNotAvailablePopupShown) {
 //        FunctionalityNotAvailablePopup { functionalityNotAvailablePopupShown = false }
 //    }
@@ -189,25 +192,34 @@ fun ChannelNameBar(
         },
         actions = {
             // Search icon
-            Icon(
-                imageVector = Icons.Outlined.Search,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .clickable(onClick = { functionalityNotAvailablePopupShown = true })
-                    .padding(horizontal = 12.dp, vertical = 16.dp)
-                    .height(24.dp),
-                contentDescription = "Search"
-            )
-            // Info icon
-            Icon(
-                imageVector = Icons.Outlined.Info,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .clickable(onClick = { functionalityNotAvailablePopupShown = true })
-                    .padding(horizontal = 12.dp, vertical = 16.dp)
-                    .height(24.dp),
-                contentDescription = "Info"
-            )
+            if (!isSearchVisible) {
+                Icon(
+                    imageVector = Icons.Outlined.Search,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .clickable(onClick = { isSearchVisible = true })
+                        .padding(horizontal = 12.dp, vertical = 16.dp)
+                        .height(24.dp),
+                    contentDescription = "Search"
+                )
+                // Info icon
+                Icon(
+                    imageVector = Icons.Outlined.Info,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .clickable(onClick = { functionalityNotAvailablePopupShown = true })
+                        .padding(horizontal = 12.dp, vertical = 16.dp)
+                        .height(24.dp),
+                    contentDescription = "Info"
+                )
+            }
+            else {
+                SearchToolbar(
+                    searchQuery = searchQuery,
+                    onSearchQueryChanged = {searchQuery = it},
+                    onSearchTriggered = {},
+                )
+            }
         }
     )
 }
