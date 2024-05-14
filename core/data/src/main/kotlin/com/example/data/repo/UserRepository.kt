@@ -2,7 +2,6 @@ package com.example.data.repo
 
 import com.example.model.ProfileData
 import com.example.model.UserData
-import com.google.firebase.firestore.QuerySnapshot
 
 interface UserRepository {
     suspend fun addUserData(userData: UserData): String?

@@ -1,12 +1,12 @@
 package com.example.model
 
 class ServerData(
-    var id: String? = null,
     var adminId: String,
     var name: String,
-    var avatar: String,
+    var avatar: String? = null,
     var members: MutableList<UserData> = mutableListOf(),
-    var categories: MutableList<CategoryData> = mutableListOf()
+    var categories: MutableList<String> = mutableListOf(),
+    var id: String = generateId(adminId)
 ) {
     fun addMember(userData: UserData) {
         members.add(userData)
@@ -16,11 +16,11 @@ class ServerData(
         members.remove(userData)
     }
 
-    fun addCategory(categoryData: CategoryData) {
-        categories.add(categoryData)
+    fun addCategory(categoryId: String) {
+        categories.add(categoryId)
     }
 
-    fun deleteCategory(categoryData: CategoryData) {
-        categories.remove(categoryData)
+    fun deleteCategory(categoryId: String) {
+        categories.remove(categoryId)
     }
 }
