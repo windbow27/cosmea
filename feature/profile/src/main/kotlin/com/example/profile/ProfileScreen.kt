@@ -17,14 +17,14 @@ import com.example.ui.UserHead
 
 @Composable
 internal fun ProfileRoute(
-    onTopicClick: (String) -> Unit
+    onLogoutClick: () -> Unit
 ) {
-    ProfileScreen()
+    ProfileScreen(onLogoutClick)
 }
 
 @Preview
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(onLogoutClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -33,11 +33,13 @@ fun ProfileScreen() {
     ) {
         UserAvatar()
         Text(text = "User Name", style = MaterialTheme.typography.titleLarge)
-//        Button(onClick = { /* Handle Add Status */ }) {
-//            Text("Add Status")
-//        }
         Button(onClick = { /* Handle Edit Profile */ }) {
             Text("Edit Profile")
+        }
+        Button(onClick = { /* Handle Add Status */
+            onLogoutClick()
+        }) {
+            Text("Logout")
         }
         AboutMeCard()
     }

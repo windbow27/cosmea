@@ -11,7 +11,7 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
     override suspend fun addUserData(userData: UserData): String? {
         var result: String? = null
         firestore.collection("users").
-            document(userData.id.toString()).set(userData)
+            document(userData.id).set(userData)
                 .addOnSuccessListener {
                     Log.d("FIRESTORE", "Created user successfully: $userData")
                     result = userData.toString()
