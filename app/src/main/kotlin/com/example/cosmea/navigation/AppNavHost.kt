@@ -39,7 +39,7 @@ fun AppNavHost(
         messagesScreen(onChannelClick = navController::navigateToConversation)
         notificationsScreen {}
         profileScreen (onLogoutClick = navController::navigateToLogin)
-        registerScreen (onRegisterClick = navController::navigateToProfile, redictToLogin = navController::navigateToLogin)
-        loginScreen (onLoginClick = navController::navigateToServers , redictToRegister = navController::navigateToRegister)
+        registerScreen (onRegisterClick = navController::navigateToProfile, redirectToLogin = navController::navigateToLogin)
+        loginScreen (onLoginClick = navController::navigateToServers , redirectToRegister = navController::navigateToRegister)
     }
 }
