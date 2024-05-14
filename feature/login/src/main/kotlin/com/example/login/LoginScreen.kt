@@ -30,33 +30,34 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.compose.rememberNavController
 import com.example.data.service.UserService
 import com.example.designsystem.theme.inversePrimaryDark
-import com.example.profile.navigation.navigateToProfile
-import com.example.register.navigation.navigateToRegister
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
 @Composable
 internal fun LoginRoute(
-    onTopicClick: (String) -> Unit
+    onLoginClick : () -> Unit,
+    redictToRegister: () -> Unit
 ) {
-    LoginActivity()
+    LoginScreen(onLoginClick = onLoginClick, redictToRegister)
 }
 
 @Preview
 @Composable
-fun LoginActivity() {
+fun LoginScreen(onLoginClick: () -> Unit, redictToRegister: () -> Unit) {
     var userState by remember { mutableStateOf(TextFieldValue()) }
     var passwordState by remember { mutableStateOf(TextFieldValue()) }
+    var loginError by remember { mutableStateOf(false) }
     var userService: UserService = UserService(FirebaseFirestore.getInstance())
-    val navController = rememberNavController()
+    var passwordVisible by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -114,36 +115,66 @@ fun LoginActivity() {
                 value = passwordState,
                 onValueChange = {passwordState = it},
                 placeholder = { Text("Password") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                visualTransformation = if (passwordVisible) {
+                    // Hiển thị mật khẩu nếu passwordVisible là true
+                    VisualTransformation.None
+                } else {
+                    // Ẩn mật khẩu nếu passwordVisible là false
+                    PasswordVisualTransformation()
+                },
+                trailingIcon = {
+                    // Nút để thay đổi trạng thái hiển thị mật khẩu
+                    Image(
+                        painter = painterResource(if (passwordVisible) R.drawable.ic_hide_password else R.drawable.ic_hide_password),
+                        contentDescription = if (passwordVisible) "Hide Password" else "Show Password",
+                        modifier = Modifier.clickable {
+                            passwordVisible = !passwordVisible
+                        }
+                    )
+                }
             )
+
             Spacer(modifier = Modifier.height(16.dp))
+
             val coroutineScope = rememberCoroutineScope()
-            val OnClickLogin:()->Unit = {
+            val OnLogin:()->Unit = {
                 coroutineScope.launch {
                     var acceptLogin =
                         userService.verifyLoginInfo(userState.text, passwordState.text)
                     if(acceptLogin) {
-                        navController.navigateToProfile()
+                        onLoginClick()
                     }
                     else {
-                        //
+                        loginError = true
                     }
                 }
             }
             Button(
-                onClick = OnClickLogin,
+                onClick = OnLogin,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Log In")
             }
             Spacer(modifier = Modifier.height(10.dp))
+            if (loginError) {
+                Text(
+                    text = "Username or password is incorrect",
+                    color = Color.Red,
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
             Text(
                 text = "Don't have an account? Register",
                 color = Color.Black,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = { /*9 Handle navigation to registration */
-                        navController.navigateToRegister()
+                        redictToRegister()
                     }),
                 fontSize = 16.sp,
                 textAlign = TextAlign.End
@@ -151,6 +182,8 @@ fun LoginActivity() {
         }
     }
 }
+
+
 
 @Composable
 fun FacebookLoginButton(image: Int) {

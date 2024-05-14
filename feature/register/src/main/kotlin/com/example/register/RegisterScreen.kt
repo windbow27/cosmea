@@ -31,29 +31,30 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.compose.rememberNavController
 import com.example.data.service.UserService
 import com.example.model.UserData
-import com.example.profile.navigation.navigateToProfile
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
 @Composable
 internal fun RegisterRoute(
-    onTopicClick: (String) -> Unit,
+    onRegisterClick: () -> Unit,
+    redictToLogin: () -> Unit
 ) {
-
-    RegisterScreen()
+    RegisterScreen(onRegisterClick, redictToLogin)
 }
 
 @Preview
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(onRegisterClick: () -> Unit, redictToLogin: () -> Unit) {
     var userState by remember { mutableStateOf(TextFieldValue()) }
     var emailState by remember { mutableStateOf(TextFieldValue()) }
     var passwordState by remember { mutableStateOf(TextFieldValue()) }
+    var checkPasswordState by remember { mutableStateOf(TextFieldValue()) }
     var userService: UserService = UserService(FirebaseFirestore.getInstance())
-    var navController = rememberNavController()
+    val coroutineScope = rememberCoroutineScope()
+    var isUsernameAvailable by remember { mutableStateOf(true) }
+    var isEmailAvailable by remember { mutableStateOf(true) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -84,24 +85,45 @@ fun RegisterScreen() {
         ) {
             OutlinedTextField(
                 value = userState,
-                onValueChange = {userState = it},
+                onValueChange = {userState = it
+                    coroutineScope.launch {
+                        isUsernameAvailable = userService.checkUsernameAvailability(it.text)
+                    }},
                 placeholder = { Text("Username") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                textStyle = MaterialTheme.typography.bodySmall,
+                textStyle = MaterialTheme.typography.bodyMedium,
                 singleLine = true
             )
+            if (!isUsernameAvailable) {
+                Text(
+                    text = "Username is not available",
+                    color = Color.Red,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
             OutlinedTextField(
                 value = emailState,
-                onValueChange = {emailState = it},
+                onValueChange = {emailState = it
+                    coroutineScope.launch {
+                        isEmailAvailable = userService.checkEmailAvailability(it.text)
+                    }
+                                },
                 placeholder = { Text("Your Email") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                textStyle = MaterialTheme.typography.bodySmall,
+                textStyle = MaterialTheme.typography.bodyMedium,
                 singleLine = true
             )
+            if(isEmailAvailable) {
+                Text(text = "Email is not available",
+                    color = Color.Red,
+                    modifier = Modifier.padding(start = 16.dp)
+                    )
+            }
+
             OutlinedTextField(
                 value = passwordState,
                 onValueChange = { passwordState = it},
@@ -109,23 +131,28 @@ fun RegisterScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 16.dp),
-                textStyle = MaterialTheme.typography.bodySmall,
+                textStyle = MaterialTheme.typography.bodyMedium,
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation()
             )
             OutlinedTextField(
-                value = passwordState,
-                onValueChange = { passwordState = it},
+                value = checkPasswordState,
+                onValueChange = { checkPasswordState = it},
                 placeholder = { Text("Confirm Password") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                textStyle = MaterialTheme.typography.bodySmall,
+                textStyle = MaterialTheme.typography.bodyMedium,
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation()
             )
-            val coroutineScope = rememberCoroutineScope()
-            val OnClickRegister:()->Unit = {
+            if(checkPasswordState != passwordState) {
+                Text(text = "Password is incorrect!",
+                    color = Color.Red,
+                    modifier = Modifier.padding(start = 16.dp)
+                    )
+            }
+            val OnRegister:()->Unit = {
                 var userdata = UserData(
                     userState.text,
                     passwordState.text,
@@ -136,15 +163,14 @@ fun RegisterScreen() {
                 )
                 println(userdata.id)
                 coroutineScope.launch {
-                    userService.addUserData(userdata)
+                    if(userService.addUserData(userdata) != null) {
+                        onRegisterClick()
+                    }
                 }
-                navController.navigateToProfile()
             }
-
-
             Button(
                 onClick =  /* Handle register */
-                          OnClickRegister
+                          OnRegister
                 ,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -162,7 +188,7 @@ fun RegisterScreen() {
                     .fillMaxWidth()
                     .padding(start = 90.dp, bottom = 10.dp, end = 30.dp)
                     .clickable { /* Handle navigate to login screen */
-
+                        redictToLogin()
                     }
             )
         }
