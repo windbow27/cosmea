@@ -2,9 +2,8 @@ package com.example.data.service
 
 import android.util.Log
 import com.example.data.repo.ServerRepository
-import com.example.model.CategoryData
+import com.example.model.ChannelData
 import com.example.model.ServerData
-import com.example.model.UserData
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -18,6 +17,7 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
             .addOnFailureListener {exception ->
                 Log.e("FIRESTORE ERROR", "Error adding server data to Firestore: $exception")
             }.await()
+        addMember(serverData.id, serverData.adminId)
     }
 
     override suspend fun getAdminId(serverId: String): String? {
@@ -41,11 +41,11 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
                     val id: String = document.data?.get("id").toString()
                     val adminId: String = document.data?.get("adminId").toString()
                     val avatar: String = document.data?.get("avatar").toString()
-                    val categories: MutableList<String> = document.data?.get("categories") as MutableList<String>
-                    val members: MutableList<UserData> = document.data?.get("members") as MutableList<UserData>
+                    val channels: MutableList<String> = (document.data?.get("channels") as MutableList<String>?)!!
+                    val members: MutableList<String> = (document.data?.get("members") as MutableList<String>?)!!
                     val name: String = document.data?.get("name").toString()
                     Log.d("FIRESTORE", "Get server with ID: $serverId successfully")
-                    server =  ServerData(adminId, name, avatar, members, categories, id = id)
+                    server =  ServerData(adminId, name, avatar, members, channels, id = id)
                 } else {
                     Log.d("FIRESTORE ERROR", "Server not found with ID: $serverId")
                 }
@@ -88,13 +88,13 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
         }
     }
 
-    override suspend fun addMember(serverId: String, userData: UserData) {
+    override suspend fun addMember(serverId: String, userId: String) {
         val server = getServerDataById(serverId)
         if (server != null) {
             firestore.collection("servers").document(serverId).get()
                 .addOnSuccessListener {documentSnapshot ->
-                    var users: MutableList<UserData> = documentSnapshot.get("members") as MutableList<UserData>
-                    users.add(userData)
+                    var users: MutableList<String> = documentSnapshot.get("members") as MutableList<String>
+                    users.add(userId)
                     firestore.collection("servers").document(serverId).update("members", users)
                     Log.d("FIRESTORE", "Added user successfully: ${users}")
                 }
@@ -104,21 +104,21 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
         }
     }
 
-    override suspend fun getAllCategories(serverId: String): List<CategoryData>? {
-        var categories: List<CategoryData>? = null
+    override suspend fun getAllChannels(serverId: String): List<ChannelData>? {
+        var channels: List<ChannelData>? = null
         firestore.collection("servers").document(serverId).get()
             .addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
-                    categories = documentSnapshot.get("categories") as List<CategoryData>?
-                    Log.d("FIRESTORE", "Get all categories successfully: $categories")
+                    channels = documentSnapshot.get("channels") as List<ChannelData>?
+                    Log.d("FIRESTORE", "Get all channels successfully: $channels")
                 } else {
                     Log.e("FIRESTORE ERROR", "Not found server with ID: $serverId")
                 }
             }
             .addOnFailureListener {exception ->
-                Log.e("FIRESTORE ERROR", "Error getting categories: $exception")
+                Log.e("FIRESTORE ERROR", "Error getting channels: $exception")
             }.await()
-        return categories
+        return channels
     }
 
     override suspend fun getAllMembers(serverId: String): String? {
