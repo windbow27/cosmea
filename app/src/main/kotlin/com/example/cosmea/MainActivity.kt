@@ -3,6 +3,7 @@ package com.example.cosmea
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.lifecycle.lifecycleScope
 import com.example.cosmea.ui.App
 import com.example.cosmea.ui.rememberAppState
 import com.example.data.mockChannels
@@ -16,6 +17,7 @@ import com.example.model.ServerData
 import com.example.model.UserData
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,18 +60,19 @@ class MainActivity : ComponentActivity() {
         )
         val userService = UserService(FirebaseFirestore.getInstance())
         val serverService = ServerService(FirebaseFirestore.getInstance())
-//        lifecycleScope.launch {
-//            userService.addUserData(userData)
-////            userService.getUserDataById("User1")
-////            userService.getUserDataByUsername("cheesedz")
-////            userService.updateUserData("User1", userData)
-////            userService.deleteUserDataById("User1")
-////            userService.updateUserProfile("1", profile)
-////            serverService.addServerData(server)
-////            serverService.getAllCategories("Server2")
-////            serverService.getAllMembers("Server2")
-////            serverService.addCategory("Server2", category)
-//            userService.verifyLoginInfo("windbow", "123")
-//        }
+        lifecycleScope.launch {
+            //userService.addUserData(userData)
+//            userService.getUserDataById("User1")
+            userService.getUserIdByUsername("chisnghia")
+//            userService.getUserDataByUsername("cheesedz")
+//            userService.updateUserData("User1", userData)
+//            userService.deleteUserDataById("User1")
+//            userService.updateUserProfile("1", profile)
+//            serverService.addServerData(server)
+//            serverService.getAllCategories("Server2")
+//            serverService.getAllMembers("Server2")
+//            serverService.addCategory("Server2", category)
+            //userService.verifyLoginInfo("windbow", "123")
+        }
     }
 }

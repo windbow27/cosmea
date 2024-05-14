@@ -14,6 +14,8 @@ import com.example.profile.navigation.navigateToProfile
 import com.example.profile.navigation.profileScreen
 import com.example.register.navigation.navigateToRegister
 import com.example.register.navigation.registerScreen
+import com.example.servers.navigation.createServerScreen
+import com.example.servers.navigation.navigateToCreateServer
 import com.example.servers.navigation.navigateToServers
 import com.example.servers.navigation.serversScreen
 
