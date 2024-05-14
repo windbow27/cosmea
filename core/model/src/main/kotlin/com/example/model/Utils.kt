@@ -2,7 +2,7 @@ package com.example.model
 
 import java.security.MessageDigest
 
-fun generateUserId(username: String, additionalInfo: String? = null): String {
+fun generateId(username: String, additionalInfo: String? = null): String {
     val idBase = username + (additionalInfo ?: "")
 
     val messageDigest = MessageDigest.getInstance("SHA-256")

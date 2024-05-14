@@ -1,5 +1,6 @@
 package com.example.servers
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,14 +19,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.data.service.ServerService
+import com.example.data.service.UserService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
+import com.example.model.ServerData
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun CreateServerRoute(
@@ -41,7 +49,14 @@ internal fun CreateServerRoute(
 fun CreateServerScreen(
     onBackPressed: () -> Unit,
 ) {
+    val userService = UserService(FirebaseFirestore.getInstance())
+    val serverService = ServerService(FirebaseFirestore.getInstance())
     var serverName by remember { mutableStateOf("My Server") }
+    val context = LocalContext.current
+    val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
+    val adminId = sharedPref.getString("currentUserId", null)
+    val coroutineScope = rememberCoroutineScope()
+
     Background {
         Column(
             modifier = Modifier
@@ -89,7 +104,19 @@ fun CreateServerScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Button(onClick = { /* Handle create server */ }) {
+            Button(onClick = {
+                coroutineScope.launch {
+                    // Create server
+                    val newServer = ServerData(
+                        adminId = adminId!!,
+                        name = serverName,
+                        avatar = "https://example.com/avatar.jpg"
+                    )
+                    println(adminId)
+                    // Add server data
+                    serverService.addServerData(newServer)
+                }
+            }) {
                 Text("Create Server")
             }
         }

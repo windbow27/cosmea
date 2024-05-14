@@ -5,19 +5,25 @@ import androidx.navigation.compose.NavHost
 import com.example.conversation.navigation.conversationScreen
 import com.example.conversation.navigation.navigateToConversation
 import com.example.cosmea.ui.AppState
+import com.example.login.navigation.LOGIN_ROUTE
+import com.example.login.navigation.loginScreen
+import com.example.login.navigation.navigateToLogin
 import com.example.messages.navigation.messagesScreen
 import com.example.notifications.navigation.notificationsScreen
+import com.example.profile.navigation.navigateToProfile
 import com.example.profile.navigation.profileScreen
-import com.example.servers.navigation.SERVERS_ROUTE
+import com.example.register.navigation.navigateToRegister
+import com.example.register.navigation.registerScreen
 import com.example.servers.navigation.createServerScreen
 import com.example.servers.navigation.navigateToCreateServer
+import com.example.servers.navigation.navigateToServers
 import com.example.servers.navigation.serversScreen
 
 @Composable
 fun AppNavHost(
     appState: AppState,
     modifier: Modifier = Modifier,
-    startDestination: String = SERVERS_ROUTE,
+    startDestination: String = LOGIN_ROUTE,
 ) {
     val navController = appState.navController
     NavHost(
@@ -32,6 +38,8 @@ fun AppNavHost(
         )
         messagesScreen(onChannelClick = navController::navigateToConversation)
         notificationsScreen {}
-        profileScreen {}
+        profileScreen (onLogoutClick = navController::navigateToLogin)
+        registerScreen (onRegisterClick = navController::navigateToProfile, redirectToLogin = navController::navigateToLogin)
+        loginScreen (onLoginClick = navController::navigateToServers , redirectToRegister = navController::navigateToRegister)
     }
 }

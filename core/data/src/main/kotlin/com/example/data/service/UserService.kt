@@ -59,6 +59,25 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
         return user
     }
 
+    override suspend fun getUserIdByUsername(userName: String): String? {
+        var id: String? = null
+        firestore.collection("users")
+            .whereEqualTo("username", userName).get()
+            .addOnSuccessListener { querySnapshot ->
+                if (querySnapshot != null) {
+                    id = querySnapshot.documents[0].data?.get("id")?.toString()
+                    Log.d("FIRESTORE", "Get user with username: $userName successfully")
+                    Log.d("FIRESTORE", "User ID: $id")
+                } else {
+                    Log.d("FIRESTORE ERROR", "User not found with username: $userName")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FIRESTORE ERROR", "Error getting user: ", exception)
+            }.await()
+        return id
+    }
+
     override suspend fun updateUserData(userId: String, userData: UserData) {
         val user = getUserDataById(userId)
         if (user != null) {

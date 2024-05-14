@@ -14,9 +14,9 @@ fun NavController.navigateToRegister(navOptions: NavOptions? = null) {
 
 fun NavGraphBuilder.registerScreen(
     onRegisterClick: () -> Unit,
-    redictToLogin: () -> Unit
+    redirectToLogin: () -> Unit
 ) {
     composable(REGISTER_ROUTE) {
-        RegisterRoute(onRegisterClick, redictToLogin)
+        RegisterRoute(onRegisterClick, redirectToLogin)
     }
 }

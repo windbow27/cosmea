@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.service.UserService
+import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.UserData
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
@@ -39,12 +40,11 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun RegisterRoute(
     onRegisterClick: () -> Unit,
-    redictToLogin: () -> Unit
+    redirectToLogin: () -> Unit
 ) {
-    RegisterScreen(onRegisterClick, redictToLogin)
+    RegisterScreen(onRegisterClick, redirectToLogin)
 }
 
-@Preview
 @Composable
 fun RegisterScreen(onRegisterClick: () -> Unit, redictToLogin: () -> Unit) {
     var userState by remember { mutableStateOf(TextFieldValue()) }
@@ -192,5 +192,21 @@ fun RegisterScreen(onRegisterClick: () -> Unit, redictToLogin: () -> Unit) {
                     }
             )
         }
+    }
+}
+
+@Preview
+@Composable
+fun RegisterScreenPreview() {
+    CosmeaTheme() {
+        RegisterScreen({}, {})
+    }
+}
+
+@Preview
+@Composable
+fun RegisterScreenDarkPreview() {
+    CosmeaTheme(darkTheme = true) {
+        RegisterScreen({}, {})
     }
 }
