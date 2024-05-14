@@ -68,7 +68,7 @@ import com.example.ui.UserInput
 @Composable
 fun ConversationRoute(
     conversationId: String?,
-    onNavIconPressed: () -> Unit,
+    onBackPressed: () -> Unit,
 ) {
     println("Conversation ID: $conversationId")
 
@@ -80,14 +80,14 @@ fun ConversationRoute(
     if (conversationServers != null) {
         ConversationScreen(
             conversation = conversationServers,
-            onNavIconPressed = onNavIconPressed,
+            onBackPressed = onBackPressed,
         )
     } else {
         val conversationDirectMessage = mockDirectMessages.find { it.id == conversationId }
         if (conversationDirectMessage != null) {
             ConversationScreen(
                 conversation = conversationDirectMessage,
-                onNavIconPressed = onNavIconPressed,
+                onBackPressed = onBackPressed,
             )
         } else {
             Text("Conversation not found")
@@ -100,7 +100,7 @@ fun ConversationRoute(
 fun ConversationScreen(
     conversation: ChannelData,
     modifier: Modifier = Modifier,
-    onNavIconPressed: () -> Unit = {},
+    onBackPressed: () -> Unit = {},
 ) {
     val authorMe = "Me"
     val timeNow = "Now"
@@ -116,7 +116,7 @@ fun ConversationScreen(
             ChannelNameBar(
                 channelName = conversation.name,
                 channelMembers = conversation.members.size,
-                onNavIconPressed = onNavIconPressed,
+                onBackPressed = onBackPressed,
                 scrollBehavior = scrollBehavior,
             )
         },
@@ -162,7 +162,7 @@ fun ChannelNameBar(
     channelMembers: Int,
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    onNavIconPressed: () -> Unit = { }
+    onBackPressed: () -> Unit = { }
 ) {
     var functionalityNotAvailablePopupShown by remember { mutableStateOf(false) }
 //    if (functionalityNotAvailablePopupShown) {
@@ -171,7 +171,7 @@ fun ChannelNameBar(
     AppBar(
         modifier = modifier,
         scrollBehavior = scrollBehavior,
-        onNavIconPressed = onNavIconPressed,
+        onBackPressed = onBackPressed,
         title = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 // Channel name

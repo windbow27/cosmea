@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,16 +37,20 @@ import com.example.ui.UserHead
 
 @Composable
 internal fun ServersRoute(
-    onChannelClick: (String) -> Unit
+    onChannelClick: (String) -> Unit,
+    onCreateServerClick: () -> Unit
 ) {
     ServersScreen(
-        servers = mockServers
-    ) { channel -> onChannelClick(channel) }
+        servers = mockServers,
+        listener = { channel -> onChannelClick(channel) },
+        onCreateChannelClick = onCreateServerClick
+    )
 }
 @Composable
 fun ServersScreen(
     servers: List<ServerData>,
-    listener: ChannelListener
+    listener: ChannelListener,
+    onCreateChannelClick: () -> Unit
 ) {
     var selectedServerId by remember { mutableStateOf(servers.first().avatar) }
     Background {
@@ -74,6 +79,15 @@ fun ServersScreen(
                                 .clickable { selectedServerId = server.avatar }
                         )
                     }
+                }
+                // Add server button
+                IconButton(
+                    onClick = { onCreateChannelClick() },
+                ) {
+                    Icon(
+                        imageVector = Icons.Add,
+                        contentDescription = "Add Server"
+                    )
                 }
             }
             // Server details
@@ -164,10 +178,9 @@ fun ServerChannel(channels: List<String>, listener: ChannelListener) {
 fun PreviewServersScreen() {
     CosmeaTheme {
         ServersScreen(
-            servers = mockServers
-        ) {
-            // no-op
-        }
+            servers = mockServers,
+            listener = { channel -> println("Channel clicked: $channel") }
+        ) { println("Create channel clicked") }
     }
 }
 
@@ -176,9 +189,8 @@ fun PreviewServersScreen() {
 fun PreviewServersScreenDark() {
     CosmeaTheme(darkTheme = true) {
         ServersScreen(
-            servers = mockServers
-        ) {
-            // no-op
-        }
+            servers = mockServers,
+            listener = { channel -> println("Channel clicked: $channel") }
+        ) { println("Create channel clicked") }
     }
 }

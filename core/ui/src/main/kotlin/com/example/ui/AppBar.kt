@@ -36,7 +36,7 @@ import com.example.designsystem.theme.CosmeaTheme
 fun AppBar(
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    onNavIconPressed: () -> Unit = { },
+    onBackPressed: () -> Unit = { },
     title: @Composable () -> Unit,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
@@ -51,7 +51,7 @@ fun AppBar(
                 contentDescription = "Back",
                 modifier = Modifier
                     .padding(horizontal = 12.dp)
-                    .clickable { onNavIconPressed() }
+                    .clickable { onBackPressed() }
             )
         }
     )
