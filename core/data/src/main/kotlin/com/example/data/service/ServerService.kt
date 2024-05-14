@@ -4,14 +4,14 @@ import android.util.Log
 import com.example.data.repo.ServerRepository
 import com.example.model.CategoryData
 import com.example.model.ServerData
+import com.example.model.UserData
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.tasks.await
 
 class ServerService(private val firestore: FirebaseFirestore): ServerRepository {
     override suspend fun addServerData(serverData: ServerData) {
         firestore.collection("servers").
-        document(serverData.id.toString()).set(serverData)
+        document(serverData.id).set(serverData)
             .addOnSuccessListener {
                 Log.d("FIRESTORE", "Created server successfully: $serverData")
             }
@@ -20,14 +20,32 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
             }.await()
     }
 
-    override suspend fun getServerDataById(serverId: String): String? {
-        var server: String? = null
+    override suspend fun getAdminId(serverId: String): String? {
+        var adminId: String? = null
+        firestore.collection("servers").document(serverId).get()
+            .addOnSuccessListener {documentSnapshot ->
+                adminId = documentSnapshot.data?.get("adminId").toString()
+                Log.d("FIRESTORE", "Get admin ID successfully: $adminId")
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FIRESTORE ERROR", "Failed to get admin ID")
+            }.await()
+        return adminId
+    }
+
+    override suspend fun getServerDataById(serverId: String): ServerData? {
+        var server: ServerData? = null
         firestore.collection("servers").document(serverId).get()
             .addOnSuccessListener { document ->
                 if (document != null) {
-                    server = document.data.toString()
+                    val id: String = document.data?.get("id").toString()
+                    val adminId: String = document.data?.get("adminId").toString()
+                    val avatar: String = document.data?.get("avatar").toString()
+                    val categories: MutableList<String> = document.data?.get("categories") as MutableList<String>
+                    val members: MutableList<UserData> = document.data?.get("members") as MutableList<UserData>
+                    val name: String = document.data?.get("name").toString()
                     Log.d("FIRESTORE", "Get server with ID: $serverId successfully")
-                    Log.d("FIRESTORE", "Server: $server")
+                    server =  ServerData(adminId, name, avatar, members, categories, id = id)
                 } else {
                     Log.d("FIRESTORE ERROR", "Server not found with ID: $serverId")
                 }
@@ -70,26 +88,28 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
         }
     }
 
-    override suspend fun addCategory(serverId: String, categoryData: CategoryData) {
+    override suspend fun addMember(serverId: String, userData: UserData) {
         val server = getServerDataById(serverId)
         if (server != null) {
-            firestore.collection("servers").document(serverId)
-                .collection(categoryData.id).add(categoryData)
-                .addOnSuccessListener {
-                    Log.d("FIRESTORE", "Added category successfully: ${categoryData.toString()}")
+            firestore.collection("servers").document(serverId).get()
+                .addOnSuccessListener {documentSnapshot ->
+                    var users: MutableList<UserData> = documentSnapshot.get("members") as MutableList<UserData>
+                    users.add(userData)
+                    firestore.collection("servers").document(serverId).update("members", users)
+                    Log.d("FIRESTORE", "Added user successfully: ${users}")
                 }
                 .addOnFailureListener { exception ->
-                    Log.e("FIRESTORE ERROR", "Error getting categories: $exception")
+                    Log.e("FIRESTORE ERROR", "Error adding user: $exception")
                 }.await()
         }
     }
 
-    override suspend fun getAllCategories(serverId: String): String? {
-        var categories: String? = null
+    override suspend fun getAllCategories(serverId: String): List<CategoryData>? {
+        var categories: List<CategoryData>? = null
         firestore.collection("servers").document(serverId).get()
             .addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
-                    categories = documentSnapshot.get("categories").toString()
+                    categories = documentSnapshot.get("categories") as List<CategoryData>?
                     Log.d("FIRESTORE", "Get all categories successfully: $categories")
                 } else {
                     Log.e("FIRESTORE ERROR", "Not found server with ID: $serverId")
@@ -98,7 +118,7 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
             .addOnFailureListener {exception ->
                 Log.e("FIRESTORE ERROR", "Error getting categories: $exception")
             }.await()
-        return null
+        return categories
     }
 
     override suspend fun getAllMembers(serverId: String): String? {
