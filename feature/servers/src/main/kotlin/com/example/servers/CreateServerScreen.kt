@@ -1,5 +1,6 @@
 package com.example.servers
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,21 +19,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.data.service.ServerService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
+import com.example.model.ServerData
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun CreateServerRoute(
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    onCreateServerClick: () -> Unit
 )  {
     CreateServerScreen(
-        onBackPressed = onBackPressed
+        onBackPressed = onBackPressed,
+        onCreateServerClick = onCreateServerClick
     )
 }
 
@@ -40,8 +50,14 @@ internal fun CreateServerRoute(
 @Composable
 fun CreateServerScreen(
     onBackPressed: () -> Unit,
+    onCreateServerClick: () -> Unit,
 ) {
     var serverName by remember { mutableStateOf("My Server") }
+    val context = LocalContext.current
+    val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
+    val adminId = sharedPref.getString("currentUserId", null)
+    val coroutineScope = rememberCoroutineScope()
+
     Background {
         Column(
             modifier = Modifier
@@ -89,10 +105,28 @@ fun CreateServerScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Button(onClick = { /* Handle create server */ }) {
+            Button(onClick = {
+                coroutineScope.launch {
+                    // Create server
+                    val newServer = ServerData(
+                        adminId = adminId!!,
+                        name = serverName,
+                        avatar = "https://example.com/avatar.jpg",
+                    )
+                    addServerData(newServer, coroutineScope)
+                }
+                onCreateServerClick()
+            }) {
                 Text("Create Server")
             }
         }
+    }
+}
+
+fun addServerData(serverData: ServerData, coroutineScope: CoroutineScope) {
+    coroutineScope.launch {
+        val serverService = ServerService(FirebaseFirestore.getInstance())
+        serverService.addServerData(serverData)
     }
 }
 
@@ -100,7 +134,7 @@ fun CreateServerScreen(
 @Composable
 fun CreateServerScreenPreview() {
     CosmeaTheme {
-        CreateServerScreen(onBackPressed = {})
+        CreateServerScreen(onBackPressed = {}, onCreateServerClick = {})
     }
 }
 
@@ -108,6 +142,6 @@ fun CreateServerScreenPreview() {
 @Composable
 fun CreateServerRoutePreview() {
     CosmeaTheme(darkTheme = true) {
-        CreateServerRoute(onBackPressed = {})
+        CreateServerRoute(onBackPressed = {}, onCreateServerClick = {})
     }
 }

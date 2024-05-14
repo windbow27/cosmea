@@ -14,9 +14,9 @@ fun NavController.navigateToLogin(navOptions: NavOptions? = null) {
 
 fun NavGraphBuilder.loginScreen(
     onLoginClick: () -> Unit,
-    redictToRegister: () -> Unit
+    redirectToRegister: () -> Unit
 ) {
     composable(LOGIN_ROUTE) {
-        LoginRoute(onLoginClick, redictToRegister)
+        LoginRoute(onLoginClick, redirectToRegister)
     }
 }

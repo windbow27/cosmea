@@ -137,4 +137,29 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
             }.await()
         return null
     }
+
+    override suspend fun getAllServerData(): List<ServerData> {
+        val servers = mutableListOf<ServerData>()
+        firestore.collection("servers").get()
+            .addOnSuccessListener { querySnapshot ->
+                for (document in querySnapshot) {
+                    val id: String = document.data["id"].toString()
+                    val adminId: String = document.data["adminId"].toString()
+                    val avatar: String = document.data["avatar"].toString()
+                    val categories: MutableList<String> = document.data["categories"] as MutableList<String>
+                    val members: MutableList<UserData> = document.data["members"] as MutableList<UserData>
+                    val name: String = document.data["name"].toString()
+                    servers.add(ServerData(adminId, name, avatar, members, categories, id = id))
+                }
+                Log.d("FIRESTORE", "Get all servers successfully:")
+                servers.forEach { server ->
+                    println(server.toString())
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FIRESTORE ERROR", "Error getting all servers: $exception")
+            }.await()
+
+        return servers
+    }
 }

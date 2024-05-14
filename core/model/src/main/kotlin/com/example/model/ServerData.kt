@@ -6,7 +6,7 @@ class ServerData(
     var avatar: String? = null,
     var members: MutableList<String> = mutableListOf(),
     var channels: MutableList<String> = mutableListOf(),
-    var id: String = generateId(adminId)
+    var id: String = generateId(adminId + name)
 ) {
     fun addMember(userId: String) {
         members.add(userId)
@@ -16,11 +16,7 @@ class ServerData(
         members.remove(userId)
     }
 
-    fun addChannel(channelId: String) {
-        channels.add(channelId)
-    }
-
-    fun deleteChannel(channelId: String) {
-        channels.remove(channelId)
+    override fun toString(): String {
+        return "ServerData(id='$id', adminId='$adminId', name='$name', avatar='$avatar', members=$members, channels=$channels"
     }
 }
