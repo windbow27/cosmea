@@ -27,12 +27,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.data.service.ServerService
-import com.example.data.service.UserService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.ServerData
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -50,10 +50,8 @@ internal fun CreateServerRoute(
 @Composable
 fun CreateServerScreen(
     onBackPressed: () -> Unit,
-    onCreateServerClick: () -> Unit
+    onCreateServerClick: () -> Unit,
 ) {
-    val userService = UserService(FirebaseFirestore.getInstance())
-    val serverService = ServerService(FirebaseFirestore.getInstance())
     var serverName by remember { mutableStateOf("My Server") }
     val context = LocalContext.current
     val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
@@ -115,15 +113,20 @@ fun CreateServerScreen(
                         name = serverName,
                         avatar = "https://example.com/avatar.jpg",
                     )
-                    println(adminId)
-                    // Add server data
-                    serverService.addServerData(newServer)
+                    addServerData(newServer, coroutineScope)
                 }
                 onCreateServerClick()
             }) {
                 Text("Create Server")
             }
         }
+    }
+}
+
+fun addServerData(serverData: ServerData, coroutineScope: CoroutineScope) {
+    coroutineScope.launch {
+        val serverService = ServerService(FirebaseFirestore.getInstance())
+        serverService.addServerData(serverData)
     }
 }
 

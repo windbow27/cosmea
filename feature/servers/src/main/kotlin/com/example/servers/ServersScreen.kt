@@ -41,7 +41,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 @Composable
 internal fun ServersRoute(
     onChannelClick: (String) -> Unit,
-    onCreateServerClick: () -> Unit
+    onCreateServerClick: () -> Unit,
+    onCreateChannelCLick: () -> Unit
 ) {
     val serverService = ServerService(FirebaseFirestore.getInstance())
     var servers by remember { mutableStateOf<List<ServerData>>(emptyList()) }
@@ -53,7 +54,8 @@ internal fun ServersRoute(
     ServersScreen(
         servers = servers,
         listener = { channel -> onChannelClick(channel) },
-        onCreateChannelClick = onCreateServerClick
+        onCreateServerClick = onCreateServerClick,
+        onCreateChannelClick = onCreateChannelCLick
     )
 }
 
@@ -61,6 +63,7 @@ internal fun ServersRoute(
 fun ServersScreen(
     servers: List<ServerData>,
     listener: ChannelListener,
+    onCreateServerClick: () -> Unit,
     onCreateChannelClick: () -> Unit
 ) {
     var selectedServerId by remember { mutableStateOf(servers.firstOrNull()?.id) }
@@ -93,7 +96,7 @@ fun ServersScreen(
                 }
                 // Add server button
                 IconButton(
-                    onClick = { onCreateChannelClick() },
+                    onClick = { onCreateServerClick() },
                 ) {
                     Icon(
                         imageVector = Icons.Add,
@@ -113,10 +116,19 @@ fun ServersScreen(
                         .weight(0.8f)
                         .fillMaxSize()
                 ) {
-                    Column (
-                        modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                    Row (
+                        modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         ServerName(name = server.name)
+                        IconButton(
+                            onClick = { onCreateChannelClick() },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Add,
+                                contentDescription = "Add Server"
+                            )
+                        }
                     }
                 }
             }
@@ -129,7 +141,7 @@ fun ServerName(name: String) {
     Text(
         text = name,
         style = MaterialTheme.typography.titleLarge,
-        modifier = Modifier.padding(start = 16.dp, top = 16.dp)
+        modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
     )
 }
 
@@ -183,8 +195,10 @@ fun PreviewServersScreen() {
     CosmeaTheme {
         ServersScreen(
             servers = mockServers,
-            listener = { channel -> println("Channel clicked: $channel") }
-        ) { println("Create channel clicked") }
+            listener = { channel -> println("Channel clicked: $channel") },
+            onCreateServerClick = { println("Create server clicked") },
+            onCreateChannelClick = { println("Create channel clicked") }
+        )
     }
 }
 
@@ -194,7 +208,8 @@ fun PreviewServersScreenDark() {
     CosmeaTheme(darkTheme = true) {
         ServersScreen(
             servers = mockServers,
-            listener = { channel -> println("Channel clicked: $channel") }
-        ) { println("Create channel clicked") }
+            listener = { channel -> println("Channel clicked: $channel") },
+            onCreateServerClick = { println("Create server clicked") },
+            onCreateChannelClick = { println("Create channel clicked") })
     }
 }
