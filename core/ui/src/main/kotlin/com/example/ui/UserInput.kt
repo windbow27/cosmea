@@ -87,7 +87,6 @@ import kotlin.time.Duration.Companion.seconds
 enum class InputSelector {
     NONE,
     MAP,
-    DM,
     EMOJI,
     PHONE,
     PICTURE
@@ -199,7 +198,6 @@ private fun SelectorExpanded(
     Surface(tonalElevation = 8.dp) {
         when (currentSelector) {
             InputSelector.EMOJI -> EmojiSelector(onTextAdded, focusRequester)
-            InputSelector.DM -> TODO()
             InputSelector.PICTURE -> TODO()
             InputSelector.MAP -> TODO()
             InputSelector.PHONE -> TODO()
@@ -227,34 +225,28 @@ private fun UserInputSelector(
     ) {
         InputSelectorButton(
             onClick = { onSelectorChange(InputSelector.EMOJI) },
-            icon = Icons.Person,
+            icon = Icons.Emoji,
             selected = currentInputSelector == InputSelector.EMOJI,
             description = "Emoji selector"
         )
         InputSelectorButton(
-            onClick = { onSelectorChange(InputSelector.DM) },
-            icon = Icons.Upcoming,
-            selected = currentInputSelector == InputSelector.DM,
-            description = "Direct message selector"
+            onClick = { onSelectorChange(InputSelector.PICTURE) },
+            icon = Icons.Photo,
+            selected = currentInputSelector == InputSelector.PICTURE,
+            description = "Picture selector"
         )
-//        InputSelectorButton(
-//            onClick = { onSelectorChange(InputSelector.PICTURE) },
-//            icon = Icons.Outlined.InsertPhoto,
-//            selected = currentInputSelector == InputSelector.PICTURE,
-//            description = stringResource(id = R.string.attach_photo_desc)
-//        )
-//        InputSelectorButton(
-//            onClick = { onSelectorChange(InputSelector.MAP) },
-//            icon = Icons.Outlined.Place,
-//            selected = currentInputSelector == InputSelector.MAP,
-//            description = stringResource(id = R.string.map_selector_desc)
-//        )
-//        InputSelectorButton(
-//            onClick = { onSelectorChange(InputSelector.PHONE) },
-//            icon = Icons.Outlined.Duo,
-//            selected = currentInputSelector == InputSelector.PHONE,
-//            description = stringResource(id = R.string.videochat_desc)
-//        )
+        InputSelectorButton(
+            onClick = { onSelectorChange(InputSelector.MAP) },
+            icon = Icons.Map,
+            selected = currentInputSelector == InputSelector.MAP,
+            description = "Map selector"
+        )
+        InputSelectorButton(
+            onClick = { onSelectorChange(InputSelector.PHONE) },
+            icon = Icons.Voice,
+            selected = currentInputSelector == InputSelector.PHONE,
+            description = "Phone selector"
+        )
 
         val border = if (!sendMessageEnabled) {
             BorderStroke(
@@ -358,7 +350,7 @@ private fun UserInputText(
         ) { recording ->
             Box(Modifier.fillMaxSize()) {
                 if (recording) {
-                    RecordingIndicator { swipeOffset.value }
+                    RecordingIndicator { swipeOffset.floatValue }
                 } else {
                     UserInputTextField(
                         textFieldValue,

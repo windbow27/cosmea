@@ -8,6 +8,8 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Bookmarks
 import androidx.compose.material.icons.outlined.Upcoming
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.AddPhotoAlternate
+import androidx.compose.material.icons.rounded.AddReaction
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.BookmarkBorder
 import androidx.compose.material.icons.rounded.Bookmarks
@@ -17,8 +19,10 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Grid3x3
 import androidx.compose.material.icons.rounded.HomeWork
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardVoice
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.PinDrop
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Upcoming
@@ -52,4 +56,8 @@ object Icons {
     val Message = Icons.Rounded.ChatBubbleOutline
     val Notification = Icons.Rounded.Notifications
     val Send = Icons.AutoMirrored.Rounded.Send
+    val Emoji = Icons.Rounded.AddReaction
+    val Photo = Icons.Rounded.AddPhotoAlternate
+    val Map = Icons.Rounded.PinDrop
+    val Voice = Icons.Rounded.KeyboardVoice
 }
