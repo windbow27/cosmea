@@ -18,6 +18,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,31 +29,41 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.data.mockServers
+import com.example.data.service.ServerService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.ChannelListener
 import com.example.model.ServerData
 import com.example.ui.UserHead
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 internal fun ServersRoute(
     onChannelClick: (String) -> Unit,
     onCreateServerClick: () -> Unit
 ) {
+    val serverService = ServerService(FirebaseFirestore.getInstance())
+    var servers by remember { mutableStateOf<List<ServerData>>(emptyList()) }
+
+    LaunchedEffect(key1 = Unit) {
+        servers = serverService.getAllServerData()
+    }
+
     ServersScreen(
-        servers = mockServers,
+        servers = servers,
         listener = { channel -> onChannelClick(channel) },
         onCreateChannelClick = onCreateServerClick
     )
 }
+
 @Composable
 fun ServersScreen(
     servers: List<ServerData>,
     listener: ChannelListener,
     onCreateChannelClick: () -> Unit
 ) {
-    var selectedServerId by remember { mutableStateOf(servers.first().avatar) }
+    var selectedServerId by remember { mutableStateOf(servers.firstOrNull()?.id) }
     Background {
         Row {
             // Server icons
@@ -70,13 +81,13 @@ fun ServersScreen(
                                 .width(4.dp)
                                 .height(40.dp)
                                 .padding(end = 2.dp)
-                                .background(if (selectedServerId == server.avatar) MaterialTheme.colorScheme.onSurface else Color.Transparent)
+                                .background(if (selectedServerId == server.id) MaterialTheme.colorScheme.onSurface else Color.Transparent)
                         )
                         UserHead(
-                            id = server.avatar,
+                            id = server.id,
                             name = server.name,
                             modifier = Modifier
-                                .clickable { selectedServerId = server.avatar }
+                                .clickable { selectedServerId = server.id }
                         )
                     }
                 }
@@ -91,7 +102,7 @@ fun ServersScreen(
                 }
             }
             // Server details
-            servers.find { it.avatar == selectedServerId }?.let { server ->
+            servers.find { it.id == selectedServerId }?.let { server ->
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -106,13 +117,6 @@ fun ServersScreen(
                         modifier = Modifier.padding(start = 8.dp, end = 8.dp)
                     ) {
                         ServerName(name = server.name)
-                        server.categories.forEach { categoryData ->
-                            ServerCategory(
-                                name = categoryData.name,
-                                channels = categoryData.channels.map { it.name },
-                                listener = listener
-                            )
-                        }
                     }
                 }
             }

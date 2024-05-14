@@ -2,7 +2,6 @@ package com.example.data.service
 
 import android.util.Log
 import com.example.data.repo.ServerRepository
-import com.example.model.CategoryData
 import com.example.model.ServerData
 import com.example.model.UserData
 import com.google.firebase.firestore.FirebaseFirestore
@@ -104,23 +103,6 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
         }
     }
 
-    override suspend fun getAllCategories(serverId: String): List<CategoryData>? {
-        var categories: List<CategoryData>? = null
-        firestore.collection("servers").document(serverId).get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    categories = documentSnapshot.get("categories") as List<CategoryData>?
-                    Log.d("FIRESTORE", "Get all categories successfully: $categories")
-                } else {
-                    Log.e("FIRESTORE ERROR", "Not found server with ID: $serverId")
-                }
-            }
-            .addOnFailureListener {exception ->
-                Log.e("FIRESTORE ERROR", "Error getting categories: $exception")
-            }.await()
-        return categories
-    }
-
     override suspend fun getAllMembers(serverId: String): String? {
         var members: String? = null
         firestore.collection("servers").document(serverId).get()
@@ -136,5 +118,30 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
                 Log.e("FIRESTORE ERROR", "Error getting members: $exception")
             }.await()
         return null
+    }
+
+    override suspend fun getAllServerData(): List<ServerData> {
+        val servers = mutableListOf<ServerData>()
+        firestore.collection("servers").get()
+            .addOnSuccessListener { querySnapshot ->
+                for (document in querySnapshot) {
+                    val id: String = document.data["id"].toString()
+                    val adminId: String = document.data["adminId"].toString()
+                    val avatar: String = document.data["avatar"].toString()
+                    val categories: MutableList<String> = document.data["categories"] as MutableList<String>
+                    val members: MutableList<UserData> = document.data["members"] as MutableList<UserData>
+                    val name: String = document.data["name"].toString()
+                    servers.add(ServerData(adminId, name, avatar, members, categories, id = id))
+                }
+                Log.d("FIRESTORE", "Get all servers successfully:")
+                servers.forEach { server ->
+                    println(server.toString())
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FIRESTORE ERROR", "Error getting all servers: $exception")
+            }.await()
+
+        return servers
     }
 }

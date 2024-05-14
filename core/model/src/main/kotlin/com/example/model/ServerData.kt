@@ -5,8 +5,8 @@ class ServerData(
     var name: String,
     var avatar: String? = null,
     var members: MutableList<UserData> = mutableListOf(),
-    var categories: MutableList<String> = mutableListOf(),
-    var id: String = generateId(adminId)
+    var channels: MutableList<String> = mutableListOf(),
+    var id: String = generateId(adminId + name)
 ) {
     fun addMember(userData: UserData) {
         members.add(userData)
@@ -16,11 +16,7 @@ class ServerData(
         members.remove(userData)
     }
 
-    fun addCategory(categoryId: String) {
-        categories.add(categoryId)
-    }
-
-    fun deleteCategory(categoryId: String) {
-        categories.remove(categoryId)
+    override fun toString(): String {
+        return "ServerData(id='$id', adminId='$adminId', name='$name', avatar='$avatar', members=$members, channels=$channels"
     }
 }

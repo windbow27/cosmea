@@ -27,8 +27,11 @@ fun NavController.navigateToCreateServer(navOptions: NavOptions? = null) {
     navigate(CREATE_SERVER_ROUTE, navOptions)
 }
 
-fun NavGraphBuilder.createServerScreen(onBackPressed: () -> Unit) {
+fun NavGraphBuilder.createServerScreen(
+    onBackPressed: () -> Unit,
+    onCreateServerClick: () -> Unit
+) {
     composable(CREATE_SERVER_ROUTE) {
-        CreateServerRoute(onBackPressed)
+        CreateServerRoute(onBackPressed, onCreateServerClick)
     }
 }

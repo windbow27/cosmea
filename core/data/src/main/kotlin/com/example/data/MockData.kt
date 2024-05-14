@@ -1,6 +1,5 @@
 package com.example.data
 
-import com.example.model.CategoryData
 import com.example.model.ChannelData
 import com.example.model.MessageData
 import com.example.model.ServerData
@@ -93,42 +92,7 @@ val mockServers = mutableListOf(
         name = "Server 1",
         avatar = "1",
         members = mockUsers,
-        categories = mutableListOf(
-            CategoryData(
-                id = "Category1",
-                name = "Category 1",
-                members = mockUsers,
-                channels = mockChannels
-            ),
-            CategoryData(
-                id = "Category2",
-                name = "Category 2",
-                members = mockUsers,
-                channels = mockChannels
-            )
         )
-    ),
-    ServerData(
-        id = "Server2",
-        adminId = "User1",
-        name = "Server 2",
-        avatar = "2",
-        members = mockUsers,
-        categories = mutableListOf(
-            CategoryData(
-                id = "Category3",
-                name = "Category 3",
-                members = mockUsers,
-                channels = mockChannels
-            ),
-            CategoryData(
-                id = "Category4",
-                name = "Category 4",
-                members = mockUsers,
-                channels = mockChannels
-            )
-        )
-    ),
 )
 
 

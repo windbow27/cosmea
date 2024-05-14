@@ -37,10 +37,12 @@ import kotlinx.coroutines.launch
 
 @Composable
 internal fun CreateServerRoute(
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    onCreateServerClick: () -> Unit
 )  {
     CreateServerScreen(
-        onBackPressed = onBackPressed
+        onBackPressed = onBackPressed,
+        onCreateServerClick = onCreateServerClick
     )
 }
 
@@ -48,6 +50,7 @@ internal fun CreateServerRoute(
 @Composable
 fun CreateServerScreen(
     onBackPressed: () -> Unit,
+    onCreateServerClick: () -> Unit
 ) {
     val userService = UserService(FirebaseFirestore.getInstance())
     val serverService = ServerService(FirebaseFirestore.getInstance())
@@ -110,12 +113,13 @@ fun CreateServerScreen(
                     val newServer = ServerData(
                         adminId = adminId!!,
                         name = serverName,
-                        avatar = "https://example.com/avatar.jpg"
+                        avatar = "https://example.com/avatar.jpg",
                     )
                     println(adminId)
                     // Add server data
                     serverService.addServerData(newServer)
                 }
+                onCreateServerClick()
             }) {
                 Text("Create Server")
             }
@@ -127,7 +131,7 @@ fun CreateServerScreen(
 @Composable
 fun CreateServerScreenPreview() {
     CosmeaTheme {
-        CreateServerScreen(onBackPressed = {})
+        CreateServerScreen(onBackPressed = {}, onCreateServerClick = {})
     }
 }
 
@@ -135,6 +139,6 @@ fun CreateServerScreenPreview() {
 @Composable
 fun CreateServerRoutePreview() {
     CosmeaTheme(darkTheme = true) {
-        CreateServerRoute(onBackPressed = {})
+        CreateServerRoute(onBackPressed = {}, onCreateServerClick = {})
     }
 }
