@@ -4,16 +4,16 @@ class ServerData(
     var adminId: String,
     var name: String,
     var avatar: String? = null,
-    var members: MutableList<UserData> = mutableListOf(),
+    var members: MutableList<String> = mutableListOf(),
     var channels: MutableList<String> = mutableListOf(),
     var id: String = generateId(adminId + name)
 ) {
-    fun addMember(userData: UserData) {
-        members.add(userData)
+    fun addMember(userId: String) {
+        members.add(userId)
     }
 
-    fun kickMember(userData: UserData) {
-        members.remove(userData)
+    fun kickMember(userId: String) {
+        members.remove(userId)
     }
 
     override fun toString(): String {

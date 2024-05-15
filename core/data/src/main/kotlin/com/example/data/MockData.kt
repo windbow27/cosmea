@@ -1,7 +1,6 @@
 package com.example.data
 
 import com.example.model.ChannelData
-import com.example.model.MessageData
 import com.example.model.ServerData
 import com.example.model.UserData
 
@@ -16,72 +15,37 @@ val mockUsers = mutableListOf(
 
 val mockDirectMessages = mutableListOf(
     ChannelData(
-        id = "1",
         name = "DM 1",
-        members = mockUsers,
-        messages = mutableListOf(
-            MessageData("1", "1" ,"User1", "Hello", "12:00"),
-            MessageData("2","2","User2", "Hi", "12:01"),
-            MessageData("3","3","User3", "Hey, what's up?", "12:02"),
-            MessageData("4","4", "User1", "Nothing much", "12:03"),
-            MessageData("5","5","User2", "Cool", "12:04"),
-            MessageData("6","6","User3", "Yeah", "12:05"),
-        )
-    ),
+        adminId = "",
+        members = mutableListOf(),
+        messages = mutableListOf()) ,
     ChannelData(
-        id = "2",
         name = "DM 1",
-        members = mockUsers,
-        messages = mutableListOf(
-            MessageData("1", "1" ,"User1", "Hello", "12:00"),
-            MessageData("2","2","User2", "Hi", "12:01"),
-            MessageData("3","3","User3", "Hey, what's up?", "12:02"),
-            MessageData("4","4", "User1", "Nothing much", "12:03"),
-            MessageData("5","5","User2", "Cool", "12:04"),
-            MessageData("6","6","User3", "Yeah", "12:05"),
-        )
+        adminId = "",
+        members = mutableListOf(),
+        messages = mutableListOf()
     ),
 )
 
 val mockChannels = mutableListOf(
     ChannelData(
         id = "Channel 1",
+        adminId = "",
         name = "Channel 1",
-        members = mockUsers,
-        messages = mutableListOf(
-            MessageData("1", "1" ,"User1", "Hello", "12:00"),
-            MessageData("2","2","User2", "Hi", "12:01"),
-            MessageData("3","3","User3", "Hey, what's up?", "12:02"),
-            MessageData("4","4", "User1", "Nothing much", "12:03"),
-            MessageData("5","5","User2", "Cool", "12:04"),
-            MessageData("6","6","User3", "Yeah", "12:05"),
-        )
+        members = mutableListOf(),
+        messages = mutableListOf()
     ),
     ChannelData(
-        id = "Channel 2",
         name = "Channel 2",
-        members = mockUsers,
-        messages = mutableListOf(
-            MessageData("1", "1" ,"User1", "Hello", "12:00"),
-            MessageData("2","2","User2", "Hi", "12:01"),
-            MessageData("3","3","User3", "Hey, what's up?", "12:02"),
-            MessageData("4","4", "User1", "Nothing much", "12:03"),
-            MessageData("5","5","User2", "Cool", "12:04"),
-            MessageData("6","6","User3", "Yeah", "12:05"),
-        )
+        adminId = "",
+        members = mutableListOf(),
+        messages = mutableListOf()
     ),
     ChannelData(
-        id = "Channel 3",
         name = "Channel 3",
-        members = mockUsers,
-        messages = mutableListOf(
-            MessageData("1", "1" ,"User1", "Hello", "12:00"),
-            MessageData("2","2","User2", "Hi", "12:01"),
-            MessageData("3","3","User3", "Hey, what's up?", "12:02"),
-            MessageData("4","4", "User1", "Nothing much", "12:03"),
-            MessageData("5","5","User2", "Cool", "12:04"),
-            MessageData("6","6","User3", "Yeah", "12:05"),
-        )
+        adminId = "",
+        members = mutableListOf(),
+        messages = mutableListOf()
     ),
 )
 
@@ -91,8 +55,16 @@ val mockServers = mutableListOf(
         adminId = "User1",
         name = "Server 1",
         avatar = "1",
-        members = mockUsers,
-        )
+        members = mutableListOf(),
+        channels = mutableListOf()
+    ),
+    ServerData(
+        adminId = "User1",
+        name = "Server 2",
+        avatar = "2",
+        members = mutableListOf(),
+        channels = mutableListOf()
+    ),
 )
 
 
