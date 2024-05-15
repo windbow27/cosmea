@@ -14,4 +14,5 @@ interface UserRepository {
     suspend fun checkEmailAvailability(email: String): Boolean
     suspend fun verifyLoginInfo(userName: String, password: String): Boolean
     suspend fun getUserIdByUsername(userName: String): String?
+    suspend fun getUserProfile(userId: String): ProfileData?
 }

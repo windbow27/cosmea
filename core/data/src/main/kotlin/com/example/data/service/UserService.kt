@@ -159,4 +159,27 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
             Log.d("FIRESTORE ERROR", "User not found with ID: $userId")
         }
     }
+
+    override suspend fun getUserProfile(userId: String): ProfileData? {
+        val user = getUserDataById(userId)
+        var profile: ProfileData? = null
+        if (user != null) {
+            firestore.collection("users").document(userId).get()
+                .addOnSuccessListener {documentSnapshot ->
+                    val displayName = documentSnapshot.data?.get("displayName").toString()
+                    val dob = documentSnapshot.data?.get("dob").toString()
+                    val avatar = documentSnapshot.data?.get("avatar").toString()
+                    val bio = documentSnapshot.data?.get("bio").toString()
+                    profile = ProfileData(displayName, dob, avatar, bio)
+                    Log.d("FIRESTORE", "Updated user's profile successfully: $profile")
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("FIRESTORE ERROR", "Error update user's profile data to Firestore: $exception")
+                }.await()
+        }
+        else {
+            Log.d("FIRESTORE ERROR", "User not found with ID: $userId")
+        }
+        return profile
+    }
 }
