@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -27,11 +27,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.service.UserService
+import com.example.designsystem.component.Background
+import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.UserData
 import com.google.firebase.firestore.FirebaseFirestore
@@ -45,6 +48,7 @@ internal fun RegisterRoute(
     RegisterScreen(onRegisterClick, redirectToLogin)
 }
 
+
 @Composable
 fun RegisterScreen(onRegisterClick: () -> Unit, redictToLogin: () -> Unit) {
     var userState by remember { mutableStateOf(TextFieldValue()) }
@@ -55,142 +59,192 @@ fun RegisterScreen(onRegisterClick: () -> Unit, redictToLogin: () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     var isUsernameAvailable by remember { mutableStateOf(true) }
     var isEmailAvailable by remember { mutableStateOf(true) }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF5E399F)),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Sign up with Email",
-            color = Color.White,
-            fontSize = 26.sp
-        )
-        Spacer(modifier = Modifier.height(60.dp))
-        Text(
-            text = "Get chatting with friends and family today by signing up for our chat app!",
-            color = Color.White,
-            textAlign = TextAlign.Center,
-            fontSize = 17.sp,
-            modifier = Modifier.padding(horizontal = 36.dp)
-        )
-        Spacer(modifier = Modifier.height(20.dp))
+    var passwordVisible by remember { mutableStateOf(false) }
+    var checkPasswordVisible by remember { mutableStateOf(false) }
+    Background {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 60.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color.White)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            OutlinedTextField(
-                value = userState,
-                onValueChange = {userState = it
-                    coroutineScope.launch {
-                        isUsernameAvailable = userService.checkUsernameAvailability(it.text)
-                    }},
-                placeholder = { Text("Username") },
+            Text(
+                text = "Sign up with Email",
+                style = MaterialTheme.typography.titleLarge,
+                fontSize = 26.sp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Get chatting with friends and family today by signing up for our chat app!",
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+                fontSize = 17.sp
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                textStyle = MaterialTheme.typography.bodyMedium,
-                singleLine = true
-            )
-            if (!isUsernameAvailable) {
-                Text(
-                    text = "Username is not available",
-                    color = Color.Red,
-                    modifier = Modifier.padding(start = 16.dp)
+                    .padding(20.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.secondaryContainer)
+            ) {
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = userState,
+                    onValueChange = {userState = it
+                        coroutineScope.launch {
+                            isUsernameAvailable = userService.checkUsernameAvailability(it.text)
+                        }},
+                    placeholder = { Text("Username") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    singleLine = true
                 )
-            }
-            OutlinedTextField(
-                value = emailState,
-                onValueChange = {emailState = it
-                    coroutineScope.launch {
-                        isEmailAvailable = userService.checkEmailAvailability(it.text)
+                if (isUsernameAvailable && userState.text != "") {
+                    Text(
+                        text = "Username is available",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Red,
+                        modifier = Modifier.padding(start = 20.dp)
+                    )
+                }
+                else {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                OutlinedTextField(
+                    value = emailState,
+                    onValueChange = {emailState = it
+                        coroutineScope.launch {
+                            isEmailAvailable = userService.checkEmailAvailability(it.text)
+                        }
+                    },
+                    placeholder = { Text("Your Email") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    singleLine = true
+                )
+                if(isEmailAvailable && emailState.text != "") {
+                    Text(text = "Email is not available",
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(start = 20.dp)
+                    )
+                }
+                else {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                OutlinedTextField(
+                    value = passwordState,
+                    onValueChange = { passwordState = it},
+                    placeholder = { Text("Password") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    singleLine = true,
+                    visualTransformation = if (passwordVisible) {
+                        // display password if passwordVisible is true
+                        VisualTransformation.None
+                    } else {
+                        // hide password if passwordVisible is false
+                        PasswordVisualTransformation()
+                    },
+                    trailingIcon = {
+                        // display an icon to toggle password visibility
+                        val icon = if (passwordVisible) Icons.Eye else Icons.EyeOff
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = if (passwordVisible) "Hide Password" else "Show Password",
+                            modifier = Modifier.clickable {
+                                passwordVisible = !passwordVisible
+                            }
+                        )
                     }
-                                },
-                placeholder = { Text("Your Email") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                textStyle = MaterialTheme.typography.bodyMedium,
-                singleLine = true
-            )
-            if(isEmailAvailable) {
-                Text(text = "Email is not available",
-                    color = Color.Red,
-                    modifier = Modifier.padding(start = 16.dp)
-                    )
-            }
-
-            OutlinedTextField(
-                value = passwordState,
-                onValueChange = { passwordState = it},
-                placeholder = { Text("Password") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                textStyle = MaterialTheme.typography.bodyMedium,
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation()
-            )
-            OutlinedTextField(
-                value = checkPasswordState,
-                onValueChange = { checkPasswordState = it},
-                placeholder = { Text("Confirm Password") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                textStyle = MaterialTheme.typography.bodyMedium,
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation()
-            )
-            if(checkPasswordState != passwordState) {
-                Text(text = "Password is incorrect!",
-                    color = Color.Red,
-                    modifier = Modifier.padding(start = 16.dp)
-                    )
-            }
-            val OnRegister:()->Unit = {
-                var userdata = UserData(
-                    userState.text,
-                    passwordState.text,
-                    emailState.text,
-                    null,
-                    null,
-                    null
                 )
-                println(userdata.id)
-                coroutineScope.launch {
-                    if(userService.addUserData(userdata) != null) {
-                        onRegisterClick()
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = checkPasswordState,
+                    onValueChange = { checkPasswordState = it},
+                    placeholder = { Text("Confirm Password") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    singleLine = true,
+                    visualTransformation = if (checkPasswordVisible) {
+                        // display password if passwordVisible is true
+                        VisualTransformation.None
+                    } else {
+                        // hide password if passwordVisible is false
+                        PasswordVisualTransformation()
+                    },
+                    trailingIcon = {
+                        // display an icon to toggle password visibility
+                        val icon = if (checkPasswordVisible) Icons.Eye else Icons.EyeOff
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = if (checkPasswordVisible) "Hide Password" else "Show Password",
+                            modifier = Modifier.clickable {
+                                checkPasswordVisible = !checkPasswordVisible
+                            }
+                        )
+                    }
+                )
+                if(checkPasswordState != passwordState && checkPasswordState.text != "") {
+                    Text(text = "Password is incorrect!",
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(start = 20.dp)
+                    )
+                }
+                else {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                val OnRegister:()->Unit = {
+                    var userdata = UserData(
+                        userState.text,
+                        passwordState.text,
+                        emailState.text,
+                        null,
+                        null,
+                        null
+                    )
+                    println(userdata.id)
+                    coroutineScope.launch {
+                        if(userService.addUserData(userdata) != null && !isUsernameAvailable && !isEmailAvailable && checkPasswordState != passwordState) {
+                            onRegisterClick()
+                        }
                     }
                 }
+                Button(
+                    onClick =  /* Handle register */
+                    OnRegister
+                    ,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .height(56.dp)
+                ) {
+                    Text(text = "Create an account", color = Color.White, fontSize = 16.sp)
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Already have an account? Login",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .clickable(onClick = {
+                            redictToLogin()
+                        }),
+                    textAlign = TextAlign.End
+                )
+                Spacer(modifier = Modifier.height(16.dp))
             }
-            Button(
-                onClick =  /* Handle register */
-                          OnRegister
-                ,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors( Color(0xFFC1A5F4))
-            ) {
-                Text(text = "Create an account", color = Color.White, fontSize = 16.sp)
-            }
-            Text(
-                text = "Already have an account? Login",
-                color = Color.Black,
-                fontSize = 16.sp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 90.dp, bottom = 10.dp, end = 30.dp)
-                    .clickable { /* Handle navigate to login screen */
-                        redictToLogin()
-                    }
-            )
         }
     }
 }
@@ -203,10 +257,10 @@ fun RegisterScreenPreview() {
     }
 }
 
-@Preview
-@Composable
-fun RegisterScreenDarkPreview() {
-    CosmeaTheme(darkTheme = true) {
-        RegisterScreen({}, {})
-    }
-}
+//@Preview
+//@Composable
+//fun RegisterScreenDarkPreview() {
+//    CosmeaTheme(darkTheme = true) {
+//        RegisterScreen({}, {})
+//    }
+//}

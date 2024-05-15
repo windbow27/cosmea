@@ -88,7 +88,7 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
                     .background(MaterialTheme.colorScheme.secondaryContainer)
-                    .padding(20.dp)
+                    .padding(20.dp),
             ) {
                 OutlinedTextField(
                     value = userNameState,

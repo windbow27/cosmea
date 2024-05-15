@@ -11,7 +11,9 @@ import com.example.login.navigation.navigateToLogin
 import com.example.messages.navigation.messagesScreen
 import com.example.notifications.navigation.notificationsScreen
 import com.example.profile.navigation.navigateToProfile
+import com.example.profile.navigation.navigateToProfileView
 import com.example.profile.navigation.profileScreen
+import com.example.profile.navigation.profileViewScreen
 import com.example.register.navigation.navigateToRegister
 import com.example.register.navigation.registerScreen
 import com.example.servers.navigation.SERVERS_ROUTE
@@ -41,7 +43,8 @@ fun AppNavHost(
         conversationScreen(onBackPressed = navController::popBackStack)
         messagesScreen(onChannelClick = navController::navigateToConversation)
         notificationsScreen {}
-        profileScreen (onLogoutClick = navController::navigateToLogin)
+        profileScreen (onLogoutClick = navController::navigateToLogin, onClickProfile = navController::navigateToProfileView)
+        profileViewScreen (onBackClick = navController::navigateToProfile)
         registerScreen (onRegisterClick = navController::navigateToProfile, redirectToLogin = navController::navigateToLogin)
         loginScreen (onLoginClick = navController::navigateToServers , redirectToRegister = navController::navigateToRegister)
     }
