@@ -10,13 +10,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ConversationViewModel(private val channelService: ChannelService) : ViewModel() {
-    private val _channelData = MutableStateFlow<ChannelData?>(null)
-    val channelData: StateFlow<ChannelData?> get() = _channelData
+    private val _channelData = MutableStateFlow(ChannelData("","", "", mutableListOf(), mutableListOf()))
+    val channelData: StateFlow<ChannelData> get() = _channelData
 
     fun fetchChannelData(serverId: String, channelId: String) {
         viewModelScope.launch {
             val data = channelService.getChannelById(serverId, channelId)
-            _channelData.value = data
+            if (data != null) {
+                _channelData.value = data
+            }
         }
     }
 }

@@ -77,11 +77,10 @@ fun ConversationRoute(
     val channelService = ChannelService(FirebaseFirestore.getInstance())
     val conversationViewModel: ConversationViewModel = viewModel(factory = ConversationViewModelFactory(channelService))
 
-    conversationViewModel.channelData.collectAsState().value?.let {
-        ConversationScreen(
-        conversation = it,
-        onBackPressed = onBackPressed,)
-    }
+    ConversationScreen(
+        conversation = conversationViewModel.channelData.collectAsState().value,
+        onBackPressed = onBackPressed,
+        )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,7 +90,7 @@ fun ConversationScreen(
     modifier: Modifier = Modifier,
     onBackPressed: () -> Unit = {},
 ) {
-    println("Conversation: $conversation")
+    println("Conversation: ${conversation.toString()}")
     val authorMe = "Me"
     val timeNow = "Now"
 

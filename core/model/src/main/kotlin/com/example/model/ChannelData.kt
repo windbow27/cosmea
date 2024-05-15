@@ -15,6 +15,10 @@ class ChannelData (
     fun addMessage(userId: String) {
         messages.add(userId)
     }
+
+    override fun toString(): String {
+        return "ChannelData(id='$id', name='$name', members=$members, messages=$messages)"
+    }
 }
 
 fun interface ChannelListener {
