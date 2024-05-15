@@ -13,9 +13,10 @@ fun NavController.navigateToProfile(navOptions: NavOptions? = null) {
 }
 
 fun NavGraphBuilder.profileScreen(
-    onTopicClick: (String) -> Unit
+    onLogoutClick: () -> Unit,
+    onClickProfile: () -> Unit
 ) {
     composable(PROFILE_ROUTE) {
-        ProfileRoute(onTopicClick)
+        ProfileRoute(onLogoutClick, onClickProfile)
     }
 }

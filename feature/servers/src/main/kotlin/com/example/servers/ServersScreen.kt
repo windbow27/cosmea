@@ -14,9 +14,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,27 +29,47 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.data.mockServers
+import com.example.data.service.ServerService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.ChannelListener
 import com.example.model.ServerData
 import com.example.ui.UserHead
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 internal fun ServersRoute(
-    onChannelClick: (String) -> Unit
+    onChannelClick: (String) -> Unit,
+    onCreateServerClick: () -> Unit,
+    onCreateChannelClick: (String) -> Unit
 ) {
+
+    val serverService = ServerService(FirebaseFirestore.getInstance())
+    var servers by remember { mutableStateOf<List<ServerData>>(emptyList()) }
+
+    LaunchedEffect(true) {
+        servers = serverService.getAllServerData()
+    }
+
+    println("Servers: $servers")
+
     ServersScreen(
-        servers = mockServers
-    ) { channel -> onChannelClick(channel) }
+        servers = servers,
+        listener = { channel -> onChannelClick(channel) },
+        onCreateServerClick = onCreateServerClick,
+        onCreateChannelClick = onCreateChannelClick
+    )
 }
+
 @Composable
 fun ServersScreen(
     servers: List<ServerData>,
-    listener: ChannelListener
+    listener: ChannelListener,
+    onCreateServerClick: () -> Unit,
+    onCreateChannelClick: (String) -> Unit
 ) {
-    var selectedServerId by remember { mutableStateOf(servers.first().avatar) }
+    var selectedServerId by remember { mutableStateOf(servers.firstOrNull()?.id) }
     Background {
         Row {
             // Server icons
@@ -65,19 +87,28 @@ fun ServersScreen(
                                 .width(4.dp)
                                 .height(40.dp)
                                 .padding(end = 2.dp)
-                                .background(if (selectedServerId == server.avatar) MaterialTheme.colorScheme.onSurface else Color.Transparent)
+                                .background(if (selectedServerId == server.id) MaterialTheme.colorScheme.onSurface else Color.Transparent)
                         )
                         UserHead(
-                            id = server.avatar,
+                            id = server.id,
                             name = server.name,
                             modifier = Modifier
-                                .clickable { selectedServerId = server.avatar }
+                                .clickable { selectedServerId = server.id }
                         )
                     }
                 }
+                // Add server button
+                IconButton(
+                    onClick = { onCreateServerClick() },
+                ) {
+                    Icon(
+                        imageVector = Icons.Add,
+                        contentDescription = "Add Server"
+                    )
+                }
             }
             // Server details
-            servers.find { it.avatar == selectedServerId }?.let { server ->
+            servers.find { it.id == selectedServerId }?.let { server ->
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -88,15 +119,17 @@ fun ServersScreen(
                         .weight(0.8f)
                         .fillMaxSize()
                 ) {
-                    Column (
-                        modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                    Row (
+                        modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         ServerName(name = server.name)
-                        server.categories.forEach { categoryData ->
-                            ServerCategory(
-                                name = categoryData.name,
-                                channels = categoryData.channels.map { it.name },
-                                listener = listener
+                        IconButton(
+                            onClick = { onCreateChannelClick(server.id) },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Add,
+                                contentDescription = "Add Server"
                             )
                         }
                     }
@@ -111,7 +144,7 @@ fun ServerName(name: String) {
     Text(
         text = name,
         style = MaterialTheme.typography.titleLarge,
-        modifier = Modifier.padding(start = 16.dp, top = 16.dp)
+        modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
     )
 }
 
@@ -164,10 +197,11 @@ fun ServerChannel(channels: List<String>, listener: ChannelListener) {
 fun PreviewServersScreen() {
     CosmeaTheme {
         ServersScreen(
-            servers = mockServers
-        ) {
-            // no-op
-        }
+            servers = mockServers,
+            listener = { channel -> println("Channel clicked: $channel") },
+            onCreateServerClick = { println("Create server clicked") },
+            onCreateChannelClick = { println("Create channel clicked") }
+        )
     }
 }
 
@@ -176,9 +210,9 @@ fun PreviewServersScreen() {
 fun PreviewServersScreenDark() {
     CosmeaTheme(darkTheme = true) {
         ServersScreen(
-            servers = mockServers
-        ) {
-            // no-op
-        }
+            servers = mockServers,
+            listener = { channel -> println("Channel clicked: $channel") },
+            onCreateServerClick = { println("Create server clicked") },
+            onCreateChannelClick = { println("Create channel clicked") })
     }
 }

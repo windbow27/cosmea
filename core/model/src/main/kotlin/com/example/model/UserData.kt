@@ -1,13 +1,11 @@
 package com.example.model
 
-class UserData (
-    val id: String,
-    val name: String,
-    val email: String,
-    val image: Int? = null,
-    val joinedServers : List<String>,
-    val directMessages: List<String>,
-    val friends: List<UserData>
-    // val status: String
-    // val about: String
+class UserData(
+    var username: String,
+    var password: String,
+    var email: String,
+    var joinedServers: MutableList<String>? = null,
+    var friends: MutableList<String>? = null,
+    var profile: ProfileData? = null,
+    var id: String = generateId(username),
 )

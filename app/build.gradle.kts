@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -45,8 +46,18 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/LICENSE.md"
+            excludes +="META-INF/DEPENDENCIES"
+            excludes +="META-INF/LICENSE-notice.md"
+            excludes +="META-INF/LICENSE.txt"
+            excludes +="META-INF/license.txt"
+            excludes +="META-INF/NOTICE"
+            excludes +="META-INF/NOTICE.txt"
+            excludes +="META-INF/notice.txt"
+            excludes +="META-INF/*.kotlin_module"
         }
     }
+
 }
 
 dependencies {
@@ -64,6 +75,10 @@ dependencies {
     implementation(project(":feature:messages"))
     implementation(project(":feature:notifications"))
     implementation(project(":feature:conversation"))
+    implementation(project(":core:data"))
+    implementation(project(":core:model"))
+    implementation(project(":feature:register"))
+    implementation(project(":feature:login"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -74,4 +89,9 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    testImplementation("io.mockk:mockk-android:1.13.10")
 }

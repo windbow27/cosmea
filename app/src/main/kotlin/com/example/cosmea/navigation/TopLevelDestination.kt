@@ -11,20 +11,20 @@ enum class TopLevelDestination(
     val titleTextId: Int
 ) {
     SERVERS(
-        selectedIcon = Icons.Upcoming,
-        unselectedIcon = Icons.UpcomingBorder,
+        selectedIcon = Icons.Servers,
+        unselectedIcon =  Icons.Servers,
         iconTextId = R.string.icon_text_servers,
         titleTextId = R.string.title_text_servers
     ),
     MESSAGES(
-        selectedIcon = Icons.Bookmarks,
-        unselectedIcon = Icons.BookmarksBorder,
+        selectedIcon = Icons.Message,
+        unselectedIcon = Icons.Message,
         iconTextId = R.string.icon_text_messages,
         titleTextId = R.string.title_text_messages
     ),
     NOTIFICATIONS(
-        selectedIcon = Icons.Settings,
-        unselectedIcon = Icons.Settings,
+        selectedIcon = Icons.Notification,
+        unselectedIcon = Icons.Notification,
         iconTextId = R.string.icon_text_notifications,
         titleTextId = R.string.title_text_notifications
     ),

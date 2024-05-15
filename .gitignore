@@ -10,6 +10,8 @@
 .DS_Store
 /build
 /captures
+/build-logic/
 .externalNativeBuild
 .cxx
 local.properties
+.idea/misc.xml

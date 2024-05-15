@@ -14,10 +14,10 @@ fun NavController.navigateToConversation(id: String, navOptions: NavOptions? = n
 }
 
 fun NavGraphBuilder.conversationScreen(
-    onNavIconPressed: () -> Unit,
+    onBackPressed: () -> Unit,
 ) {
     composable(CONVERSATION_ROUTE) { backStackEntry ->
         val id = backStackEntry.arguments?.getString("id")
-        ConversationRoute(id, onNavIconPressed)
+        ConversationRoute(id, onBackPressed)
     }
 }
