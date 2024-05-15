@@ -14,7 +14,10 @@ import com.example.profile.navigation.navigateToProfile
 import com.example.profile.navigation.profileScreen
 import com.example.register.navigation.navigateToRegister
 import com.example.register.navigation.registerScreen
+import com.example.servers.navigation.SERVERS_ROUTE
+import com.example.servers.navigation.createChannelScreen
 import com.example.servers.navigation.createServerScreen
+import com.example.servers.navigation.navigateToCreateChannel
 import com.example.servers.navigation.navigateToCreateServer
 import com.example.servers.navigation.navigateToServers
 import com.example.servers.navigation.serversScreen
@@ -24,6 +27,7 @@ fun AppNavHost(
     appState: AppState,
     modifier: Modifier = Modifier,
     startDestination: String = LOGIN_ROUTE,
+//    startDestination: String = SERVERS_ROUTE,
 ) {
     val navController = appState.navController
     NavHost(
@@ -31,11 +35,10 @@ fun AppNavHost(
         navController = navController,
         startDestination = startDestination,
     ) {
-        serversScreen(onChannelClick = navController::navigateToConversation, onCreateServerClick = navController::navigateToCreateServer)
-        createServerScreen(onBackPressed = navController::popBackStack)
-        conversationScreen(
-            onBackPressed = navController::popBackStack
-        )
+        serversScreen(onChannelClick = navController::navigateToConversation, onCreateServerClick = navController::navigateToCreateServer, onCreateChannelClick = navController::navigateToCreateChannel)
+        createServerScreen(onBackPressed = navController::popBackStack, onCreateServerClick = navController::navigateToServers)
+        createChannelScreen(onBackPressed = navController::popBackStack, onCreateChannelClick = navController::navigateToServers)
+        conversationScreen(onBackPressed = navController::popBackStack)
         messagesScreen(onChannelClick = navController::navigateToConversation)
         notificationsScreen {}
         profileScreen (onLogoutClick = navController::navigateToLogin)

@@ -27,7 +27,7 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
         firestore.collection("users").document(userId).get()
             .addOnSuccessListener { document ->
                 if (document != null) {
-                    user = document.data.toString()
+                    user = document.toString()
                     Log.d("FIRESTORE", "Get user with ID: $userId successfully")
                     Log.d("FIRESTORE", "User: $user")
                 } else {

@@ -57,11 +57,12 @@ fun LoginScreen(
     onLoginClick: () -> Unit,
     redirectToRegister: () -> Unit
 ) {
-    val userService = UserService(FirebaseFirestore.getInstance())
     var userNameState by remember { mutableStateOf(TextFieldValue()) }
     var passwordState by remember { mutableStateOf(TextFieldValue()) }
     var loginError by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     Background {
         Column(
@@ -124,34 +125,26 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                val context = LocalContext.current
-                val coroutineScope = rememberCoroutineScope()
                 val onLogin:() -> Unit = {
-                    coroutineScope.launch {
-                        val acceptLogin =
-                            userService.verifyLoginInfo(userNameState.text, passwordState.text)
-                        if(acceptLogin) {
-                            val currentUserId = userService.getUserIdByUsername(userNameState.text)
-
-                            // Save currentUserId to SharedPreferences
-                            val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
-                            with (sharedPref.edit()) {
-                                putString("currentUserId", currentUserId)
-                                apply()
-                            }
-
-                            onLoginClick()
-                        }
-                        else {
-                            loginError = true
-                            kotlinx.coroutines.delay(1000L)
-                            loginError = false
-                        }
-                    }
                 }
 
                 Button(
-                    onClick = onLogin,
+                    onClick = {
+                        coroutineScope.launch {
+                            val success = login(
+                                userNameState.text,
+                                passwordState.text,
+                                context
+                            )
+                            if (success) {
+                                onLoginClick()
+                            } else {
+                                loginError = true
+                                kotlinx.coroutines.delay(1000L)
+                                loginError = false
+                            }
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Log In")
@@ -183,6 +176,26 @@ fun LoginScreen(
             }
         }
     }
+}
+
+suspend fun login(
+    userName: String,
+    password: String,
+    context: Context
+): Boolean {
+    val userService = UserService(FirebaseFirestore.getInstance())
+    val acceptLogin = userService.verifyLoginInfo(userName, password)
+    if (acceptLogin) {
+        val currentUserId = userService.getUserIdByUsername(userName)
+
+        // Save currentUserId to SharedPreferences
+        val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putString("currentUserId", currentUserId)
+            apply()
+        }
+    }
+    return acceptLogin
 }
 
 // comment firebase part for preview

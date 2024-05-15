@@ -1,6 +1,7 @@
 package com.example.servers
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,7 +12,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
@@ -26,39 +26,43 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.data.service.ChannelService
 import com.example.data.service.ServerService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
+import com.example.model.ChannelData
 import com.example.model.ServerData
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-internal fun CreateServerRoute(
+internal fun CreateChannelRoute(
+    serverId : String,
     onBackPressed: () -> Unit,
-    onCreateServerClick: () -> Unit
+    onCreateChannelClick: () -> Unit
 )  {
-    CreateServerScreen(
+    CreateChannelScreen(
+        serverId = serverId,
         onBackPressed = onBackPressed,
-        onCreateServerClick = onCreateServerClick
+        onCreateChannelClick = onCreateChannelClick
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateServerScreen(
+fun CreateChannelScreen(
+    serverId: String,
     onBackPressed: () -> Unit,
-    onCreateServerClick: () -> Unit,
+    onCreateChannelClick: () -> Unit
 ) {
-    var serverName by remember { mutableStateOf("My Server") }
+    var channelName by remember { mutableStateOf("new-channel") }
     val context = LocalContext.current
     val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
     val adminId = sharedPref.getString("currentUserId", null)
     val coroutineScope = rememberCoroutineScope()
-
-    Background {
+    Background{
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -77,71 +81,53 @@ fun CreateServerScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Create Your Server",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            IconButton(onClick = { /* Handle upload image */ }) {
-                Icon(
-                    imageVector = Icons.Add,
-                    contentDescription = "Upload Server Image"
-                )
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
             TextField(
-                value = serverName,
-                onValueChange = { serverName = it },
-                label = { Text("Server Name") },
+                value = channelName,
+                onValueChange = { channelName = it },
+                label = { Text("Channel Name") },
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = {
                 coroutineScope.launch {
-                    // Create server
-                    val newServer = ServerData(
+                    // Create channel
+                    val newChannel = ChannelData(
                         adminId = adminId!!,
-                        name = serverName,
-                        avatar = "https://example.com/avatar.jpg",
+                        name = channelName,
+                        members = mutableListOf(adminId),
+                        messages = mutableListOf()
                     )
-                    addServerData(newServer, coroutineScope)
+                    addChannelData(newChannel, coroutineScope, serverId, adminId)
                 }
-                onCreateServerClick()
+                onCreateChannelClick()
             }) {
-                Text("Create Server")
+                Text("Create Channel")
             }
         }
     }
 }
 
-fun addServerData(serverData: ServerData, coroutineScope: CoroutineScope) {
+fun addChannelData(channelData: ChannelData, coroutineScope: CoroutineScope, serverId: String, currentUserId: String) {
+    val channelService = ChannelService(FirebaseFirestore.getInstance())
     coroutineScope.launch {
-        val serverService = ServerService(FirebaseFirestore.getInstance())
-        serverService.addServerData(serverData)
+        channelService.addChannel(serverId, channelData, currentUserId)
     }
 }
 
 @Preview
 @Composable
-fun CreateServerScreenPreview() {
+fun CreateChannelScreenPreview() {
     CosmeaTheme {
-        CreateServerScreen(onBackPressed = {}, onCreateServerClick = {})
+        CreateChannelScreen("",{}, {})
     }
 }
 
 @Preview
 @Composable
-fun CreateServerRoutePreview() {
+fun CreateChannelScreenDarkPreview() {
     CosmeaTheme(darkTheme = true) {
-        CreateServerRoute(onBackPressed = {}, onCreateServerClick = {})
+        CreateChannelScreen("",{}, {})
     }
 }

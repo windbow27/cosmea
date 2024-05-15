@@ -1,5 +1,7 @@
 package com.example.conversation
 
+//import com.example.data.mockDirectMessages
+//import com.example.data.mockServers
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -54,11 +56,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.data.mockDirectMessages
-import com.example.data.mockServers
-import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.ChannelData
 import com.example.model.MessageData
 import com.example.ui.AppBar
@@ -72,27 +70,27 @@ fun ConversationRoute(
 ) {
     println("Conversation ID: $conversationId")
 
-    val conversationServers = mockServers
-        .flatMap { it.categories }
-        .flatMap { it.channels }
-        .find { it.id == conversationId }
-
-    if (conversationServers != null) {
-        ConversationScreen(
-            conversation = conversationServers,
-            onBackPressed = onBackPressed,
-        )
-    } else {
-        val conversationDirectMessage = mockDirectMessages.find { it.id == conversationId }
-        if (conversationDirectMessage != null) {
-            ConversationScreen(
-                conversation = conversationDirectMessage,
-                onBackPressed = onBackPressed,
-            )
-        } else {
-            Text("Conversation not found")
-        }
-    }
+//    val conversationServers = mockServers
+//        .flatMap { it.categories }
+//        .flatMap { it.channels }
+//        .find { it.id == conversationId }
+//
+//    if (conversationServers != null) {
+//        ConversationScreen(
+//            conversation = conversationServers,
+//            onBackPressed = onBackPressed,
+//        )
+//    } else {
+//        val conversationDirectMessage = mockDirectMessages.find { it.id == conversationId }
+//        if (conversationDirectMessage != null) {
+//            ConversationScreen(
+//                conversation = conversationDirectMessage,
+//                onBackPressed = onBackPressed,
+//            )
+//        } else {
+//            Text("Conversation not found")
+//        }
+//    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -133,7 +131,8 @@ fun ConversationScreen(
                 .fillMaxSize()
                 .padding(paddingValues)) {
             Messages(
-                messageData = conversation.messages,
+//                messageData = conversation.messages,
+                messageData = emptyList(), // temporary
                 navigateToProfile = { },
                 modifier = Modifier.weight(1f),
                 scrollState = scrollState
@@ -454,22 +453,22 @@ fun ClickableMessage(
     )
 }
 
-@Preview
-@Composable
-fun ConversationScreenPreview() {
-    CosmeaTheme {
-        ConversationScreen(
-            conversation = mockServers.flatMap { it.categories }.flatMap { it.channels }.first(),
-        ) { }
-    }
-}
-
-@Preview
-@Composable
-fun ConversationScreenDarkPreview() {
-    CosmeaTheme(darkTheme = true) {
-        ConversationScreen(
-            conversation = mockServers.flatMap { it.categories }.flatMap { it.channels }.first(),
-        ) { }
-    }
-}
+//@Preview
+//@Composable
+//fun ConversationScreenPreview() {
+//    CosmeaTheme {
+//        ConversationScreen(
+//            conversation = mockServers.flatMap { it.categories }.flatMap { it.channels }.first(),
+//        ) { }
+//    }
+//}
+//
+//@Preview
+//@Composable
+//fun ConversationScreenDarkPreview() {
+//    CosmeaTheme(darkTheme = true) {
+//        ConversationScreen(
+//            conversation = mockServers.flatMap { it.categories }.flatMap { it.channels }.first(),
+//        ) { }
+//    }
+//}
