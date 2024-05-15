@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import com.example.conversation.navigation.conversationScreen
 import com.example.conversation.navigation.navigateToConversation
 import com.example.cosmea.ui.AppState
+import com.example.login.navigation.LOGIN_ROUTE
 import com.example.login.navigation.loginScreen
 import com.example.login.navigation.navigateToLogin
 import com.example.messages.navigation.messagesScreen
@@ -25,8 +26,8 @@ import com.example.servers.navigation.serversScreen
 fun AppNavHost(
     appState: AppState,
     modifier: Modifier = Modifier,
-//    startDestination: String = LOGIN_ROUTE,
-    startDestination: String = SERVERS_ROUTE,
+    startDestination: String = LOGIN_ROUTE,
+//    startDestination: String = SERVERS_ROUTE,
 ) {
     val navController = appState.navController
     NavHost(
@@ -34,7 +35,7 @@ fun AppNavHost(
         navController = navController,
         startDestination = startDestination,
     ) {
-        serversScreen(onChannelClick = navController::navigateToConversation, onCreateServerClick = navController::navigateToCreateServer, onCreateChannelCLick = navController::navigateToCreateChannel)
+        serversScreen(onChannelClick = navController::navigateToConversation, onCreateServerClick = navController::navigateToCreateServer, onCreateChannelClick = navController::navigateToCreateChannel)
         createServerScreen(onBackPressed = navController::popBackStack, onCreateServerClick = navController::navigateToServers)
         createChannelScreen(onBackPressed = navController::popBackStack, onCreateChannelClick = navController::navigateToServers)
         conversationScreen(onBackPressed = navController::popBackStack)

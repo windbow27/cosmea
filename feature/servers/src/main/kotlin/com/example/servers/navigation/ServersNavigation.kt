@@ -10,7 +10,7 @@ import com.example.servers.ServersRoute
 
 const val SERVERS_ROUTE = "servers"
 const val CREATE_SERVER_ROUTE = "create_server"
-const val CREATE_CHANNEL_ROUTE = "create_channel"
+const val CREATE_CHANNEL_ROUTE = "create_channel/{serverId}"
 
 fun NavController.navigateToServers(navOptions: NavOptions? = null) {
     navigate(SERVERS_ROUTE, navOptions)
@@ -19,10 +19,10 @@ fun NavController.navigateToServers(navOptions: NavOptions? = null) {
 fun NavGraphBuilder.serversScreen(
     onChannelClick: (String) -> Unit,
     onCreateServerClick: () -> Unit,
-    onCreateChannelCLick: () -> Unit
+    onCreateChannelClick: (String) -> Unit
 ) {
     composable(SERVERS_ROUTE) {
-        ServersRoute(onChannelClick, onCreateServerClick, onCreateChannelCLick)
+        ServersRoute(onChannelClick, onCreateServerClick, onCreateChannelClick)
     }
 }
 
@@ -39,15 +39,19 @@ fun NavGraphBuilder.createServerScreen(
     }
 }
 
-fun NavController.navigateToCreateChannel(navOptions: NavOptions? = null) {
-    navigate(CREATE_CHANNEL_ROUTE, navOptions)
+fun NavController.navigateToCreateChannel(serverId: String, navOptions: NavOptions? = null) {
+    val route = CREATE_CHANNEL_ROUTE.replace("{serverId}", serverId)
+    navigate(route, navOptions)
 }
 
 fun NavGraphBuilder.createChannelScreen(
     onBackPressed: () -> Unit,
     onCreateChannelClick: () -> Unit
 ) {
-    composable(CREATE_CHANNEL_ROUTE) {
-        CreateChannelRoute(onBackPressed, onCreateChannelClick)
+    composable(CREATE_CHANNEL_ROUTE) {backStackEntry ->
+        val serverId = backStackEntry.arguments?.getString("serverId")
+        if (serverId != null) {
+            CreateChannelRoute(serverId, onBackPressed, onCreateChannelClick)
+        }
     }
 }

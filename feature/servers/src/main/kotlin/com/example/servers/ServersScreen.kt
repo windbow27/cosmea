@@ -42,20 +42,23 @@ import com.google.firebase.firestore.FirebaseFirestore
 internal fun ServersRoute(
     onChannelClick: (String) -> Unit,
     onCreateServerClick: () -> Unit,
-    onCreateChannelCLick: () -> Unit
+    onCreateChannelClick: (String) -> Unit
 ) {
+
     val serverService = ServerService(FirebaseFirestore.getInstance())
     var servers by remember { mutableStateOf<List<ServerData>>(emptyList()) }
 
-    LaunchedEffect(key1 = Unit) {
+    LaunchedEffect(true) {
         servers = serverService.getAllServerData()
     }
+
+    println("Servers: $servers")
 
     ServersScreen(
         servers = servers,
         listener = { channel -> onChannelClick(channel) },
         onCreateServerClick = onCreateServerClick,
-        onCreateChannelClick = onCreateChannelCLick
+        onCreateChannelClick = onCreateChannelClick
     )
 }
 
@@ -64,7 +67,7 @@ fun ServersScreen(
     servers: List<ServerData>,
     listener: ChannelListener,
     onCreateServerClick: () -> Unit,
-    onCreateChannelClick: () -> Unit
+    onCreateChannelClick: (String) -> Unit
 ) {
     var selectedServerId by remember { mutableStateOf(servers.firstOrNull()?.id) }
     Background {
@@ -122,7 +125,7 @@ fun ServersScreen(
                     ) {
                         ServerName(name = server.name)
                         IconButton(
-                            onClick = { onCreateChannelClick() },
+                            onClick = { onCreateChannelClick(server.id) },
                         ) {
                             Icon(
                                 imageVector = Icons.Add,

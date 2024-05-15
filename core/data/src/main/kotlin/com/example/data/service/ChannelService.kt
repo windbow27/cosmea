@@ -9,23 +9,23 @@ import kotlinx.coroutines.tasks.await
 class ChannelService(private val firestore: FirebaseFirestore): ChannelRepository {
     override suspend fun addChannel(serverId: String, channelData: ChannelData, currentUserId: String) {
         val serverService = ServerService(firestore)
-        val adminId = serverService.getAdminId(serverId)
-        Log.d("FIRESTORE", "Admin ID: $adminId")
-        if (adminId == currentUserId) {
-            firestore.collection("servers").document(serverId)
-                .collection("channels").document(channelData.id).set(channelData)
-                .addOnSuccessListener {
-                    Log.d("FIRESTORE", "Added channel successfully: ${channelData}")
+        // val adminId = serverService.getAdminId(serverId)
+        // Log.d("FIRESTORE", "Admin ID: $adminId")
+        // if (adminId == currentUserId) {
+        firestore.collection("servers").document(serverId)
+            .collection("channels").document(channelData.id).set(channelData)
+            .addOnSuccessListener {
+                Log.d("FIRESTORE", "Added channel successfully: ${channelData}")
 
-                }
-                .addOnFailureListener { exception ->
-                    Log.e("FIRESTORE ERROR", "Error adding channels: $exception")
-                }.await()
-            addChannelIntoServerList(serverId, channelData.id)
-            addMember(serverId, channelData.id ,channelData.adminId)
-            return
-        }
-        Log.e("FIRESTORE ERROR", "Only admin can create new channel")
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FIRESTORE ERROR", "Error adding channels: $exception")
+            }.await()
+        addChannelIntoServerList(serverId, channelData.id)
+        addMember(serverId, channelData.id ,channelData.adminId)
+        return
+        // }
+        // Log.e("FIRESTORE ERROR", "Only admin can create new channel")
     }
 
     override suspend fun addChannelIntoServerList(serverId: String, channelId: String) {
