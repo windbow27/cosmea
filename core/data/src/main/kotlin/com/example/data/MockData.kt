@@ -27,6 +27,13 @@ val mockDirectMessages = mutableListOf(
     ),
 )
 
+val mockChannel = ChannelData(
+    name = "Channel 1",
+    adminId = "",
+    members = mutableListOf(),
+    messages = mutableListOf()
+)
+
 val mockChannels = mutableListOf(
     ChannelData(
         id = "Channel 1",

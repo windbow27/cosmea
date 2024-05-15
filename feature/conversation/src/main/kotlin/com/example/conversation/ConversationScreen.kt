@@ -1,7 +1,5 @@
 package com.example.conversation
 
-//import com.example.data.mockDirectMessages
-//import com.example.data.mockServers
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -42,6 +40,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,12 +55,18 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.data.mockChannel
+import com.example.data.service.ChannelService
+import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.ChannelData
 import com.example.model.MessageData
 import com.example.ui.AppBar
 import com.example.ui.UserHead
 import com.example.ui.UserInput
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun ConversationRoute(
@@ -69,28 +74,14 @@ fun ConversationRoute(
     onBackPressed: () -> Unit,
 ) {
     println("Conversation ID: $conversationId")
+    val channelService = ChannelService(FirebaseFirestore.getInstance())
+    val conversationViewModel: ConversationViewModel = viewModel(factory = ConversationViewModelFactory(channelService))
 
-//    val conversationServers = mockServers
-//        .flatMap { it.categories }
-//        .flatMap { it.channels }
-//        .find { it.id == conversationId }
-//
-//    if (conversationServers != null) {
-//        ConversationScreen(
-//            conversation = conversationServers,
-//            onBackPressed = onBackPressed,
-//        )
-//    } else {
-//        val conversationDirectMessage = mockDirectMessages.find { it.id == conversationId }
-//        if (conversationDirectMessage != null) {
-//            ConversationScreen(
-//                conversation = conversationDirectMessage,
-//                onBackPressed = onBackPressed,
-//            )
-//        } else {
-//            Text("Conversation not found")
-//        }
-//    }
+    conversationViewModel.channelData.collectAsState().value?.let {
+        ConversationScreen(
+        conversation = it,
+        onBackPressed = onBackPressed,)
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,6 +91,7 @@ fun ConversationScreen(
     modifier: Modifier = Modifier,
     onBackPressed: () -> Unit = {},
 ) {
+    println("Conversation: $conversation")
     val authorMe = "Me"
     val timeNow = "Now"
 
@@ -453,22 +445,22 @@ fun ClickableMessage(
     )
 }
 
-//@Preview
-//@Composable
-//fun ConversationScreenPreview() {
-//    CosmeaTheme {
-//        ConversationScreen(
-//            conversation = mockServers.flatMap { it.categories }.flatMap { it.channels }.first(),
-//        ) { }
-//    }
-//}
-//
-//@Preview
-//@Composable
-//fun ConversationScreenDarkPreview() {
-//    CosmeaTheme(darkTheme = true) {
-//        ConversationScreen(
-//            conversation = mockServers.flatMap { it.categories }.flatMap { it.channels }.first(),
-//        ) { }
-//    }
-//}
+@Preview
+@Composable
+fun ConversationScreenPreview() {
+    CosmeaTheme {
+        ConversationScreen(
+            conversation = mockChannel,
+        ) { }
+    }
+}
+
+@Preview
+@Composable
+fun ConversationScreenDarkPreview() {
+    CosmeaTheme(darkTheme = true) {
+        ConversationScreen(
+            conversation = mockChannel
+        ) { }
+    }
+}

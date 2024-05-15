@@ -37,4 +37,5 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     testImplementation("io.mockk:mockk-android:1.13.10")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
 }

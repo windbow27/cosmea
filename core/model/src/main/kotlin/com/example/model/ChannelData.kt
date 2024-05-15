@@ -5,7 +5,7 @@ class ChannelData (
     var adminId: String,
     var members : MutableList<String> = mutableListOf(),
     var messages: MutableList<String> = mutableListOf(),
-    var id: String = generateId(name)
+    var id: String = generateId(name + adminId)
 ) {
     fun addMember(userId: String) {
         members.add(userId)

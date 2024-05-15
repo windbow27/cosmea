@@ -126,8 +126,8 @@ class ChannelService(private val firestore: FirebaseFirestore): ChannelRepositor
                         val id: String = document.data?.get("id").toString()
                         val adminId: String = document.data?.get("adminId").toString()
                         val name: String = document.data?.get("name").toString()
-                        val members: MutableList<String> = document.data?.get("members") as MutableList<String>
-                        val messages: MutableList<String> = document.data?.get("messages") as MutableList<String>
+                        val members: MutableList<String> = document.data?.get("members") as MutableList<String>? ?: mutableListOf()
+                        val messages: MutableList<String> = document.data?.get("messages") as MutableList<String>? ?: mutableListOf()
                         Log.d("FIRESTORE", "Get channel with ID: $serverId successfully")
                         channel = ChannelData(name, adminId, members, messages, id = id)
                         Log.d("FIRESTORE", "Channel: $server")
