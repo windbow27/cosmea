@@ -131,7 +131,8 @@ fun ConversationScreen(
                 .fillMaxSize()
                 .padding(paddingValues)) {
             Messages(
-                messageData = conversation.messages,
+//                messageData = conversation.messages,
+                messageData = emptyList(), // temporary
                 navigateToProfile = { },
                 modifier = Modifier.weight(1f),
                 scrollState = scrollState

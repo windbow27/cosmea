@@ -146,10 +146,10 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
                     val id: String = document.data["id"].toString()
                     val adminId: String = document.data["adminId"].toString()
                     val avatar: String = document.data["avatar"].toString()
-                    val categories: MutableList<String> = document.data["categories"] as MutableList<String>
-                    val members: MutableList<UserData> = document.data["members"] as MutableList<UserData>
+                    val channels: MutableList<String> = document.data["channels"] as MutableList<String>
+                    val members: MutableList<String> = document.data["members"] as MutableList<String>
                     val name: String = document.data["name"].toString()
-                    servers.add(ServerData(adminId, name, avatar, members, categories, id = id))
+                    servers.add(ServerData(adminId, name, avatar, members, channels, id = id))
                 }
                 Log.d("FIRESTORE", "Get all servers successfully:")
                 servers.forEach { server ->
