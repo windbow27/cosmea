@@ -17,20 +17,32 @@ val mockDirectMessages = mutableListOf(
     ChannelData(
         name = "DM 1",
         adminId = "",
+        serverId = "",
         members = mutableListOf(),
-        messages = mutableListOf()) ,
+        messages = mutableListOf()),
     ChannelData(
         name = "DM 1",
         adminId = "",
+        serverId = "",
         members = mutableListOf(),
         messages = mutableListOf()
     ),
+)
+
+val mockChannel = ChannelData(
+    name = "Channel 1",
+    serverId = "Server1",
+    adminId = "",
+    serverId = "",
+    members = mutableListOf(),
+    messages = mutableListOf()
 )
 
 val mockChannels = mutableListOf(
     ChannelData(
         id = "Channel 1",
         adminId = "",
+        serverId = "",
         name = "Channel 1",
         members = mutableListOf(),
         messages = mutableListOf()
@@ -38,12 +50,14 @@ val mockChannels = mutableListOf(
     ChannelData(
         name = "Channel 2",
         adminId = "",
+        serverId = "",
         members = mutableListOf(),
         messages = mutableListOf()
     ),
     ChannelData(
         name = "Channel 3",
         adminId = "",
+        serverId = "",
         members = mutableListOf(),
         messages = mutableListOf()
     ),

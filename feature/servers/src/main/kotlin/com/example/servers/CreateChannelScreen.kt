@@ -1,7 +1,6 @@
 package com.example.servers
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,12 +26,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.data.service.ChannelService
-import com.example.data.service.ServerService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.ChannelData
-import com.example.model.ServerData
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -95,6 +92,7 @@ fun CreateChannelScreen(
                     // Create channel
                     val newChannel = ChannelData(
                         adminId = adminId!!,
+                        serverId = serverId,
                         name = channelName,
                         members = mutableListOf(adminId),
                         messages = mutableListOf()
