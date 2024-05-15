@@ -29,7 +29,7 @@ class ServersViewModel(private val serverService: ServerService, private val cha
 
     private suspend fun getAllChannelData(serverId: String?, channelIds: List<String>?): List<ChannelData?> {
         return channelIds?.map { channelId ->
-            serverId?.let { channelService.getChannelById(it, channelId) }
+            serverId?.let { channelService.getChannelById(channelId) }
         } ?: listOf()
     }
 
@@ -57,7 +57,7 @@ class ChannelViewModel(private val channelService: ChannelService) : ViewModel()
 
     fun fetchChannelData(serverId: String, channelId: String) {
         viewModelScope.launch {
-            _channelData.value = channelService.getChannelById(serverId, channelId)
+            _channelData.value = channelService.getChannelById(channelId)
         }
     }
 }

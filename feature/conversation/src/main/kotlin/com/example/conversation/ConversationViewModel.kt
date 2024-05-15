@@ -15,7 +15,7 @@ class ConversationViewModel(private val channelService: ChannelService) : ViewMo
 
     fun fetchChannelData(serverId: String, channelId: String) {
         viewModelScope.launch {
-            val data = channelService.getChannelById(serverId, channelId)
+            val data = channelService.getChannelById(channelId)
             if (data != null) {
                 _channelData.value = data
             }
