@@ -97,7 +97,7 @@ fun CreateChannelScreen(
                         members = mutableListOf(adminId),
                         messages = mutableListOf()
                     )
-                    addChannelData(newChannel, coroutineScope, serverId, adminId)
+                    addChannelData(newChannel, coroutineScope, adminId)
                 }
                 onCreateChannelClick()
             }) {
@@ -107,10 +107,10 @@ fun CreateChannelScreen(
     }
 }
 
-fun addChannelData(channelData: ChannelData, coroutineScope: CoroutineScope, serverId: String, currentUserId: String) {
+fun addChannelData(channelData: ChannelData, coroutineScope: CoroutineScope, currentUserId: String) {
     val channelService = ChannelService(FirebaseFirestore.getInstance())
     coroutineScope.launch {
-        channelService.addChannel(serverId, channelData, currentUserId)
+        channelService.addChannel(channelData, currentUserId)
     }
 }
 
