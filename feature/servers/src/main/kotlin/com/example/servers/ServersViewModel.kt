@@ -15,13 +15,15 @@ class ServersViewModel(private val serverService: ServerService, private val cha
     private val _servers = MutableStateFlow<List<ServerData>>(emptyList())
     val servers: StateFlow<List<ServerData>> = _servers
 
-    private val _allChannelData = MutableStateFlow<List<ChannelData?>>(listOf())
-    val allChannelData: StateFlow<List<ChannelData?>> = _allChannelData
+    private val _channels = MutableStateFlow<Map<String, List<ChannelData?>>>(emptyMap())
+    val channels: StateFlow<Map<String, List<ChannelData?>>> = _channels
 
     init {
         viewModelScope.launch {
             _servers.value = serverService.getAllServerData()
-            _allChannelData.value = getAllChannelData(_servers.value.firstOrNull()?.id, _servers.value.firstOrNull()?.channels)
+            _servers.value.forEach { server ->
+                _channels.value += (server.id to getAllChannelData(server.id, server.channels))
+            }
         }
     }
 
@@ -29,6 +31,13 @@ class ServersViewModel(private val serverService: ServerService, private val cha
         return channelIds?.map { channelId ->
             serverId?.let { channelService.getChannelById(it, channelId) }
         } ?: listOf()
+    }
+
+    fun selectServer(serverId: String) {
+        viewModelScope.launch {
+            val server = serverService.getServerDataById(serverId)
+            _channels.value += (serverId to getAllChannelData(serverId, server?.channels))
+        }
     }
 }
 

@@ -146,8 +146,8 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
                     val id: String = document.data["id"].toString()
                     val adminId: String = document.data["adminId"].toString()
                     val avatar: String = document.data["avatar"].toString()
-                    val channels: MutableList<String> = document.data["channels"] as MutableList<String>
-                    val members: MutableList<String> = document.data["members"] as MutableList<String>
+                    val channels: MutableList<String> = (document.data["channels"] as? MutableList<String>) ?: mutableListOf()
+                    val members: MutableList<String> = (document.data["members"] as? MutableList<String>) ?: mutableListOf()
                     val name: String = document.data["name"].toString()
                     servers.add(ServerData(adminId, name, avatar, members, channels, id = id))
                 }

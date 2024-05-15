@@ -129,7 +129,7 @@ class ChannelService(private val firestore: FirebaseFirestore): ChannelRepositor
                         val members: MutableList<String> = document.data?.get("members") as MutableList<String>? ?: mutableListOf()
                         val messages: MutableList<String> = document.data?.get("messages") as MutableList<String>? ?: mutableListOf()
                         Log.d("FIRESTORE", "Get channel with ID: $serverId successfully")
-                        channel = ChannelData(name, adminId, members, messages, id = id)
+                        channel = ChannelData(name, adminId, serverId, members, messages, id = id)
                         Log.d("FIRESTORE", "Channel: $server")
                     } else {
                         Log.d("FIRESTORE ERROR", "Server not found with ID: $serverId")

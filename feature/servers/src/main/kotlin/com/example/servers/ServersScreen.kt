@@ -22,7 +22,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.data.mockChannels
 import com.example.data.mockServers
 import com.example.data.service.ChannelService
 import com.example.data.service.ServerService
@@ -54,7 +54,7 @@ internal fun ServersRoute(
 
     ServersScreen(
         servers = serversViewModel.servers.collectAsState().value,
-        channels = serversViewModel.allChannelData.collectAsState().value,
+        channels = serversViewModel.channels.collectAsState().value,
         listener = { channel -> onChannelClick(channel) },
         onCreateServerClick = onCreateServerClick,
         onCreateChannelClick = onCreateChannelClick
@@ -64,12 +64,11 @@ internal fun ServersRoute(
 @Composable
 fun ServersScreen(
     servers: List<ServerData>,
-    channels: List<ChannelData?>,
+    channels: Map<String, List<ChannelData?>>,
     listener: ChannelListener,
     onCreateServerClick: () -> Unit,
     onCreateChannelClick: (String) -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
     var selectedServerId by remember { mutableStateOf(servers.firstOrNull()?.id) }
     Background {
         Row {
@@ -135,7 +134,7 @@ fun ServersScreen(
                                 )
                             }
                         }
-                        channels.forEach { channelData ->
+                        channels[selectedServerId]?.forEach { channelData ->
                             channelData?.let {
                                 Text(
                                     text = it.name,
@@ -170,7 +169,7 @@ fun PreviewServersScreen() {
     CosmeaTheme {
         ServersScreen(
             servers = mockServers,
-            channels = listOf(),
+            channels = mockChannels,
             listener = { channel -> println("Channel clicked: $channel") },
             onCreateServerClick = { println("Create server clicked") }
         ) { println("Create channel clicked") }
@@ -183,7 +182,7 @@ fun PreviewServersScreenDark() {
     CosmeaTheme(darkTheme = true) {
         ServersScreen(
             servers = mockServers,
-            channels = listOf(),
+            channels = mockChannels,
             listener = { channel -> println("Channel clicked: $channel") },
             onCreateServerClick = { println("Create server clicked") }
         ) { println("Create channel clicked") }
