@@ -19,24 +19,20 @@ class ServersViewModel(private val serverService: ServerService, private val cha
     val channels: StateFlow<Map<String, List<ChannelData?>>> = _channels
 
     init {
+        fetchServersAndChannels()
+    }
+
+    fun fetchServersAndChannels() {
         viewModelScope.launch {
-            _servers.value = serverService.getAllServerData()
-            _servers.value.forEach { server ->
-                _channels.value += (server.id to getAllChannelData(server.id, server.channels))
+            val fetchedServers = serverService.getAllServerData()
+            _servers.value = fetchedServers
+
+            val fetchedChannels = fetchedServers.associate { server ->
+                server.id to server.channels.mapNotNull { channelId ->
+                    channelService.getChannelById(channelId)
+                }
             }
-        }
-    }
-
-    private suspend fun getAllChannelData(serverId: String?, channelIds: List<String>?): List<ChannelData?> {
-        return channelIds?.map { channelId ->
-            serverId?.let { channelService.getChannelById(channelId) }
-        } ?: listOf()
-    }
-
-    fun selectServer(serverId: String) {
-        viewModelScope.launch {
-            val server = serverService.getServerDataById(serverId)
-            _channels.value += (serverId to getAllChannelData(serverId, server?.channels))
+            _channels.value = fetchedChannels
         }
     }
 }
@@ -46,27 +42,6 @@ class ServersViewModelFactory(private val serverService: ServerService, private 
         if (modelClass.isAssignableFrom(ServersViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return ServersViewModel(serverService, channelService) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-}
-
-class ChannelViewModel(private val channelService: ChannelService) : ViewModel() {
-    private val _channelData = MutableStateFlow<ChannelData?>(null)
-    val channelData: StateFlow<ChannelData?> get() = _channelData
-
-    fun fetchChannelData(serverId: String, channelId: String) {
-        viewModelScope.launch {
-            _channelData.value = channelService.getChannelById(channelId)
-        }
-    }
-}
-
-class ChannelViewModelFactory(private val channelService: ChannelService) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ChannelViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return ChannelViewModel(channelService) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

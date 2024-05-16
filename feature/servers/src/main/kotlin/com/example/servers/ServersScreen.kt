@@ -48,13 +48,7 @@ internal fun ServersRoute(
     onCreateServerClick: () -> Unit,
     onCreateChannelClick: (String) -> Unit
 ) {
-    val serverService = ServerService(FirebaseFirestore.getInstance())
-    val channelService = ChannelService(FirebaseFirestore.getInstance())
-    val serversViewModel: ServersViewModel = viewModel(factory = ServersViewModelFactory(serverService, channelService))
-
     ServersScreen(
-        servers = serversViewModel.servers.collectAsState().value,
-        channels = serversViewModel.channels.collectAsState().value,
         listener = { channel -> onChannelClick(channel) },
         onCreateServerClick = onCreateServerClick,
         onCreateChannelClick = onCreateChannelClick
@@ -63,12 +57,18 @@ internal fun ServersRoute(
 
 @Composable
 fun ServersScreen(
-    servers: List<ServerData>,
-    channels: Map<String, List<ChannelData?>>,
     listener: ChannelListener,
     onCreateServerClick: () -> Unit,
     onCreateChannelClick: (String) -> Unit
 ) {
+    val serverService = ServerService(FirebaseFirestore.getInstance())
+    val channelService = ChannelService(FirebaseFirestore.getInstance())
+    val serversViewModel: ServersViewModel = viewModel(factory = ServersViewModelFactory(serverService, channelService))
+    val servers by serversViewModel.servers.collectAsState()
+    val channels by serversViewModel.channels.collectAsState()
+    println("Servers: $servers")
+    println("Channels: $channels")
+
     var selectedServerId by remember { mutableStateOf(servers.firstOrNull()?.id) }
     Background {
         Row {
@@ -126,7 +126,8 @@ fun ServersScreen(
                         ) {
                             ServerName(name = server.name)
                             IconButton(
-                                onClick = { onCreateChannelClick(server.id) },
+                                onClick = {
+                                    onCreateChannelClick(server.id) },
                             ) {
                                 Icon(
                                     imageVector = Icons.Add,
@@ -168,8 +169,8 @@ fun ServerName(name: String) {
 fun PreviewServersScreen() {
     CosmeaTheme {
         ServersScreen(
-            servers = mockServers,
-            channels = mockChannels,
+//            servers = mockServers,
+//            channels = mockChannels,
             listener = { channel -> println("Channel clicked: $channel") },
             onCreateServerClick = { println("Create server clicked") }
         ) { println("Create channel clicked") }
@@ -181,8 +182,8 @@ fun PreviewServersScreen() {
 fun PreviewServersScreenDark() {
     CosmeaTheme(darkTheme = true) {
         ServersScreen(
-            servers = mockServers,
-            channels = mockChannels,
+//            servers = mockServers,
+//            channels = mockChannels,
             listener = { channel -> println("Channel clicked: $channel") },
             onCreateServerClick = { println("Create server clicked") }
         ) { println("Create channel clicked") }

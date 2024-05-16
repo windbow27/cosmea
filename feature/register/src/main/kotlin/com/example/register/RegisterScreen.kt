@@ -50,12 +50,12 @@ internal fun RegisterRoute(
 
 
 @Composable
-fun RegisterScreen(onRegisterClick: () -> Unit, redictToLogin: () -> Unit) {
+fun RegisterScreen(onRegisterClick: () -> Unit, redirectToLogin: () -> Unit) {
     var userState by remember { mutableStateOf(TextFieldValue()) }
     var emailState by remember { mutableStateOf(TextFieldValue()) }
     var passwordState by remember { mutableStateOf(TextFieldValue()) }
     var checkPasswordState by remember { mutableStateOf(TextFieldValue()) }
-    var userService: UserService = UserService(FirebaseFirestore.getInstance())
+    val userService = UserService(FirebaseFirestore.getInstance())
     val coroutineScope = rememberCoroutineScope()
     var isUsernameAvailable by remember { mutableStateOf(true) }
     var isEmailAvailable by remember { mutableStateOf(true) }
@@ -76,7 +76,7 @@ fun RegisterScreen(onRegisterClick: () -> Unit, redictToLogin: () -> Unit) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Get chatting with friends and family today by signing up for our chat app!",
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 fontSize = 17.sp
             )
@@ -204,8 +204,8 @@ fun RegisterScreen(onRegisterClick: () -> Unit, redictToLogin: () -> Unit) {
                 else {
                     Spacer(modifier = Modifier.height(16.dp))
                 }
-                val OnRegister:()->Unit = {
-                    var userdata = UserData(
+                val onRegister:()->Unit = {
+                    val userdata = UserData(
                         userState.text,
                         passwordState.text,
                         emailState.text,
@@ -222,7 +222,7 @@ fun RegisterScreen(onRegisterClick: () -> Unit, redictToLogin: () -> Unit) {
                 }
                 Button(
                     onClick =  /* Handle register */
-                    OnRegister
+                    onRegister
                     ,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -239,7 +239,7 @@ fun RegisterScreen(onRegisterClick: () -> Unit, redictToLogin: () -> Unit) {
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .clickable(onClick = {
-                            redictToLogin()
+                            redirectToLogin()
                         }),
                     textAlign = TextAlign.End
                 )
@@ -257,10 +257,10 @@ fun RegisterScreenPreview() {
     }
 }
 
-//@Preview
-//@Composable
-//fun RegisterScreenDarkPreview() {
-//    CosmeaTheme(darkTheme = true) {
-//        RegisterScreen({}, {})
-//    }
-//}
+@Preview
+@Composable
+fun RegisterScreenDarkPreview() {
+    CosmeaTheme(darkTheme = true) {
+        RegisterScreen({}, {})
+    }
+}

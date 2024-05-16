@@ -57,6 +57,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.data.mockChannel
 import com.example.data.service.ChannelService
@@ -75,12 +76,12 @@ fun ConversationRoute(
 ) {
     println("Conversation ID: $conversationId")
     val channelService = ChannelService(FirebaseFirestore.getInstance())
-    val conversationViewModel: ConversationViewModel = viewModel(factory = ConversationViewModelFactory(channelService))
+    val channelViewModel: ConversationViewModel = viewModel(factory = ConversationViewModelFactory(channelService, conversationId!!))
 
     ConversationScreen(
-        conversation = conversationViewModel.channelData.collectAsState().value,
+        conversation = channelViewModel.channelData.collectAsState().value,
         onBackPressed = onBackPressed,
-        )
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
