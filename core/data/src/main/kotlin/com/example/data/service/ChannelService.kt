@@ -3,6 +3,7 @@ package com.example.data.service
 import android.util.Log
 import com.example.data.repo.ChannelRepository
 import com.example.model.ChannelData
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -112,5 +113,9 @@ class ChannelService(private val firestore: FirebaseFirestore): ChannelRepositor
                 Log.e("FIRESTORE ERROR", "Error getting channel: ", exception)
             }.await()
         return channel
+    }
+
+    override fun getChannelDocument(channelId: String): DocumentReference {
+        return firestore.collection("channels").document(channelId)
     }
 }

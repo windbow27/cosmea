@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.data.repo.ServerRepository
 import com.example.model.ChannelData
 import com.example.model.ServerData
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -138,28 +139,7 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
         return null
     }
 
-    override suspend fun getAllServerData(): List<ServerData> {
-        val servers = mutableListOf<ServerData>()
-        firestore.collection("servers").get()
-            .addOnSuccessListener { querySnapshot ->
-                for (document in querySnapshot) {
-                    val id: String = document.data["id"].toString()
-                    val adminId: String = document.data["adminId"].toString()
-                    val avatar: String = document.data["avatar"].toString()
-                    val channels: MutableList<String> = (document.data["channels"] as? MutableList<String>) ?: mutableListOf()
-                    val members: MutableList<String> = (document.data["members"] as? MutableList<String>) ?: mutableListOf()
-                    val name: String = document.data["name"].toString()
-                    servers.add(ServerData(adminId, name, avatar, members, channels, id = id))
-                }
-                Log.d("FIRESTORE", "Get all servers successfully:")
-                servers.forEach { server ->
-                    println(server.toString())
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.e("FIRESTORE ERROR", "Error getting all servers: $exception")
-            }.await()
-
-        return servers
+    override fun getAllServerData(): CollectionReference {
+        return firestore.collection("servers")
     }
 }

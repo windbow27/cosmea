@@ -1,8 +1,8 @@
 package com.example.model
 
 class ServerData(
-    var adminId: String,
-    var name: String,
+    var adminId: String = "",
+    var name: String = "",
     var avatar: String? = null,
     var members: MutableList<String> = mutableListOf(),
     var channels: MutableList<String> = mutableListOf(),

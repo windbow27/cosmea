@@ -22,17 +22,45 @@ class ServersViewModel(private val serverService: ServerService, private val cha
         fetchServersAndChannels()
     }
 
-    fun fetchServersAndChannels() {
-        viewModelScope.launch {
-            val fetchedServers = serverService.getAllServerData()
-            _servers.value = fetchedServers
+    private fun fetchServersAndChannels() {
+        serverService.getAllServerData().addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+            firebaseFirestoreException?.let {
+                // Handle the error
+                return@addSnapshotListener
+            }
 
-            val fetchedChannels = fetchedServers.associate { server ->
-                server.id to server.channels.mapNotNull { channelId ->
-                    channelService.getChannelById(channelId)
+            querySnapshot?.let {
+                val fetchedServers = it.documents.mapNotNull { document ->
+                    document.toObject(ServerData::class.java)
+                }
+                _servers.value = fetchedServers
+
+                fetchedServers.forEach { server ->
+                    server.channels.forEach { channelId ->
+                        channelService.getChannelDocument(channelId).addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+                            firebaseFirestoreException?.let {
+                                // Handle the error
+                                return@addSnapshotListener
+                            }
+
+                            documentSnapshot?.let { document ->
+                                val channel = document.toObject(ChannelData::class.java)
+                                val fetchedChannels = _channels.value.toMutableMap()
+                                fetchedChannels[server.id]?.let { channels ->
+                                    val updatedChannels = channels.toMutableList()
+                                    if (!updatedChannels.contains(channel)) {
+                                        updatedChannels.add(channel)
+                                        fetchedChannels[server.id] = updatedChannels
+                                    }
+                                } ?: run {
+                                    fetchedChannels[server.id] = mutableListOf(channel)
+                                }
+                                _channels.value = fetchedChannels
+                            }
+                        }
+                    }
                 }
             }
-            _channels.value = fetchedChannels
         }
     }
 }

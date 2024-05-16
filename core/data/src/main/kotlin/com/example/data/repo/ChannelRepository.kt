@@ -1,6 +1,8 @@
 package com.example.data.repo
 
 import com.example.model.ChannelData
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentReference
 
 interface ChannelRepository {
     suspend fun getChannelById(channelId: String): ChannelData?
@@ -13,4 +15,5 @@ interface ChannelRepository {
         currentUserId: String
     )
     suspend fun addMember(channelId: String, userId: String)
+    fun getChannelDocument(channelId: String): DocumentReference
 }
