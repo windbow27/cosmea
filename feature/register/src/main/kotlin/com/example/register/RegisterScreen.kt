@@ -215,8 +215,9 @@ fun RegisterScreen(onRegisterClick: () -> Unit, redirectToLogin: () -> Unit) {
                     )
                     println(userdata.id)
                     coroutineScope.launch {
-                        if(userService.addUserData(userdata) != null && !isUsernameAvailable && !isEmailAvailable && checkPasswordState != passwordState) {
+                        if(userService.addUserData(userdata) != null) {
                             onRegisterClick()
+                            println("User added")
                         }
                     }
                 }
