@@ -211,7 +211,6 @@ fun RegisterScreen(onRegisterClick: () -> Unit, redirectToLogin: () -> Unit) {
                         emailState.text,
                         null,
                         null,
-                        null
                     )
                     println(userdata.id)
                     coroutineScope.launch {

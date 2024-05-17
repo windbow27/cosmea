@@ -5,4 +5,5 @@ class ProfileData(
     var dob: String? = null,
     var avatar: String? = null,
     var bio: String? = null,
+    var id: String,
 )
