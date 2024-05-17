@@ -23,20 +23,22 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
         return result
     }
 
-    override suspend fun getUserDataById(userId: String): String? {
-        var user: String? = null
+    override suspend fun getUserDataById(userId: String): UserData? {
+        var user: UserData? = null
         firestore.collection("users").document(userId).get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    user = document.toString()
-                    Log.d("FIRESTORE", "Get user with ID: $userId successfully")
-                    Log.d("FIRESTORE", "User: $user")
-                } else {
-                    Log.d("FIRESTORE ERROR", "User not found with ID: $userId")
-                }
+            .addOnSuccessListener {documentSnapshot ->
+                val userName = documentSnapshot.data?.get("username").toString()
+                val password = documentSnapshot.data?.get("password").toString()
+                val profile = documentSnapshot.data?.get("profile").toString()
+                val id = documentSnapshot.data?.get("id").toString()
+                val email = documentSnapshot.data?.get("email").toString()
+                val friends = documentSnapshot.data?.get("friends") as MutableList<String>?
+                val joinedServers = documentSnapshot.data?.get("joinedServers") as MutableList<String>?
+                user = UserData(userName, password, email, joinedServers, friends, id, profile)
+                Log.d("FIRESTORE", "Get user data successfully: ${user!!.email}")
             }
             .addOnFailureListener { exception ->
-                Log.e("FIRESTORE ERROR", "Error getting user: ", exception)
+                Log.e("FIRESTORE ERROR", "Error getting user's profile data to Firestore: $exception")
             }.await()
         return user
     }
