@@ -1,6 +1,7 @@
 package com.example.conversation
 
-import androidx.compose.foundation.Image
+import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +18,6 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFrom
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -49,25 +49,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LastBaseline
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.data.mockChannel
+import com.example.data.mockMessages
 import com.example.data.service.ChannelService
+import com.example.data.service.MessageService
 import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.ChannelData
 import com.example.model.MessageData
 import com.example.ui.AppBar
 import com.example.ui.UserHead
 import com.example.ui.UserInput
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
 
 @Composable
 fun ConversationRoute(
@@ -76,10 +78,12 @@ fun ConversationRoute(
 ) {
     println("Conversation ID: $conversationId")
     val channelService = ChannelService(FirebaseFirestore.getInstance())
-    val channelViewModel: ConversationViewModel = viewModel(factory = ConversationViewModelFactory(channelService, conversationId!!))
+    val messageService = MessageService(FirebaseDatabase.getInstance())
+    val channelViewModel: ConversationViewModel = viewModel(factory = ConversationViewModelFactory(channelService, messageService, conversationId!!))
 
     ConversationScreen(
         conversation = channelViewModel.channelData.collectAsState().value,
+        messages = channelViewModel.messageData.collectAsState().value,
         onBackPressed = onBackPressed,
     )
 }
@@ -88,18 +92,22 @@ fun ConversationRoute(
 @Composable
 fun ConversationScreen(
     conversation: ChannelData,
+    messages: List<MessageData>,
     modifier: Modifier = Modifier,
     onBackPressed: () -> Unit = {},
 ) {
     println("Conversation: ${conversation.toString()}")
-    val authorMe = "Me"
-    val timeNow = "Now"
+    println("Messages: ${messages}")
 
     val scrollState = rememberLazyListState()
     val topBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
 
-    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
+    val userId = sharedPref.getString("currentUserId", null)
+
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -123,15 +131,25 @@ fun ConversationScreen(
                 .fillMaxSize()
                 .padding(paddingValues)) {
             Messages(
-//                messageData = conversation.messages,
-                messageData = emptyList(), // temporary
+                messageData = messages, // temporary
                 navigateToProfile = { },
                 modifier = Modifier.weight(1f),
                 scrollState = scrollState
             )
             UserInput(
                 onMessageSent = {
-
+                    println("Message sent: $it")
+                    coroutineScope.launch {
+                        val newMessage = userId?.let { it1 ->
+                            MessageData(
+                                author = it1,
+                                receiver = conversation.id,
+                                content = it,
+                                timestamp = System.currentTimeMillis().toString()
+                            )
+                        }
+                        newMessage?.let { it1 -> addMessageToChannel(it1, conversation.id) }
+                    }
                 },
                 resetScroll = {
 
@@ -144,6 +162,11 @@ fun ConversationScreen(
             )
         }
     }
+}
+
+suspend fun addMessageToChannel(message: MessageData, channelId: String) {
+    val messageService = MessageService(FirebaseDatabase.getInstance())
+    messageService.addMessageData(channelId, message)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -371,6 +394,7 @@ private fun RowScope.DayHeaderLine() {
     )
 }
 
+@SuppressLint("ResourceType")
 @Composable
 fun ChatItemBubble(
     messageData: MessageData,
@@ -402,12 +426,12 @@ fun ChatItemBubble(
                 color = backgroundBubbleColor,
                 shape = ChatBubbleShape
             ) {
-                Image(
-                    painter = painterResource(it),
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(160.dp),
-                    contentDescription = null
-                )
+//                Image(
+//                    painter = painterResource(1),
+//                    contentScale = ContentScale.Fit,
+//                    modifier = Modifier.size(160.dp),
+//                    contentDescription = null
+//                )
             }
         }
     }
@@ -451,6 +475,7 @@ fun ConversationScreenPreview() {
     CosmeaTheme {
         ConversationScreen(
             conversation = mockChannel,
+            messages = mockMessages
         ) { }
     }
 }
@@ -460,7 +485,8 @@ fun ConversationScreenPreview() {
 fun ConversationScreenDarkPreview() {
     CosmeaTheme(darkTheme = true) {
         ConversationScreen(
-            conversation = mockChannel
+            conversation = mockChannel,
+            messages = mockMessages
         ) { }
     }
 }

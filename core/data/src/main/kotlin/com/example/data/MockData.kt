@@ -1,6 +1,7 @@
 package com.example.data
 
 import com.example.model.ChannelData
+import com.example.model.MessageData
 import com.example.model.ServerData
 import com.example.model.UserData
 
@@ -61,4 +62,10 @@ val mockServers = mutableListOf(
     ),
 )
 
-
+val mockMessages = mutableListOf(
+    MessageData("1", "2", "Hello"),
+    MessageData("2", "1", "Hi"),
+    MessageData("1", "2", "How are you?"),
+    MessageData("2", "1", "I'm fine"),
+    MessageData("1", "2", "Good to hear that"),
+)

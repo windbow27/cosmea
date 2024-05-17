@@ -8,7 +8,9 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.tasks.await
+import java.util.concurrent.CompletableFuture
 
 class MessageService(private val realTimeDB: FirebaseDatabase): MessageRepository {
     override suspend fun addMessageData(channelId: String, messageData: MessageData) {
@@ -40,6 +42,7 @@ class MessageService(private val realTimeDB: FirebaseDatabase): MessageRepositor
     }
 
     override suspend fun getMessageData(channelId: String): List<MessageData> {
+        val future = CompletableFuture<List<MessageData>>()
         val messages = mutableListOf<MessageData>()
         val reference = realTimeDB.getReference("messages/$channelId")
         val dataChangeEventListener = object : ValueEventListener {
@@ -54,31 +57,17 @@ class MessageService(private val realTimeDB: FirebaseDatabase): MessageRepositor
                     val image = message.child("image").toString()
                     val file = message.child("file").toString()
                     messages.add(MessageData(author, receiver, content, timestamp, image, file, id = id))
-                    print(messages)
                 }
-//                messages.addAll(
-//                    dataSnapshot.children.mapNotNull {
-//                        it.getValue(MessageData::class.java)
-//                    }
-//                )
+                future.complete(messages) // Complete the future when data is fetched
             }
             override fun onCancelled(databaseError: DatabaseError) {
-                // Handle errors (optional)
+                future.completeExceptionally(databaseError.toException()) // Complete the future exceptionally if there's an error
             }
         }
         reference.addValueEventListener(dataChangeEventListener)
-//        withContext(Dispatchers.IO) { }
-//        reference.removeEventListener(dataChangeEventListener)
-        print(messages)
-        return messages // Filter by ID and return the message or null
+        return future.await() // Wait for the future to complete before returning the messages list
     }
 
-
-    //
-//    override suspend fun getReceiver(messageId: String) {
-//        TODO("Not yet implemented")
-//    }
-//
     override suspend fun deleteMessageData(messageId: String) {
         realTimeDB.getReference("messages/$messageId").removeValue()
             .addOnSuccessListener {
@@ -88,5 +77,4 @@ class MessageService(private val realTimeDB: FirebaseDatabase): MessageRepositor
                 Log.e("REALTIME DATABASE ERROR", "Error deleting message: $exception")
             }.await()
     }
-
 }
