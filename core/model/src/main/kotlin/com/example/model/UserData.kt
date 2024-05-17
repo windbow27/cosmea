@@ -6,6 +6,6 @@ class UserData(
     var email: String,
     var joinedServers: MutableList<String>? = null,
     var friends: MutableList<String>? = null,
-    var profile: ProfileData? = null,
     var id: String = generateId(username),
+    var profile: String = id,
 )

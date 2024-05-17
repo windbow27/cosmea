@@ -1,6 +1,7 @@
 package com.example.data
 
 import com.example.model.ChannelData
+import com.example.model.MessageData
 import com.example.model.ServerData
 import com.example.model.UserData
 
@@ -33,34 +34,14 @@ val mockChannel = ChannelData(
     name = "Channel 1",
     serverId = "Server1",
     adminId = "",
-    serverId = "",
     members = mutableListOf(),
     messages = mutableListOf()
 )
 
-val mockChannels = mutableListOf(
-    ChannelData(
-        id = "Channel 1",
-        adminId = "",
-        serverId = "",
-        name = "Channel 1",
-        members = mutableListOf(),
-        messages = mutableListOf()
-    ),
-    ChannelData(
-        name = "Channel 2",
-        adminId = "",
-        serverId = "",
-        members = mutableListOf(),
-        messages = mutableListOf()
-    ),
-    ChannelData(
-        name = "Channel 3",
-        adminId = "",
-        serverId = "",
-        members = mutableListOf(),
-        messages = mutableListOf()
-    ),
+val mockChannels = mapOf(
+    "1" to listOf(mockChannel),
+    "2" to listOf(mockChannel),
+    "3" to listOf(mockChannel),
 )
 
 val mockServers = mutableListOf(
@@ -81,4 +62,10 @@ val mockServers = mutableListOf(
     ),
 )
 
-
+val mockMessages = mutableListOf(
+    MessageData("1", "2", "Hello"),
+    MessageData("2", "1", "Hi"),
+    MessageData("1", "2", "How are you?"),
+    MessageData("2", "1", "I'm fine"),
+    MessageData("1", "2", "Good to hear that"),
+)

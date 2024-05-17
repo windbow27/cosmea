@@ -19,24 +19,48 @@ class ServersViewModel(private val serverService: ServerService, private val cha
     val channels: StateFlow<Map<String, List<ChannelData?>>> = _channels
 
     init {
-        viewModelScope.launch {
-            _servers.value = serverService.getAllServerData()
-            _servers.value.forEach { server ->
-                _channels.value += (server.id to getAllChannelData(server.id, server.channels))
+        fetchServersAndChannels()
+    }
+
+    private fun fetchServersAndChannels() {
+        serverService.getAllServerData().addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+            firebaseFirestoreException?.let {
+                // Handle the error
+                return@addSnapshotListener
             }
-        }
-    }
 
-    private suspend fun getAllChannelData(serverId: String?, channelIds: List<String>?): List<ChannelData?> {
-        return channelIds?.map { channelId ->
-            serverId?.let { channelService.getChannelById(it, channelId) }
-        } ?: listOf()
-    }
+            querySnapshot?.let {
+                val fetchedServers = it.documents.mapNotNull { document ->
+                    document.toObject(ServerData::class.java)
+                }
+                _servers.value = fetchedServers
 
-    fun selectServer(serverId: String) {
-        viewModelScope.launch {
-            val server = serverService.getServerDataById(serverId)
-            _channels.value += (serverId to getAllChannelData(serverId, server?.channels))
+                fetchedServers.forEach { server ->
+                    server.channels.forEach { channelId ->
+                        channelService.getChannelDocument(channelId).addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+                            firebaseFirestoreException?.let {
+                                // Handle the error
+                                return@addSnapshotListener
+                            }
+
+                            documentSnapshot?.let { document ->
+                                val channel = document.toObject(ChannelData::class.java)
+                                val fetchedChannels = _channels.value.toMutableMap()
+                                fetchedChannels[server.id]?.let { channels ->
+                                    val updatedChannels = channels.toMutableList()
+                                    if (!updatedChannels.contains(channel)) {
+                                        updatedChannels.add(channel)
+                                        fetchedChannels[server.id] = updatedChannels
+                                    }
+                                } ?: run {
+                                    fetchedChannels[server.id] = mutableListOf(channel)
+                                }
+                                _channels.value = fetchedChannels
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -46,27 +70,6 @@ class ServersViewModelFactory(private val serverService: ServerService, private 
         if (modelClass.isAssignableFrom(ServersViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return ServersViewModel(serverService, channelService) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-}
-
-class ChannelViewModel(private val channelService: ChannelService) : ViewModel() {
-    private val _channelData = MutableStateFlow<ChannelData?>(null)
-    val channelData: StateFlow<ChannelData?> get() = _channelData
-
-    fun fetchChannelData(serverId: String, channelId: String) {
-        viewModelScope.launch {
-            _channelData.value = channelService.getChannelById(serverId, channelId)
-        }
-    }
-}
-
-class ChannelViewModelFactory(private val channelService: ChannelService) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ChannelViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return ChannelViewModel(channelService) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

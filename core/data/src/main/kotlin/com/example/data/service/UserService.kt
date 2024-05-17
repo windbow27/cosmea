@@ -19,6 +19,7 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
                 .addOnFailureListener {exception ->
                     Log.e("FIRESTORE ERROR", "Error adding user data to Firestore: $exception")
                 }.await()
+        updateUserProfile(userData.id, ProfileData(userData.username, id = userData.id))
         return result
     }
 
@@ -145,41 +146,29 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
     }
 
     override suspend fun updateUserProfile(userId: String, profileData: ProfileData) {
-        val user = getUserDataById(userId)
-        if (user != null) {
-            firestore.collection("users").document(userId).update("profile", profileData)
-                .addOnSuccessListener {
-                    Log.d("FIRESTORE", "Updated user's profile successfully: $profileData")
-                }
-                .addOnFailureListener { exception ->
-                    Log.e("FIRESTORE ERROR", "Error update user's profile data to Firestore: $exception")
-                }.await()
-        }
-        else {
-            Log.d("FIRESTORE ERROR", "User not found with ID: $userId")
-        }
+        firestore.collection("profiles").document(userId).set(profileData)
+            .addOnSuccessListener {
+                Log.d("FIRESTORE", "Updated user's profile successfully: $profileData")
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FIRESTORE ERROR", "Error update user's profile data to Firestore: $exception")
+            }.await()
     }
 
     override suspend fun getUserProfile(userId: String): ProfileData? {
-        val user = getUserDataById(userId)
         var profile: ProfileData? = null
-        if (user != null) {
-            firestore.collection("users").document(userId).get()
-                .addOnSuccessListener {documentSnapshot ->
-                    val displayName = documentSnapshot.data?.get("displayName").toString()
-                    val dob = documentSnapshot.data?.get("dob").toString()
-                    val avatar = documentSnapshot.data?.get("avatar").toString()
-                    val bio = documentSnapshot.data?.get("bio").toString()
-                    profile = ProfileData(displayName, dob, avatar, bio)
-                    Log.d("FIRESTORE", "Updated user's profile successfully: $profile")
-                }
-                .addOnFailureListener { exception ->
-                    Log.e("FIRESTORE ERROR", "Error update user's profile data to Firestore: $exception")
-                }.await()
-        }
-        else {
-            Log.d("FIRESTORE ERROR", "User not found with ID: $userId")
-        }
+        firestore.collection("profiles").document(userId).get()
+            .addOnSuccessListener {documentSnapshot ->
+                val displayName = documentSnapshot.data?.get("displayName").toString()
+                val dob = documentSnapshot.data?.get("dob").toString()
+                val avatar = documentSnapshot.data?.get("avatar").toString()
+                val bio = documentSnapshot.data?.get("bio").toString()
+                profile = ProfileData(displayName, dob, avatar, bio, userId)
+                Log.d("FIRESTORE", "Get user's profile successfully: ${profile.toString()}")
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FIRESTORE ERROR", "Error getting user's profile data to Firestore: $exception")
+            }.await()
         return profile
     }
 }

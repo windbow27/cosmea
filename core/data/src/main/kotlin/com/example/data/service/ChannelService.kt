@@ -3,15 +3,12 @@ package com.example.data.service
 import android.util.Log
 import com.example.data.repo.ChannelRepository
 import com.example.model.ChannelData
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 class ChannelService(private val firestore: FirebaseFirestore): ChannelRepository {
     override suspend fun addChannel(channelData: ChannelData, currentUserId: String) {
-        val serverService = ServerService(firestore)
-        // val adminId = serverService.getAdminId(serverId)
-        // Log.d("FIRESTORE", "Admin ID: $adminId")
-        // if (adminId == currentUserId) {
         firestore.collection("channels").document(channelData.id).set(channelData)
             .addOnSuccessListener {
                 Log.d("FIRESTORE", "Added channel successfully: ${channelData}")
@@ -23,8 +20,6 @@ class ChannelService(private val firestore: FirebaseFirestore): ChannelRepositor
         addChannelIntoServerList(channelData.serverId, channelData.id)
         addMember(channelData.id ,channelData.adminId)
         return
-        // }
-        // Log.e("FIRESTORE ERROR", "Only admin can create new channel")
     }
 
     override suspend fun addChannelIntoServerList(serverId: String, channelId: String) {
@@ -118,5 +113,9 @@ class ChannelService(private val firestore: FirebaseFirestore): ChannelRepositor
                 Log.e("FIRESTORE ERROR", "Error getting channel: ", exception)
             }.await()
         return channel
+    }
+
+    override fun getChannelDocument(channelId: String): DocumentReference {
+        return firestore.collection("channels").document(channelId)
     }
 }

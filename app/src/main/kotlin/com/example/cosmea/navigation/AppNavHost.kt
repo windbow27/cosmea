@@ -44,7 +44,7 @@ fun AppNavHost(
         notificationsScreen {}
         profileScreen (onLogoutClick = navController::navigateToLogin, onClickProfile = navController::navigateToProfileView)
         profileViewScreen (onBackClick = navController::navigateToProfile)
-        registerScreen (onRegisterClick = navController::navigateToProfile, redirectToLogin = navController::navigateToLogin)
+        registerScreen (onRegisterClick = navController::navigateToLogin, redirectToLogin = navController::navigateToLogin)
         loginScreen (onLoginClick = navController::navigateToServers , redirectToRegister = navController::navigateToRegister)
     }
 }

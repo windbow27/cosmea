@@ -1,11 +1,10 @@
 package com.example.model
 
-class ChannelData (
-    var name: String,
-    var serverId: String,
-    var adminId: String,
-    var serverId: String,
-    var members : MutableList<String> = mutableListOf(),
+class ChannelData(
+    var name: String = "",
+    var serverId: String = "",
+    var adminId: String = "",
+    var members: MutableList<String> = mutableListOf(),
     var messages: MutableList<String> = mutableListOf(),
     var id: String = generateId(name + adminId + serverId)
 ) {
