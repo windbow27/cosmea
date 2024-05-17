@@ -34,7 +34,9 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-database")
     testImplementation("io.mockk:mockk-android:1.13.10")
     testImplementation(kotlin("test"))
     androidTestImplementation("androidx.test:core:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 }

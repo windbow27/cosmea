@@ -79,6 +79,8 @@ dependencies {
     implementation(project(":core:model"))
     implementation(project(":feature:register"))
     implementation(project(":feature:login"))
+    implementation(project(":feature:login"))
+    implementation(project(":feature:login"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -93,5 +95,6 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-database")
     testImplementation("io.mockk:mockk-android:1.13.10")
 }
