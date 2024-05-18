@@ -37,7 +37,7 @@ fun AppNavHost(
         startDestination = startDestination,
     ) {
         serversScreen(onChannelClick = navController::navigateToConversation, onCreateServerClick = navController::navigateToCreateServer, onCreateChannelClick = navController::navigateToCreateChannel)
-        createServerScreen(onBackPressed = navController::popBackStack, onCreateServerClick = navController::navigateToServers)
+        createServerScreen(onBackPressed = navController::popBackStack, onCreateServerClick = navController::navigateToServers, onJoinServerClick = navController::navigateToServers)
         createChannelScreen(onBackPressed = navController::popBackStack, onCreateChannelClick = navController::navigateToServers)
         conversationScreen(onBackPressed = navController::popBackStack)
         messagesScreen(onChannelClick = navController::navigateToConversation)

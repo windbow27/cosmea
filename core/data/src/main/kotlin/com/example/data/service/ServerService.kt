@@ -6,7 +6,12 @@ import com.example.model.ChannelData
 import com.example.model.ServerData
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class ServerService(private val firestore: FirebaseFirestore): ServerRepository {
     override suspend fun addServerData(serverData: ServerData) {
@@ -34,8 +39,7 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
         return adminId
     }
 
-    override suspend fun getServerDataById(serverId: String): ServerData? {
-        var server: ServerData? = null
+    override suspend fun getServerDataById(serverId: String): ServerData? = suspendCoroutine { continuation ->
         firestore.collection("servers").document(serverId).get()
             .addOnSuccessListener { document ->
                 if (document != null) {
@@ -46,15 +50,18 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
                     val members: MutableList<String> = (document.data?.get("members") as MutableList<String>?)!!
                     val name: String = document.data?.get("name").toString()
                     Log.d("FIRESTORE", "Get server with ID: $serverId successfully")
-                    server =  ServerData(adminId, name, avatar, members, channels, id = id)
+                    val server =  ServerData(adminId, name, avatar, members, channels, id = id)
+                    Log.d("FIRESTORE", "Server data: $server")
+                    continuation.resume(server)
                 } else {
                     Log.d("FIRESTORE ERROR", "Server not found with ID: $serverId")
+                    continuation.resume(null)
                 }
             }
             .addOnFailureListener { exception ->
                 Log.e("FIRESTORE ERROR", "Error getting server: ", exception)
-            }.await()
-        return server
+                continuation.resumeWithException(exception)
+            }
     }
 
     override suspend fun updateServerData(serverId: String, serverData: ServerData) {
@@ -90,11 +97,13 @@ class ServerService(private val firestore: FirebaseFirestore): ServerRepository 
     }
 
     override suspend fun addMember(serverId: String, userId: String) {
-        val server = getServerDataById(serverId)
+        println("Adding user: $userId to server: $serverId")
+        val server = withContext(Dispatchers.IO) { getServerDataById(serverId) }
+        println("Is server null: ${server == null}")
         if (server != null) {
             firestore.collection("servers").document(serverId).get()
                 .addOnSuccessListener {documentSnapshot ->
-                    var users: MutableList<String> = documentSnapshot.get("members") as MutableList<String>
+                    val users: MutableList<String> = documentSnapshot.get("members") as MutableList<String>
                     users.add(userId)
                     firestore.collection("servers").document(serverId).update("members", users)
                     Log.d("FIRESTORE", "Added user successfully: ${users}")
