@@ -36,9 +36,7 @@ class ChannelService(private val firestore: FirebaseFirestore): ChannelRepositor
         return
     }
 
-    override suspend fun updateChannelData( channelId: String,
-                                            channelData: ChannelData,
-                                            currentUserId: String) {
+    override suspend fun updateChannelData(channelId: String, channelData: ChannelData, currentUserId: String) {
         val channelService = ChannelService(firestore)
         val channel = channelService.getChannelById(channelId)
         val adminId = channel?.adminId

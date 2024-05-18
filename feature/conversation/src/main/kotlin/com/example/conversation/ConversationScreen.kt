@@ -61,6 +61,7 @@ import com.example.data.mockChannel
 import com.example.data.mockMessages
 import com.example.data.service.ChannelService
 import com.example.data.service.MessageService
+import com.example.data.service.UserService
 import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.ChannelData
 import com.example.model.MessageData
@@ -79,7 +80,8 @@ fun ConversationRoute(
     println("Conversation ID: $conversationId")
     val channelService = ChannelService(FirebaseFirestore.getInstance())
     val messageService = MessageService(FirebaseDatabase.getInstance())
-    val channelViewModel: ConversationViewModel = viewModel(factory = ConversationViewModelFactory(channelService, messageService, conversationId!!))
+    val userService = UserService(FirebaseFirestore.getInstance())
+    val channelViewModel: ConversationViewModel = viewModel(factory = ConversationViewModelFactory(channelService, messageService, userService, conversationId!!))
 
     ConversationScreen(
         conversation = channelViewModel.channelData.collectAsState().value,
@@ -97,7 +99,7 @@ fun ConversationScreen(
     onBackPressed: () -> Unit = {},
 ) {
     println("Conversation: ${conversation.toString()}")
-    println("Messages: ${messages}")
+    println("Messages: ${messages.toString()}")
 
     val scrollState = rememberLazyListState()
     val topBarState = rememberTopAppBarState()
@@ -254,15 +256,15 @@ fun Messages(
                 val isLastMessageByAuthor = nextAuthor != content.author
 
                 // Hardcode day dividers for simplicity
-                if (index == messageData.size - 1) {
-                    item {
-                        DayHeader("20 Aug")
-                    }
-                } else if (index == 2) {
-                    item {
-                        DayHeader("Today")
-                    }
-                }
+//                if (index == messageData.size - 1) {
+//                    item {
+//                        DayHeader("20 Aug")
+//                    }
+//                } else if (index == 2) {
+//                    item {
+//                        DayHeader("Today")
+//                    }
+//                }
 
                 item {
                     Message(
@@ -304,7 +306,7 @@ fun Message(
             }
         } else {
             // Space under avatar
-            Spacer(modifier = Modifier.width(74.dp))
+            Spacer(modifier = Modifier.width(57.dp))
         }
         AuthorAndTextMessage(
             msg = msg,

@@ -10,4 +10,8 @@ class MessageData(
     var image: String? = null,
     var file: String? = null,
     var id: String = generateId((author + receiver + content + timestamp)),
-)
+) {
+    override fun toString(): String {
+        return "MessageData(id='$id', author='$author', receiver='$receiver', content='$content', timestamp='$timestamp', image='$image', file='$file')"
+    }
+}
