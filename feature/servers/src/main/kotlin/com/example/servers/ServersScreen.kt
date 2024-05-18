@@ -1,5 +1,6 @@
 package com.example.servers
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,19 +27,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.data.mockChannels
-import com.example.data.mockServers
 import com.example.data.service.ChannelService
 import com.example.data.service.ServerService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
-import com.example.model.ChannelData
 import com.example.model.ChannelListener
-import com.example.model.ServerData
 import com.example.ui.UserHead
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -61,11 +59,16 @@ fun ServersScreen(
     onCreateServerClick: () -> Unit,
     onCreateChannelClick: (String) -> Unit
 ) {
+    val context = LocalContext.current
+    val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
+    val userId = sharedPref.getString("currentUserId", null)
     val serverService = ServerService(FirebaseFirestore.getInstance())
     val channelService = ChannelService(FirebaseFirestore.getInstance())
     val serversViewModel: ServersViewModel = viewModel(factory = ServersViewModelFactory(serverService, channelService))
-    val servers by serversViewModel.servers.collectAsState()
+    val unfilteredServers by serversViewModel.servers.collectAsState()
     val channels by serversViewModel.channels.collectAsState()
+
+    val servers = unfilteredServers.filter { it.members.contains(userId) }
     println("Servers: $servers")
     println("Channels: $channels")
 
@@ -130,8 +133,8 @@ fun ServersScreen(
                                     onCreateChannelClick(server.id) },
                             ) {
                                 Icon(
-                                    imageVector = Icons.Add,
-                                    contentDescription = "Add Server"
+                                    imageVector = Icons.Settings,
+                                    contentDescription = "Settings"
                                 )
                             }
                         }
