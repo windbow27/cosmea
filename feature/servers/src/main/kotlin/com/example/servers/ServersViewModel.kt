@@ -2,14 +2,13 @@ package com.example.servers
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import com.example.data.service.ChannelService
 import com.example.data.service.ServerService
 import com.example.model.ChannelData
 import com.example.model.ServerData
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 class ServersViewModel(private val serverService: ServerService, private val channelService: ChannelService) : ViewModel() {
     private val _servers = MutableStateFlow<List<ServerData>>(emptyList())
@@ -18,18 +17,25 @@ class ServersViewModel(private val serverService: ServerService, private val cha
     private val _channels = MutableStateFlow<Map<String, List<ChannelData?>>>(emptyMap())
     val channels: StateFlow<Map<String, List<ChannelData?>>> = _channels
 
+    private var serverListener: ListenerRegistration? = null
+    private val channelListeners = mutableMapOf<String, ListenerRegistration>()
+
     init {
         fetchServersAndChannels()
     }
 
     private fun fetchServersAndChannels() {
-        serverService.getAllServerData().addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+        serverListener?.remove()
+        channelListeners.values.forEach { it.remove() }
+        channelListeners.clear()
+
+        serverListener = serverService.getAllServerData().addSnapshotListener { querySnapshot, firebaseFirestoreException ->
             firebaseFirestoreException?.let {
                 // Handle the error
                 return@addSnapshotListener
             }
 
-            querySnapshot?.let {
+            querySnapshot?.let { it ->
                 val fetchedServers = it.documents.mapNotNull { document ->
                     document.toObject(ServerData::class.java)
                 }
@@ -37,7 +43,8 @@ class ServersViewModel(private val serverService: ServerService, private val cha
 
                 fetchedServers.forEach { server ->
                     server.channels.forEach { channelId ->
-                        channelService.getChannelDocument(channelId).addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+                        channelListeners[channelId]?.remove()
+                        channelListeners[channelId] = channelService.getChannelDocument(channelId).addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
                             firebaseFirestoreException?.let {
                                 // Handle the error
                                 return@addSnapshotListener
@@ -48,7 +55,7 @@ class ServersViewModel(private val serverService: ServerService, private val cha
                                 val fetchedChannels = _channels.value.toMutableMap()
                                 fetchedChannels[server.id]?.let { channels ->
                                     val updatedChannels = channels.toMutableList()
-                                    if (!updatedChannels.contains(channel)) {
+                                    if (!updatedChannels.any { it?.id == channel?.id}) {
                                         updatedChannels.add(channel)
                                         fetchedChannels[server.id] = updatedChannels
                                     }
@@ -62,6 +69,12 @@ class ServersViewModel(private val serverService: ServerService, private val cha
                 }
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        serverListener?.remove()
+        channelListeners.values.forEach { it.remove() }
     }
 }
 
