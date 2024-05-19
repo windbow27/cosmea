@@ -11,6 +11,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 
 class MessageService(private val realTimeDB: FirebaseDatabase): MessageRepository {
@@ -42,6 +44,36 @@ class MessageService(private val realTimeDB: FirebaseDatabase): MessageRepositor
         return
     }
 
+    override suspend fun getAllFCMToken(channelId: String): List<String> {
+        val firestore = FirebaseFirestore.getInstance()
+        val tokens: MutableList<String> = mutableListOf()
+        firestore.collection("channels").document(channelId).get()
+            .addOnSuccessListener{document ->
+                if (document != null) {
+                    val users: MutableList<String> = document.data?.get("members") as MutableList<String>
+                    Log.d("INFO", "User list $users")
+                    if (users.size > 0) {
+                        users.forEach{userId ->
+                            runBlocking {
+                                val userService = UserService(FirebaseFirestore.getInstance())
+                                var token: Any? = ""
+                                val job: Unit = launch {
+                                    token = firestore.collection("users").document(userId).get()
+                                        .await().data?.get("fcmToken")
+                                }.join()
+                                tokens.add(token.toString())
+                            }
+                            Log.d("FCM", "Token: $tokens")
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener {exception ->
+                Log.e("FIRESTORE ERROR", "Failed to get FCM Token")
+            }
+        return tokens
+    }
+
     override suspend fun getMessageData(channelId: String): Flow<List<MessageData>> = callbackFlow {
         val reference = realTimeDB.getReference("messages/$channelId")
         val dataChangeEventListener = object : ValueEventListener {
@@ -56,7 +88,7 @@ class MessageService(private val realTimeDB: FirebaseDatabase): MessageRepositor
                     val image = message.child("image").getValue(String::class.java)
                     val file = message.child("file").getValue(String::class.java)
                     if (id != null && author != null && receiver != null && content != null && timestamp != null) {
-                        messages.add(MessageData(author, receiver, content, timestamp, image, file, id))
+                        messages.add(MessageData(author, receiver, content, timestamp, image, file, id = id))
                     }
                 }
                 trySend(messages).isSuccess // Send the messages to the Flow
@@ -78,4 +110,6 @@ class MessageService(private val realTimeDB: FirebaseDatabase): MessageRepositor
                 Log.e("REALTIME DATABASE ERROR", "Error deleting message: $exception")
             }.await()
     }
+
+
 }

@@ -67,7 +67,7 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
         firestore.collection("users")
             .whereEqualTo("username", userName).get()
             .addOnSuccessListener { querySnapshot ->
-                if (querySnapshot != null) {
+                if (querySnapshot != null && querySnapshot.documents.size > 0) {
                     id = querySnapshot.documents[0].data?.get("id")?.toString()
                     Log.d("FIRESTORE", "Get user with username: $userName successfully")
                     Log.d("FIRESTORE", "User ID: $id")
@@ -172,5 +172,35 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
                 Log.e("FIRESTORE ERROR", "Error getting user's profile data to Firestore: $exception")
             }.await()
         return profile
+    }
+
+    override fun addFCMToken(token: String, userId: String) {
+        firestore.collection("users").document(userId).update("fcmToken", token)
+            .addOnSuccessListener {
+                Log.d("FIRESTORE", "Add user's FCM Token successfully: $token")
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FIRESTORE ERROR", "Error adding user's FCM Token to Firestore: $exception")
+            }
+    }
+
+    override suspend fun getFCMToken(userId: String): String {
+        var token: String? = null
+        firestore.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                token = document.data?.get("fcmToken").toString()
+                Log.d("TOKEN", "FCM Token: $token")
+            }
+        return token.toString()
+    }
+
+    override suspend fun getUsernameById(userId: String): String {
+        var username: String? = null
+        firestore.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                username = document.data?.get("username").toString()
+                Log.d("FIRESTORE", "Get username successfully: $username")
+            }
+        return username.toString()
     }
 }

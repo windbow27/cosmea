@@ -1,6 +1,7 @@
 package com.example.login
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,8 +39,12 @@ import com.example.data.service.UserService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
+import com.example.model.EXPIRED_TIME
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.time.Instant
 
 @Composable
 fun LoginRoute(
@@ -63,6 +68,10 @@ fun LoginScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
+    val lastLoginTimestamp = sharedPref.getString("session", "0")
+    val currentTimestamp = Instant.now().toEpochMilli()
+    val isTimeoutSession = (currentTimestamp > (lastLoginTimestamp!!.toLong() + EXPIRED_TIME))
 
     Background {
         Column(
@@ -131,18 +140,22 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         coroutineScope.launch {
-                            val success = login(
-                                userNameState.text,
-                                passwordState.text,
-                                context
-                            )
-                            if (success) {
-                                onLoginClick()
-                            } else {
-                                loginError = true
-                                kotlinx.coroutines.delay(1000L)
-                                loginError = false
-                            }
+//                            if (isTimeoutSession) {
+//                                Log.d("SESSION", "Timeout")
+                                val success = login(
+                                    userNameState.text,
+                                    passwordState.text,
+                                    context
+                                )
+                                if (success) {
+                                    onLoginClick()
+                                } else {
+                                    loginError = true
+                                    kotlinx.coroutines.delay(1000L)
+                                    loginError = false
+                                }
+//                            }
+//                            else onLoginClick()
                         }
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -185,14 +198,29 @@ suspend fun login(
 ): Boolean {
     val userService = UserService(FirebaseFirestore.getInstance())
     val acceptLogin = userService.verifyLoginInfo(userName, password)
+    val currentUserId = userService.getUserIdByUsername(userName)
     if (acceptLogin) {
-        val currentUserId = userService.getUserIdByUsername(userName)
-
         // Save currentUserId to SharedPreferences
-        val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
-        with(sharedPref.edit()) {
-            putString("currentUserId", currentUserId)
-            apply()
+        runBlocking {
+            var FCMToken: String = ""
+            val job: Unit = launch {
+                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        FCMToken = task.getResult()
+                        userService.addFCMToken(FCMToken, currentUserId!!)
+                        Log.d("FCM", "Current user token: $FCMToken")
+                    }
+                }
+            }.join()
+            val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
+            //val sessionTimeout = sharedPref.getString("session", "")
+            with(sharedPref.edit()) {
+                putString("currentUserId", currentUserId)
+//                if (sessionTimeout == "" || sessionTimeout == null) {
+//                    putString("session", Instant.now().toEpochMilli().toString())
+//                }
+                apply()
+            }
         }
     }
     return acceptLogin

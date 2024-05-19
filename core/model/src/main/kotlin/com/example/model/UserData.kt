@@ -8,4 +8,5 @@ class UserData(
     var friends: MutableList<String>? = null,
     var id: String = generateId(username),
     var profile: String = id,
+    var fcmToken: String? = null,
 )

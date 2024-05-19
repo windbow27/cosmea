@@ -9,6 +9,7 @@ class MessageData(
     var timestamp: String = Instant.now().toEpochMilli().toString(),
     var image: String? = null,
     var file: String? = null,
+    var nsfw: Boolean = false,
     var id: String = generateId((author + receiver + content + timestamp)),
 ) {
     override fun toString(): String {

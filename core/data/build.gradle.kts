@@ -35,6 +35,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-messaging")
     testImplementation("io.mockk:mockk-android:1.13.10")
     testImplementation(kotlin("test"))
     androidTestImplementation("androidx.test:core:1.5.0")
