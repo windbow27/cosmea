@@ -8,7 +8,9 @@ import com.example.cosmea.ui.AppState
 import com.example.login.navigation.LOGIN_ROUTE
 import com.example.login.navigation.loginScreen
 import com.example.login.navigation.navigateToLogin
+import com.example.messages.navigation.addFriendScreen
 import com.example.messages.navigation.messagesScreen
+import com.example.messages.navigation.navigateToAddFriend
 import com.example.notifications.navigation.notificationsScreen
 import com.example.profile.navigation.navigateToProfile
 import com.example.profile.navigation.navigateToProfileView
@@ -40,7 +42,8 @@ fun AppNavHost(
         createServerScreen(onBackPressed = navController::popBackStack, onCreateServerClick = navController::navigateToServers, onJoinServerClick = navController::navigateToServers)
         createChannelScreen(onBackPressed = navController::popBackStack, onCreateChannelClick = navController::navigateToServers)
         conversationScreen(onBackPressed = navController::popBackStack)
-        messagesScreen(onChannelClick = navController::navigateToConversation)
+        messagesScreen(onChannelClick = navController::navigateToConversation, onAddFriendScreenClick = navController::navigateToAddFriend)
+        addFriendScreen(onBackPressed = navController::popBackStack)
         notificationsScreen {}
         profileScreen (onLogoutClick = navController::navigateToLogin, onClickProfile = navController::navigateToProfileView)
         profileViewScreen (onBackClick = navController::navigateToProfile)

@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.designsystem.component.Background
+import com.example.designsystem.icon.Icons
 import com.example.model.ChannelListener
 import com.example.ui.SearchToolbar
 import com.example.ui.UserHead
@@ -25,14 +28,17 @@ import com.example.ui.UserHead
 @Composable
 internal fun MessagesRoute(
     onChannelClick: (String) -> Unit,
+    onAddFriendScreenClick: () -> Unit
 ) {
     MessagesScreen(
-
-    ) { channel -> onChannelClick(channel) }
+        listener = { channelId -> onChannelClick(channelId) },
+        onAddFriendScreenClick = onAddFriendScreenClick
+    )
 }
 @Composable
 fun MessagesScreen(
-    listener: ChannelListener
+    listener: ChannelListener,
+    onAddFriendScreenClick: () -> Unit
 ) {
     var searchQuery = remember { mutableStateOf("") }
     Background {
@@ -41,10 +47,14 @@ fun MessagesScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Text(
-                modifier = Modifier.padding(bottom = 16.dp),
-                text = "Messages", style = MaterialTheme.typography.titleLarge
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Messages", style = MaterialTheme.typography.titleLarge
+                )
+                IconButton(onClick = { onAddFriendScreenClick() }) {
+                    Icon(Icons.AddFriend, contentDescription = "Add Friends")
+                }
+            }
             SearchToolbar(
                 searchQuery = searchQuery.value,
                 onSearchQueryChanged = {searchQuery.value = it},
@@ -95,7 +105,8 @@ val messages = listOf(
 @Preview
 @Composable
 fun PreviewMessagesScreen() {
-    MessagesScreen {
-        // Handle channel selection
-    }
+    MessagesScreen(
+        listener = { channelId -> println("Channel clicked: $channelId") },
+        onAddFriendScreenClick = { println("Add friend clicked") }
+    )
 }

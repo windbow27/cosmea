@@ -17,6 +17,8 @@ import androidx.compose.material.icons.rounded.ChatBubbleOutline
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Grid3x3
+import androidx.compose.material.icons.rounded.Group
+import androidx.compose.material.icons.rounded.GroupAdd
 import androidx.compose.material.icons.rounded.HomeWork
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardVoice
@@ -60,4 +62,6 @@ object Icons {
     val Photo = Icons.Rounded.AddPhotoAlternate
     val Map = Icons.Rounded.PinDrop
     val Voice = Icons.Rounded.KeyboardVoice
+    val Friends = Icons.Rounded.Group
+    val AddFriend = Icons.Rounded.GroupAdd
 }
