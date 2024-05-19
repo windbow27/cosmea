@@ -31,12 +31,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.data.mockChannels
+import com.example.data.mockServers
 import com.example.data.service.ChannelService
 import com.example.data.service.ServerService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
+import com.example.model.ChannelData
 import com.example.model.ChannelListener
+import com.example.model.ServerData
 import com.example.ui.UserHead
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -46,22 +50,10 @@ internal fun ServersRoute(
     onCreateServerClick: () -> Unit,
     onCreateChannelClick: (String) -> Unit
 ) {
-    ServersScreen(
-        listener = { channel -> onChannelClick(channel) },
-        onCreateServerClick = onCreateServerClick,
-        onCreateChannelClick = onCreateChannelClick
-    )
-}
-
-@Composable
-fun ServersScreen(
-    listener: ChannelListener,
-    onCreateServerClick: () -> Unit,
-    onCreateChannelClick: (String) -> Unit
-) {
     val context = LocalContext.current
     val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
     val userId = sharedPref.getString("currentUserId", null)
+
     val serverService = ServerService(FirebaseFirestore.getInstance())
     val channelService = ChannelService(FirebaseFirestore.getInstance())
     val serversViewModel: ServersViewModel = viewModel(factory = ServersViewModelFactory(serverService, channelService))
@@ -73,6 +65,28 @@ fun ServersScreen(
     println("Channels: $channels")
 
     var selectedServerId by remember { mutableStateOf(servers.firstOrNull()?.id) }
+
+    ServersScreen(
+        listener = { channel -> onChannelClick(channel) },
+        servers = servers,
+        channels = channels,
+        selectedServerId = selectedServerId,
+        onCreateServerClick = onCreateServerClick,
+        onCreateChannelClick = onCreateChannelClick,
+        onServerSelected = { selectedServerId = it }
+    )
+}
+
+@Composable
+fun ServersScreen(
+    listener: ChannelListener,
+    servers: List<ServerData>,
+    channels: Map<String, List<ChannelData?>>,
+    selectedServerId: String?,
+    onCreateServerClick: () -> Unit,
+    onCreateChannelClick: (String) -> Unit,
+    onServerSelected: (String) -> Unit
+) {
     Background {
         Row {
             // Server icons
@@ -96,7 +110,7 @@ fun ServersScreen(
                             id = server.id,
                             name = server.name,
                             modifier = Modifier
-                                .clickable { selectedServerId = server.id }
+                                .clickable { onServerSelected(server.id) }
                         )
                     }
                 }
@@ -172,10 +186,12 @@ fun ServerName(name: String) {
 fun PreviewServersScreen() {
     CosmeaTheme {
         ServersScreen(
-//            servers = mockServers,
-//            channels = mockChannels,
             listener = { channel -> println("Channel clicked: $channel") },
-            onCreateServerClick = { println("Create server clicked") }
+            servers = mockServers,
+            channels = mockChannels,
+            selectedServerId = "Server1",
+            onCreateServerClick = { println("Create server clicked") },
+            onCreateChannelClick = { println("Create channel clicked") },
         ) { println("Create channel clicked") }
     }
 }
@@ -185,10 +201,12 @@ fun PreviewServersScreen() {
 fun PreviewServersScreenDark() {
     CosmeaTheme(darkTheme = true) {
         ServersScreen(
-//            servers = mockServers,
-//            channels = mockChannels,
             listener = { channel -> println("Channel clicked: $channel") },
-            onCreateServerClick = { println("Create server clicked") }
+            servers = mockServers,
+            channels = mockChannels,
+            selectedServerId = "Server1",
+            onCreateServerClick = { println("Create server clicked") },
+            onCreateChannelClick = { println("Create channel clicked") },
         ) { println("Create channel clicked") }
     }
 }
