@@ -2,6 +2,7 @@ package com.example.conversation
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,11 +66,14 @@ import com.example.data.service.UserService
 import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.ChannelData
 import com.example.model.MessageData
+import com.example.notifications.FCMClient
 import com.example.ui.AppBar
 import com.example.ui.UserHead
 import com.example.ui.UserInput
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 @Composable
@@ -169,6 +173,21 @@ fun ConversationScreen(
 suspend fun addMessageToChannel(message: MessageData, channelId: String) {
     val messageService = MessageService(FirebaseDatabase.getInstance())
     messageService.addMessageData(channelId, message)
+//    val tokens: List<String> = runBlocking {
+//        val deferredTokens = async {
+//            messageService.getAllFCMToken(channelId)
+//        }
+//        deferredTokens.await()  // Wait for the result and return it
+//    }
+    val tokensDeferred = GlobalScope.async {
+        messageService.getAllFCMToken(channelId)
+    }
+
+    // Await the result of the async operation
+    val tokens: List<String> = tokensDeferred.await()
+
+    FCMClient.sendMessageNotification(message.content, message.author, tokens)
+    Log.d("TOKENS", tokens.toString())
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

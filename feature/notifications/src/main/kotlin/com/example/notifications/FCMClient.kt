@@ -18,7 +18,9 @@ import java.io.IOException
 object FCMClient {
     private const val BASE_URL = "https://fcm.googleapis.com/fcm/send"
 
-    suspend fun sendNotification(message: String, currentUserId: String, tokens: List<String>) {
+    val FCM_API_KEY = "AAAAj0b26RA:APA91bFHJS86ZyFJjpRxpe3fzEZ01oyunOWRDLPwcTt5_w9ULul2Ua11aovQ4nKYoAxYsTgJY1TqawMo_w-Uisj9ogidOKiYcnKoG_BCAMCMtMSB2CWPWOVBSbOlJ_SLIsiwQehB_AeR"
+
+    suspend fun sendMessageNotification(message: String, currentUserId: String, tokens: List<String>) {
         val userService = UserService(FirebaseFirestore.getInstance())
         val username: String = coroutineScope {
             async {
@@ -52,6 +54,37 @@ object FCMClient {
         }
     }
 
+    suspend fun sendFriendNotification(currentUserId: String, token: String) {
+        val userService = UserService(FirebaseFirestore.getInstance())
+        val username: String = coroutineScope {
+            async {
+                userService.getUsernameById(currentUserId)
+            }.await()
+        }.toString()
+        Log.d("Username", "$username")
+        if (token.isEmpty()) {
+            Log.e("DEBUG", "No tokens available to send notifications")
+            return
+        }
+        try {
+            print(token)
+            val jsonObject = JSONObject()
+            val notificationObject = JSONObject()
+            notificationObject.put("title", "$username send you a friend request")
+            notificationObject.put("body", "")
+
+            val dataObject = JSONObject()
+            dataObject.put("userId", currentUserId)
+            jsonObject.put("notification", notificationObject)
+            jsonObject.put("data", dataObject)
+            jsonObject.put("to", token)
+
+            callAPI(jsonObject)
+        } catch (exception: Exception) {
+            Log.e("FCM API", "Error when call API $exception")
+        }
+    }
+
     fun callAPI(jsonObject: JSONObject) {
         val JSON: MediaType = MediaType.get("application/json; charset=utf-8")
         val client = OkHttpClient()
@@ -59,7 +92,7 @@ object FCMClient {
         val request: Request = Request.Builder()
             .url(BASE_URL)
             .post(requestBody)
-            .header("Authorization", "Bearer AAAAj0b26RA:APA91bFHJS86ZyFJjpRxpe3fzEZ01oyunOWRDLPwcTt5_w9ULul2Ua11aovQ4nKYoAxYsTgJY1TqawMo_w-Uisj9ogidOKiYcnKoG_BCAMCMtMSB2CWPWOVBSbOlJ_SLIsiwQehB_AeR")
+            .header("Authorization", "Bearer $FCM_API_KEY")
             .build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {

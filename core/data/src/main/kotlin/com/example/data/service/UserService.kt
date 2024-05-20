@@ -32,9 +32,11 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
                 val profile = documentSnapshot.data?.get("profile").toString()
                 val id = documentSnapshot.data?.get("id").toString()
                 val email = documentSnapshot.data?.get("email").toString()
+                val phone = documentSnapshot.data?.get("phone").toString()
                 val friends = documentSnapshot.data?.get("friends") as MutableList<String>?
+                val pendingFriends = documentSnapshot.data?.get("pendingFriends") as MutableList<String>?
                 val joinedServers = documentSnapshot.data?.get("joinedServers") as MutableList<String>?
-                user = UserData(userName, password, email, joinedServers, friends, id, profile)
+                user = UserData(userName, password, email, phone, joinedServers, friends, pendingFriends, id, profile)
                 Log.d("FIRESTORE", "Get user data successfully: ${user!!.email}")
             }
             .addOnFailureListener { exception ->
@@ -202,5 +204,23 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
                 Log.d("FIRESTORE", "Get username successfully: $username")
             }
         return username.toString()
+    }
+
+    override suspend fun addFriendRequest(currentUserId: String, friendId: String) {
+        firestore.collection("users").document(friendId).get()
+            .addOnCompleteListener {task ->
+                val pendingList: MutableList<String> = task.result.data?.get("pendingFriends") as MutableList<String>
+                pendingList.add(friendId)
+                firestore.collection("users").document(friendId).update("pendingFriends", pendingList)
+            }
+    }
+
+    override suspend fun removeFriendRequest(currentUserId: String, friendId: String) {
+        firestore.collection("users").document(friendId).get()
+            .addOnCompleteListener {task ->
+                val pendingList: MutableList<String> = task.result.data?.get("pendingFriends") as MutableList<String>
+                pendingList.remove(friendId)
+                firestore.collection("users").document(friendId).update("pendingFriends", pendingList)
+            }
     }
 }
