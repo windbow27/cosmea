@@ -1,5 +1,6 @@
 package com.example.messages
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,14 +20,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.data.service.UserService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun AddFriendRoute(
@@ -42,7 +49,11 @@ internal fun AddFriendRoute(
 fun AddFriendScreen(
     onBackPressed: () -> Unit
 ) {
-    var username by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
+    val userId = sharedPref.getString("currentUserId", null)
+    var friendUsername by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
 
     Background {
         LazyColumn {
@@ -85,21 +96,36 @@ fun AddFriendScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     TextField(
-                        value = username,
-                        onValueChange = { username = it },
+                        value = friendUsername,
+                        onValueChange = { friendUsername = it },
                         label = { Text("Enter a username") },
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     // Add a Button for sending the friend request
                     Button(
-                        onClick = { /* Handle send friend request */ },
+                        onClick = {
+                            println()
+                            if (userId != null) {
+                                addFriendRequest(userId, friendUsername, coroutineScope)
+                            }
+                        },
                         modifier = Modifier.padding(top = 16.dp)
                     ) {
                         Text("Send Friend Request")
                     }
                 }
             }
+        }
+    }
+}
+
+fun addFriendRequest(currentUserId: String, friendUsername: String, coroutineScope: CoroutineScope) {
+    val userService = UserService(FirebaseFirestore.getInstance())
+    coroutineScope.launch {
+        val friendId = userService.getUserIdByUsername(friendUsername)
+        if (friendId != null) {
+            userService.addFriendRequest(currentUserId, friendId)
         }
     }
 }

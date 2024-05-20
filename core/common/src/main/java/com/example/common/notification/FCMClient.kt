@@ -18,7 +18,7 @@ import java.io.IOException
 object FCMClient {
     private const val BASE_URL = "https://fcm.googleapis.com/fcm/send"
 
-    val FCM_API_KEY = "AAAAj0b26RA:APA91bFHJS86ZyFJjpRxpe3fzEZ01oyunOWRDLPwcTt5_w9ULul2Ua11aovQ4nKYoAxYsTgJY1TqawMo_w-Uisj9ogidOKiYcnKoG_BCAMCMtMSB2CWPWOVBSbOlJ_SLIsiwQehB_AeR"
+    private const val FCM_API_KEY = "AAAAj0b26RA:APA91bFHJS86ZyFJjpRxpe3fzEZ01oyunOWRDLPwcTt5_w9ULul2Ua11aovQ4nKYoAxYsTgJY1TqawMo_w-Uisj9ogidOKiYcnKoG_BCAMCMtMSB2CWPWOVBSbOlJ_SLIsiwQehB_AeR"
 
     suspend fun sendMessageNotification(message: String, currentUserId: String, tokens: List<String>) {
         val userService = UserService(FirebaseFirestore.getInstance())
@@ -27,7 +27,7 @@ object FCMClient {
                 userService.getUsernameById(currentUserId)
             }.await()
         }.toString()
-        Log.d("Username", "$username")
+        Log.d("Username", username)
         if (tokens.isEmpty()) {
             Log.e("DEBUG", "No tokens available to send notifications")
             return
@@ -61,7 +61,7 @@ object FCMClient {
                 userService.getUsernameById(currentUserId)
             }.await()
         }.toString()
-        Log.d("Username", "$username")
+        Log.d("Username", username)
         if (token.isEmpty()) {
             Log.e("DEBUG", "No tokens available to send notifications")
             return
@@ -85,7 +85,7 @@ object FCMClient {
         }
     }
 
-    fun callAPI(jsonObject: JSONObject) {
+    private fun callAPI(jsonObject: JSONObject) {
         val JSON: MediaType = MediaType.get("application/json; charset=utf-8")
         val client = OkHttpClient()
         val requestBody: RequestBody = RequestBody.create(JSON, jsonObject.toString())
@@ -105,8 +105,7 @@ object FCMClient {
                         Log.e("FCM API", "Unexpected code $response")
                     } else {
                         response.let { responseBody ->
-                            val responseBodyString = responseBody // Access the response body content
-                            Log.d("FCM API", "Response received: $responseBodyString")
+                            Log.d("FCM API", "Response received: $responseBody")
                         }
                     }
                 }
