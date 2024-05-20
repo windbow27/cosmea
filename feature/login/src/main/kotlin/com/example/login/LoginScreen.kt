@@ -216,6 +216,7 @@ suspend fun login(
             //val sessionTimeout = sharedPref.getString("session", "")
             with(sharedPref.edit()) {
                 putString("currentUserId", currentUserId)
+                putString("currentUsername", userName)
 //                if (sessionTimeout == "" || sessionTimeout == null) {
 //                    putString("session", Instant.now().toEpochMilli().toString())
 //                }

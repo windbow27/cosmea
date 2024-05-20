@@ -58,6 +58,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.common.notification.FCMClient
 import com.example.data.mockChannel
 import com.example.data.mockMessages
 import com.example.data.service.ChannelService
@@ -66,12 +67,12 @@ import com.example.data.service.UserService
 import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.ChannelData
 import com.example.model.MessageData
-import com.example.common.notification.FCMClient
 import com.example.ui.AppBar
 import com.example.ui.UserHead
 import com.example.ui.UserInput
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -112,6 +113,7 @@ fun ConversationScreen(
     val context = LocalContext.current
     val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
     val userId = sharedPref.getString("currentUserId", null)
+    val username = sharedPref.getString("currentUsername", null)
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -154,7 +156,11 @@ fun ConversationScreen(
                                 timestamp = System.currentTimeMillis().toString()
                             )
                         }
-                        newMessage?.let { it1 -> addMessageToChannel(it1, conversation.id) }
+                        newMessage?.let { it1 ->
+                            if (username != null) {
+                                addMessageToChannel(it1, conversation.id, username)
+                            }
+                        }
                     }
                 },
                 resetScroll = {
@@ -170,24 +176,26 @@ fun ConversationScreen(
     }
 }
 
-suspend fun addMessageToChannel(message: MessageData, channelId: String) {
+@OptIn(DelicateCoroutinesApi::class)
+suspend fun addMessageToChannel(message: MessageData, channelId: String, username: String) {
     val messageService = MessageService(FirebaseDatabase.getInstance())
-    messageService.addMessageData(channelId, message)
-//    val tokens: List<String> = runBlocking {
-//        val deferredTokens = async {
-//            messageService.getAllFCMToken(channelId)
-//        }
-//        deferredTokens.await()  // Wait for the result and return it
-//    }
+
+    val addMessageDeferred = GlobalScope.async {
+        messageService.addMessageData(channelId, message)
+    }
+
     val tokensDeferred = GlobalScope.async {
         messageService.getAllFCMToken(channelId)
     }
 
-    // Await the result of the async operation
+    addMessageDeferred.await()
     val tokens: List<String> = tokensDeferred.await()
 
-    com.example.common.notification.FCMClient.sendMessageNotification(message.content, message.author, tokens)
+    Log.d("USERNAME", username)
+    Log.d("MESSAGE", message.toString())
     Log.d("TOKENS", tokens.toString())
+
+    FCMClient.sendMessageNotification(message.content, message.author, username, tokens)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

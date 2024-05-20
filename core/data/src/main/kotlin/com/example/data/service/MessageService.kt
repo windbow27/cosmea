@@ -50,7 +50,7 @@ class MessageService(private val realTimeDB: FirebaseDatabase): MessageRepositor
         firestore.collection("channels").document(channelId).get()
             .addOnSuccessListener{document ->
                 if (document != null) {
-                    val users: MutableList<String> = document.data?.get("members") as MutableList<String>
+                    val users: MutableList<String> = document.data?.get("members") as? MutableList<String> ?: mutableListOf()
                     Log.d("INFO", "User list $users")
                     if (users.size > 0) {
                         users.forEach{userId ->

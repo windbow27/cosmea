@@ -20,14 +20,8 @@ object FCMClient {
 
     private const val FCM_API_KEY = "AAAAj0b26RA:APA91bFHJS86ZyFJjpRxpe3fzEZ01oyunOWRDLPwcTt5_w9ULul2Ua11aovQ4nKYoAxYsTgJY1TqawMo_w-Uisj9ogidOKiYcnKoG_BCAMCMtMSB2CWPWOVBSbOlJ_SLIsiwQehB_AeR"
 
-    suspend fun sendMessageNotification(message: String, currentUserId: String, tokens: List<String>) {
-        val userService = UserService(FirebaseFirestore.getInstance())
-        val username: String = coroutineScope {
-            async {
-                userService.getUsernameById(currentUserId)
-            }.await()
-        }.toString()
-        Log.d("Username", username)
+    fun sendMessageNotification(message: String, currentUserId: String, username: String, tokens: List<String>) {
+        Log.d("DEBUG", "Username is $username")
         if (tokens.isEmpty()) {
             Log.e("DEBUG", "No tokens available to send notifications")
             return

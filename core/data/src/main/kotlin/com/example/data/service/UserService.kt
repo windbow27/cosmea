@@ -37,7 +37,7 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
                 val pendingFriends = documentSnapshot.data?.get("pendingFriends") as MutableList<String>?
                 val joinedServers = documentSnapshot.data?.get("joinedServers") as MutableList<String>?
                 user = UserData(userName, password, email, phone, joinedServers, friends, pendingFriends, id, profile)
-                Log.d("FIRESTORE", "Get user data successfully: ${user!!.email}")
+//                Log.d("FIRESTORE", "Get user data successfully: ${user!!.email}")
             }
             .addOnFailureListener { exception ->
                 Log.e("FIRESTORE ERROR", "Error getting user's profile data to Firestore: $exception")
