@@ -26,7 +26,6 @@ dependencies {
     implementation(project(":core:model"))
     implementation(project(":feature:register"))
     implementation(project(":feature:profile"))
-    implementation(libs.firebase.messaging.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -36,7 +35,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
     implementation("com.google.firebase:firebase-analytics")
-    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.firebase:firebase-firestore")
     testImplementation("io.mockk:mockk-android:1.13.10")
 }
