@@ -41,6 +41,7 @@ fun ProfileScreen(onLogoutClick: () -> Unit, onClickProfile: () -> Unit) {
         }
         Button(onClick = { /* Handle Add Status */
             onLogoutClick()
+
         }) {
             Text("Logout")
         }

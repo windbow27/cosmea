@@ -12,7 +12,7 @@ fun generateId(username: String, additionalInfo: String? = null): String {
     return hashedString.substring(0, 9)
 }
 
-const val EXPIRED_TIME = 259200
+const val EXPIRED_TIME = 259200000
 
 
 

@@ -39,7 +39,6 @@ import com.example.data.service.UserService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
-import com.example.model.EXPIRED_TIME
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
@@ -68,10 +67,6 @@ fun LoginScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
-    val lastLoginTimestamp = sharedPref.getString("session", "0")
-    val currentTimestamp = Instant.now().toEpochMilli()
-    val isTimeoutSession = (currentTimestamp > (lastLoginTimestamp!!.toLong() + EXPIRED_TIME))
 
     Background {
         Column(
@@ -213,13 +208,14 @@ suspend fun login(
                 }
             }.join()
             val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
-            //val sessionTimeout = sharedPref.getString("session", "")
+            val sessionTimeout = sharedPref.getString("session", "0")
+            Log.d("SESSION", sessionTimeout.toString())
             with(sharedPref.edit()) {
                 putString("currentUserId", currentUserId)
                 putString("currentUsername", userName)
-//                if (sessionTimeout == "" || sessionTimeout == null) {
-//                    putString("session", Instant.now().toEpochMilli().toString())
-//                }
+                if (sessionTimeout == "0" || sessionTimeout == null) {
+                    putString("session", Instant.now().toEpochMilli().toString())
+                }
                 apply()
             }
         }

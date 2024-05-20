@@ -28,7 +28,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -94,14 +93,17 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
             userData = getCurrentProfileData(idUser,coroutineScope)
         }
     }
-    var userNameState: MutableState<String>? = null
+    var displayNameState = remember { mutableStateOf("") }
+    var dobState = remember { mutableStateOf("") }
+    var bioState = remember { mutableStateOf("") }
     userData?.let {
         println(it.displayName)
-        userNameState = remember { mutableStateOf(userData?.displayName.toString()) }
+        displayNameState = remember { mutableStateOf(userData?.displayName.toString()) }
+        dobState = remember { mutableStateOf(userData?.dob.toString()) }
+        bioState = remember { mutableStateOf(userData?.bio.toString()) }
     }
 
-    val emailState = remember { mutableStateOf("user@example.com") }
-    val passwordState = remember { mutableStateOf("") }
+
 
     Background {
         Column(
@@ -154,7 +156,7 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
                 )
             }
 
-            Text(text = "User Name" , style = MaterialTheme.typography.titleLarge)
+            Text(text = userData?.displayName.toString() , style = MaterialTheme.typography.titleLarge)
 
             // Button to change avatar (you can implement your own logic)
             Button(onClick = { /* Handle changing avatar */
@@ -172,11 +174,11 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Text field for user name
-                userNameState?.let {
+                displayNameState.let {
                     OutlinedTextField(
-                        value = userNameState!!.value,
-                        onValueChange = { userNameState!!.value = it },
-                        label = { Text("User Name", style = MaterialTheme.typography.bodyLarge) },
+                        value = displayNameState.value,
+                        onValueChange = { displayNameState.value = it },
+                        label = { Text("Display name", style = MaterialTheme.typography.bodyLarge) },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Done
@@ -189,9 +191,9 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
 
                 // Text field for email
                 OutlinedTextField(
-                    value = emailState.value,
-                    onValueChange = { emailState.value = it },
-                    label = { Text("Email", style = MaterialTheme.typography.bodyLarge) },
+                    value = dobState.value,
+                    onValueChange = { dobState.value = it },
+                    label = { Text("Date of birth", style = MaterialTheme.typography.bodyLarge) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Done
@@ -203,9 +205,9 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
 
                 // Text field for password
                 OutlinedTextField(
-                    value = passwordState.value,
-                    onValueChange = { passwordState.value = it },
-                    label = { Text("Password", style = MaterialTheme.typography.bodyLarge) },
+                    value = bioState.value,
+                    onValueChange = { bioState.value = it },
+                    label = { Text("Bio", style = MaterialTheme.typography.bodyLarge) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
