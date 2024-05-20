@@ -1,4 +1,4 @@
-package com.example.notifications
+package com.example.common.notification
 
 import android.util.Log
 import com.example.data.service.UserService

@@ -66,7 +66,7 @@ import com.example.data.service.UserService
 import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.ChannelData
 import com.example.model.MessageData
-import com.example.notifications.FCMClient
+import com.example.common.notification.FCMClient
 import com.example.ui.AppBar
 import com.example.ui.UserHead
 import com.example.ui.UserInput
@@ -186,7 +186,7 @@ suspend fun addMessageToChannel(message: MessageData, channelId: String) {
     // Await the result of the async operation
     val tokens: List<String> = tokensDeferred.await()
 
-    FCMClient.sendMessageNotification(message.content, message.author, tokens)
+    com.example.common.notification.FCMClient.sendMessageNotification(message.content, message.author, tokens)
     Log.d("TOKENS", tokens.toString())
 }
 

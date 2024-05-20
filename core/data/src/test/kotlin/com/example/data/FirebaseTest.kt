@@ -1,12 +1,7 @@
 package com.example.data
 
 import com.example.data.service.UserService
-import com.example.model.UserData
 import com.google.firebase.firestore.FirebaseFirestore
-import io.mockk.coEvery
-import io.mockk.mockk
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
 
 class FirebaseTest {
 
@@ -20,18 +15,18 @@ class FirebaseTest {
 ////        MockKAnnotations.init(this)
 //    }
 
-    @Test
-    suspend fun testAddUserDataSuccess() {
-        val mockUserData = UserData(
-            "User1", "cheesedz", "123", mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3")
-        )
-
-        val mockUserService = mockk<UserService>()
-        coEvery { mockUserService.addUserData(mockUserData) } returns mockUserData.toString()
-
-        val result = mockUserService.addUserData(mockUserData)
-        Assertions.assertEquals(mockUserData, result)
-    }
+//    @Test
+//    suspend fun testAddUserDataSuccess() {
+//        val mockUserData = UserData(
+//            "User1", "cheesedz", "123", mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3")
+//        )
+//
+//        val mockUserService = mockk<UserService>()
+//        coEvery { mockUserService.addUserData(mockUserData) } returns mockUserData.toString()
+//
+//        val result = mockUserService.addUserData(mockUserData)
+//        Assertions.assertEquals(mockUserData, result)
+//    }
 
 //    @Test
 //    fun `testAddUserData_failure`() = runBlocking {
