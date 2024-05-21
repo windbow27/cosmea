@@ -2,8 +2,8 @@ package com.example.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.location.Location
+import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -81,7 +81,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -108,11 +107,11 @@ enum class EmojiStickerSelector {
     STICKER
 }
 
-@Preview
-@Composable
-fun UserInputPreview() {
-    UserInput(onMessageSent = {})
-}
+//@Preview
+//@Composable
+//fun UserInputPreview() {
+//    UserInput(onMessageSent = {})
+//}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -344,9 +343,7 @@ private fun UserInputSelector(
 
     if (showMapPicker) {
         MapPickerDialog(
-            onMessageSent = {it ->
-                onMessageSent(it)
-            },
+            onMessageSent = {it},
             onDismiss = {
                 showMapPicker = false
             }
@@ -418,6 +415,68 @@ private fun UserInputSelector(
         }
     }
 }
+
+@Composable
+fun ImageSelector(
+    onImageAdded: (Uri) -> Unit,
+    focusRequester: FocusRequester
+) {
+    val context = LocalContext.current
+    var hasPermission by remember { mutableStateOf(false) }
+
+    val requestGalleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            onImageAdded(uri)
+        }
+    }
+
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        hasPermission = isGranted
+        if (isGranted) {
+            requestGalleryLauncher.launch("image/*")
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        when {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                hasPermission = true
+                requestGalleryLauncher.launch("image/*")
+            }
+            else -> {
+                requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        }
+    }
+
+
+    Box(
+        modifier = Modifier
+            .size(400.dp, 200.dp)
+            .background(Color.LightGray)
+            .focusRequester(focusRequester),
+        contentAlignment = Alignment.Center
+    ) {
+        if (hasPermission) {
+            TextButton(onClick = { requestGalleryLauncher.launch("image/*") }) {
+                Text("Add image")
+            }
+        } else {
+            TextButton(onClick = { requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE) }) {
+                Text("Grant permission to read storage")
+            }
+        }
+    }
+}
+
+
 
 @Composable
 private fun InputSelectorButton(
