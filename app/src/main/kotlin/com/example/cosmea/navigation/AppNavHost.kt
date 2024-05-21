@@ -35,7 +35,6 @@ fun AppNavHost(
     appState: AppState,
     modifier: Modifier = Modifier,
     startDestination: String = if (appState.isTimeoutSession) LOGIN_ROUTE else SERVERS_ROUTE,
-//    startDestination: String = SERVERS_ROUTE,
 ) {
     val navController = appState.navController
     NavHost(
