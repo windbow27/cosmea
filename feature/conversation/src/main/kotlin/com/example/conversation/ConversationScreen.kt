@@ -2,7 +2,8 @@ package com.example.conversation
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
+import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFrom
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -50,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -58,7 +61,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.common.notification.FCMClient
+import coil.compose.rememberAsyncImagePainter
 import com.example.data.mockChannel
 import com.example.data.mockMessages
 import com.example.data.service.ChannelService
@@ -72,10 +75,10 @@ import com.example.ui.UserHead
 import com.example.ui.UserInput
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 @Composable
 fun ConversationRoute(
@@ -95,6 +98,7 @@ fun ConversationRoute(
     )
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConversationScreen(
@@ -113,7 +117,6 @@ fun ConversationScreen(
     val context = LocalContext.current
     val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
     val userId = sharedPref.getString("currentUserId", null)
-    val username = sharedPref.getString("currentUsername", null)
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -145,21 +148,47 @@ fun ConversationScreen(
                 scrollState = scrollState
             )
             UserInput(
-                onMessageSent = {
-                    println("Message sent: $it")
-                    coroutineScope.launch {
-                        val newMessage = userId?.let { it1 ->
-                            MessageData(
-                                author = it1,
-                                receiver = conversation.id,
-                                content = it,
-                                timestamp = System.currentTimeMillis().toString()
-                            )
-                        }
-                        newMessage?.let { it1 ->
-                            if (username != null) {
-                                addMessageToChannel(it1, conversation.id, username)
+                onMessageSent = { messageText, imageUri ->
+                    println("Message sent: $messageText with image: $imageUri")
+                    if (imageUri != null) {
+                        coroutineScope.launch {
+                            userId?.let {it1 ->
+                                uploadImageAndSaveMessage(
+                                    imageUri = imageUri,
+                                    messageContent = messageText,
+                                    userId = it1,
+                                    conversationId = conversation.id
+                                ) { success, url ->
+                                    if (success) {
+                                        println("Image uploaded and message saved: $url")
+                                        val message1 = MessageData(author = it1,
+                                            receiver = conversation.id,
+                                            content = messageText,
+                                            image = url,
+                                            timestamp = System.currentTimeMillis().toString())
+                                        println(message1.image)
+                                        coroutineScope.launch {
+                                            addMessageToChannel(message1, conversation.id)
+                                        }
+                                    } else {
+                                        println("Failed to upload image and save message")
+                                    }
+                                }
                             }
+                        }
+                    }
+                    else {
+                        coroutineScope.launch {
+                            val newMessage = userId?.let { it1 ->
+                                MessageData(
+                                    author = it1,
+                                    receiver = conversation.id,
+                                    content = messageText,
+                                    image = null,
+                                    timestamp = System.currentTimeMillis().toString()
+                                )
+                            }
+                            newMessage?.let { it1 -> addMessageToChannel(it1, conversation.id) }
                         }
                     }
                 },
@@ -176,26 +205,9 @@ fun ConversationScreen(
     }
 }
 
-@OptIn(DelicateCoroutinesApi::class)
-suspend fun addMessageToChannel(message: MessageData, channelId: String, username: String) {
+suspend fun addMessageToChannel(message: MessageData, channelId: String) {
     val messageService = MessageService(FirebaseDatabase.getInstance())
-
-    val addMessageDeferred = GlobalScope.async {
-        messageService.addMessageData(channelId, message)
-    }
-
-    val tokensDeferred = GlobalScope.async {
-        messageService.getAllFCMToken(channelId)
-    }
-
-    addMessageDeferred.await()
-    val tokens: List<String> = tokensDeferred.await()
-
-    Log.d("USERNAME", username)
-    Log.d("MESSAGE", message.toString())
-    Log.d("TOKENS", tokens.toString())
-
-    FCMClient.sendMessageNotification(message.content, message.author, username, tokens)
+    messageService.addMessageData(channelId, message)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -442,11 +454,13 @@ fun ChatItemBubble(
             color = backgroundBubbleColor,
             shape = ChatBubbleShape
         ) {
-            ClickableMessage(
-                messageData = messageData,
-                isUserMe = isUserMe,
-                authorClicked = authorClicked
-            )
+            if(messageData.content != ""){
+                ClickableMessage(
+                    messageData = messageData,
+                    isUserMe = isUserMe,
+                    authorClicked = authorClicked
+                )
+            }
         }
 
         messageData.image?.let {
@@ -455,11 +469,17 @@ fun ChatItemBubble(
                 color = backgroundBubbleColor,
                 shape = ChatBubbleShape
             ) {
-//                Image(
-//                    painter = painterResource(1),
-//                    contentScale = ContentScale.Fit,
+                Image(
+                    painter = rememberAsyncImagePainter(messageData.image),
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.size(160.dp),
+                    contentDescription = null
+                )
+//                AsyncImage(
+//                    model = imageUrl,
+//                    contentDescription = null,
 //                    modifier = Modifier.size(160.dp),
-//                    contentDescription = null
+//                    contentScale = ContentScale.Crop
 //                )
             }
         }
@@ -497,6 +517,48 @@ fun ClickableMessage(
         }
     )
 }
+
+suspend fun uploadImageAndSaveMessage(
+    imageUri: Uri,
+    messageContent: String,
+    userId: String,
+    conversationId: String,
+    onComplete: (Boolean, String?) -> Unit
+) {
+    val storageRef = Firebase.storage.reference
+    val imageRef = storageRef.child("images/${UUID.randomUUID()}.jpg")
+
+    val uploadTask = imageRef.putFile(imageUri)
+    uploadTask.addOnSuccessListener {
+        imageRef.downloadUrl.addOnSuccessListener { uri ->
+            // Image uploaded successfully, now save the message data
+            val message = MessageData(
+                author = userId,
+                receiver = conversationId,
+                content = messageContent,
+                image = uri.toString(),
+                timestamp = System.currentTimeMillis().toString()
+            )
+            onComplete(true, uri.toString())
+        }.addOnFailureListener {
+            onComplete(false, null)
+        }
+    }.addOnFailureListener {
+        onComplete(false, null)
+    }
+}
+
+fun saveMessageToFirestore(message: MessageData, conversationId: String, onComplete: (Boolean) -> Unit) {
+    val firestore = FirebaseFirestore.getInstance()
+    val messagesRef = firestore.collection("conversations").document(conversationId).collection("messages")
+
+    messagesRef.add(message).addOnSuccessListener {
+        onComplete(true)
+    }.addOnFailureListener {
+        onComplete(false)
+    }
+}
+
 
 @Preview
 @Composable

@@ -12,7 +12,11 @@ import com.example.messages.navigation.addFriendScreen
 import com.example.messages.navigation.messagesScreen
 import com.example.messages.navigation.navigateToAddFriend
 import com.example.notifications.navigation.notificationsScreen
+import com.example.profile.navigation.AccountManagementScreen
+import com.example.profile.navigation.ChangePasswordScreen
+import com.example.profile.navigation.navigateToPasswordChange
 import com.example.profile.navigation.navigateToProfile
+import com.example.profile.navigation.navigateToProfileAccount
 import com.example.profile.navigation.navigateToProfileView
 import com.example.profile.navigation.profileScreen
 import com.example.profile.navigation.profileViewScreen
@@ -46,9 +50,12 @@ fun AppNavHost(
         messagesScreen(onChannelClick = navController::navigateToConversation, onAddFriendScreenClick = navController::navigateToAddFriend)
         addFriendScreen(onBackPressed = navController::popBackStack)
         notificationsScreen()
-        profileScreen (onLogoutClick = navController::navigateToLogin, onClickProfile = navController::navigateToProfileView)
+        AccountManagementScreen (onPasswordChangeClick = navController::navigateToPasswordChange, onBackClick = navController::navigateToProfile, onLogoutClick = navController::navigateToLogin)
+        ChangePasswordScreen (onBackClick = navController::navigateToProfileAccount)
+        profileScreen (onLogoutClick = navController::navigateToLogin, onClickProfile = navController::navigateToProfileView, onClickAccount = navController::navigateToProfileAccount)
         profileViewScreen (onBackClick = navController::navigateToProfile)
-        registerScreen (onRegisterClick = navController::navigateToLogin, redirectToLogin = navController::navigateToLogin)
+        registerScreen (onRegisterClick = navController::navigateToLogin, redirectToLogin = navController::navigateToProfile)
         loginScreen (onLoginClick = navController::navigateToServers , redirectToRegister = navController::navigateToRegister)
     }
 }
+
