@@ -23,4 +23,5 @@ interface UserRepository {
 
     suspend fun acceptFriendRequest(currentUserId: String, friendId: String)
     suspend fun getFriendRequests(userId: String): List<String>
+    suspend fun getFriends(userId: String): List<String>
 }

@@ -2,8 +2,8 @@ package com.example.data
 
 import com.example.model.ChannelData
 import com.example.model.MessageData
+import com.example.model.Notification
 import com.example.model.ServerData
-import com.example.model.UserData
 
 //val mockUsers = mutableListOf(
 //    UserData("User 1","User 1", "1", mutableListOf("Server1", "Server2"), mutableListOf("1", "2", "3")),
@@ -68,4 +68,11 @@ val mockMessages = mutableListOf(
     MessageData("2", "1", "Hi"),
     MessageData("2", "1", "I'm fine"),
     MessageData("1", "2", "Good to hear that"),
+)
+
+val mockNotifications = listOf(
+    Notification(userId = "1", userName = "User 1", message = "You have a new message!"),
+    Notification(userId = "2", userName = "User 2", message = "Your post was liked!"),
+    Notification(userId = "3", userName = "User 3", message = "Tulali talula"),
+
 )

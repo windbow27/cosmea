@@ -64,4 +64,6 @@ object Icons {
     val Voice = Icons.Rounded.KeyboardVoice
     val Friends = Icons.Rounded.Group
     val AddFriend = Icons.Rounded.GroupAdd
+    val Accept = Icons.Rounded.Check
+    val Decline = Icons.Rounded.Close
 }

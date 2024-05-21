@@ -40,7 +40,7 @@ fun MessagesScreen(
     listener: ChannelListener,
     onAddFriendScreenClick: () -> Unit
 ) {
-    var searchQuery = remember { mutableStateOf("") }
+    val searchQuery = remember { mutableStateOf("") }
     Background {
         Column(
             modifier = Modifier
@@ -60,9 +60,9 @@ fun MessagesScreen(
                 onSearchQueryChanged = {searchQuery.value = it},
                 onSearchTriggered = {},
             )
-            val filtered_messages = messages.filter { it.userName.contains(searchQuery.value,ignoreCase = true) }
+            val filteredMessages = messages.filter { it.userName.contains(searchQuery.value,ignoreCase = true) }
             LazyColumn {
-                items(filtered_messages) { message ->
+                items(filteredMessages) { message ->
                     MessageItem(message = message, listener = listener)
                 }
             }
