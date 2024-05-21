@@ -18,6 +18,7 @@ import com.example.profile.navigation.profileScreen
 import com.example.profile.navigation.profileViewScreen
 import com.example.register.navigation.navigateToRegister
 import com.example.register.navigation.registerScreen
+import com.example.servers.navigation.SERVERS_ROUTE
 import com.example.servers.navigation.createChannelScreen
 import com.example.servers.navigation.createServerScreen
 import com.example.servers.navigation.navigateToCreateChannel
@@ -29,7 +30,7 @@ import com.example.servers.navigation.serversScreen
 fun AppNavHost(
     appState: AppState,
     modifier: Modifier = Modifier,
-    startDestination: String = LOGIN_ROUTE,
+    startDestination: String = if (appState.isTimeoutSession) LOGIN_ROUTE else SERVERS_ROUTE,
 //    startDestination: String = SERVERS_ROUTE,
 ) {
     val navController = appState.navController
