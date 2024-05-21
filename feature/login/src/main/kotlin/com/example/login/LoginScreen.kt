@@ -251,7 +251,7 @@ fun LoginScreenDarkPreview() {
 //        contentAlignment = Alignment.Center
 //    )
 //    {
-//        val icon: Painter = painterResource(id = image)
+//        val icon: Painter = painterResource(channelId = image)
 //        Image(
 //            painter = icon,
 //            contentDescription = null,
@@ -271,7 +271,7 @@ fun LoginScreenDarkPreview() {
 //        contentAlignment = Alignment.Center
 //    )
 //    {
-//        val icon: Painter = painterResource(id = image)
+//        val icon: Painter = painterResource(channelId = image)
 //        Image(
 //            painter = icon,
 //            contentDescription = null,

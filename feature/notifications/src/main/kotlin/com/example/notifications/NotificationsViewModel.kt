@@ -15,17 +15,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class NotificationsViewModel(private var userService: UserService, private val userId: String): ViewModel() {
-        private val _notifications = MutableStateFlow(listOf<Notification>())
-        private val _friendRequests = MutableStateFlow(listOf<Pair<String, String>>())
-        private val friendRequests: StateFlow<List<Pair<String, String>>> get() = _friendRequests
+    private val _notifications = MutableStateFlow(listOf<Notification>())
+    private val _friendRequests = MutableStateFlow(listOf<Pair<String, String>>())
+    private val friendRequests: StateFlow<List<Pair<String, String>>> get() = _friendRequests
     val notifications: StateFlow<List<Notification>> get() = _notifications
 
     init {
-        fetchFriends()
+        fetchPendingFriends()
         observePendingFriendChanges()
     }
 
-    private fun fetchFriends() {
+    private fun fetchPendingFriends() {
         viewModelScope.launch {
             val friends = userService.getFriendRequests(userId).map { friendId ->
                 async {

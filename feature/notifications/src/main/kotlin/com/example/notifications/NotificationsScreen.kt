@@ -22,10 +22,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.data.mockNotifications
+import com.example.data.service.ChannelService
 import com.example.data.service.UserService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
+import com.example.model.ChannelData
 import com.example.model.Notification
 import com.example.ui.UserHead
 import com.google.firebase.firestore.FirebaseFirestore
@@ -101,9 +103,18 @@ fun NotificationItem(
 
 fun acceptFriendRequest(userId: String, friendId: String, coroutineScope: CoroutineScope) {
     val userService = UserService(FirebaseFirestore.getInstance())
+    val channelService = ChannelService(FirebaseFirestore.getInstance())
+    val newDirectMessage = ChannelData(
+        name = "Private Chat",
+        serverId = "",
+        adminId = userId + friendId,
+        members = mutableListOf(userId, friendId),
+        messages = mutableListOf()
+    )
     coroutineScope.launch {
         userService.acceptFriendRequest(userId, friendId)
         userService.removeFriendRequest(userId, friendId)
+        channelService.addDirectMessage(newDirectMessage, userId, friendId)
     }
 
 }

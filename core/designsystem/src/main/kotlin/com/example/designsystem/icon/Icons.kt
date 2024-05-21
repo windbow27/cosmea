@@ -13,6 +13,7 @@ import androidx.compose.material.icons.rounded.AddReaction
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.BookmarkBorder
 import androidx.compose.material.icons.rounded.Bookmarks
+import androidx.compose.material.icons.rounded.CameraEnhance
 import androidx.compose.material.icons.rounded.ChatBubbleOutline
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
@@ -66,4 +67,5 @@ object Icons {
     val AddFriend = Icons.Rounded.GroupAdd
     val Accept = Icons.Rounded.Check
     val Decline = Icons.Rounded.Close
+    val Camera = Icons.Rounded.CameraEnhance
 }

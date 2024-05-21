@@ -10,4 +10,5 @@ interface MessageRepository {
     suspend fun addMessageData(channelId: String, messageData: MessageData)
     suspend fun addMessageIntoChannelList(channelId: String, messageId: String)
     suspend fun getAllFCMToken(channelId: String): List<String>
+    suspend fun getMessageContent(channelId: String, messageId: String): String
 }

@@ -111,5 +111,15 @@ class MessageService(private val realTimeDB: FirebaseDatabase): MessageRepositor
             }.await()
     }
 
-
+    override suspend fun getMessageContent(channelId: String, messageId: String): String {
+        try {
+            val messageSnapshot = realTimeDB.getReference("messages/$channelId/$messageId").get().await()
+            val messageContent = messageSnapshot.child("content").getValue(String::class.java)
+            Log.d("REALTIME DATABASE", "Message content: $messageContent")
+            return messageContent ?: ""
+        } catch (e: Exception) {
+            Log.e("REALTIME DATABASE ERROR", "Error getting message content: $e")
+        }
+        return ""
+    }
 }

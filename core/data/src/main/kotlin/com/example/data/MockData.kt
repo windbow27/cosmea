@@ -1,6 +1,7 @@
 package com.example.data
 
 import com.example.model.ChannelData
+import com.example.model.DirectMessage
 import com.example.model.MessageData
 import com.example.model.Notification
 import com.example.model.ServerData
@@ -15,19 +16,11 @@ import com.example.model.ServerData
 //)
 
 val mockDirectMessages = mutableListOf(
-    ChannelData(
-        name = "DM 1",
-        adminId = "",
-        serverId = "",
-        members = mutableListOf(),
-        messages = mutableListOf()),
-    ChannelData(
-        name = "DM 1",
-        adminId = "",
-        serverId = "",
-        members = mutableListOf(),
-        messages = mutableListOf()
-    ),
+    DirectMessage("1","1", "2", "Hello"),
+    DirectMessage("1","1", "2", "How are you?"),
+    DirectMessage("1","2", "1", "Hi"),
+    DirectMessage("1","2", "1", "I'm fine"),
+    DirectMessage("1","1", "2", "Good to hear that"),
 )
 
 val mockChannel = ChannelData(

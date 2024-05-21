@@ -2,6 +2,7 @@ package com.example.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.location.Location
 import android.util.Log
 import androidx.activity.compose.BackHandler
@@ -33,12 +34,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -88,6 +87,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
+import coil.compose.AsyncImage
 import com.example.designsystem.icon.Icons
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.delay
@@ -117,7 +117,7 @@ fun UserInputPreview() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun UserInput(
-    onMessageSent: (String) -> Unit,
+    onMessageSent: (String, Uri?) -> Unit,
     modifier: Modifier = Modifier,
     resetScroll: () -> Unit = {},
 ) {
@@ -132,6 +132,8 @@ fun UserInput(
     var textState by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue())
     }
+
+    var imageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
 
     // Used to decide if the keyboard should be shown
     var textFieldFocusState by remember { mutableStateOf(false) }
@@ -155,18 +157,19 @@ fun UserInput(
                     }
                     textFieldFocusState = focused
                 },
-                focusState = textFieldFocusState
+                focusState = textFieldFocusState,
+                imageUri = imageUri,
+                onImageRemoved = { imageUri = null }
             )
             UserInputSelector(
-                onSelectorChange = {
-                    currentInputSelector = it
-                },
-                sendMessageEnabled = textState.text.isNotBlank(),
-                onMessageSent = {it
-                    onMessageSent(it.toString())
+                onSelectorChange = { currentInputSelector = it },
+                sendMessageEnabled = textState.text.isNotBlank() || imageUri != null,
+                onMessageSent = {
+                    onMessageSent(textState.text, imageUri)
                     // Reset text field and close keyboard
                     textState = TextFieldValue()
                     // Move scroll to bottom
+                    imageUri = null
                     resetScroll()
                     dismissKeyboard()
                 },
@@ -175,7 +178,10 @@ fun UserInput(
             SelectorExpanded(
                 onCloseRequested = dismissKeyboard,
                 onTextAdded = { textState = textState.addText(it) },
-                currentSelector = currentInputSelector
+                currentSelector = currentInputSelector,
+                onImageAdded = { uri ->
+                    imageUri = uri
+                }
             )
         }
     }
@@ -300,6 +306,7 @@ private fun SelectorExpanded(
     currentSelector: InputSelector,
     onCloseRequested: () -> Unit,
     onTextAdded: (String) -> Unit,
+    onImageAdded: (Uri) -> Unit
 ) {
     if (currentSelector == InputSelector.NONE) return
 
@@ -315,7 +322,7 @@ private fun SelectorExpanded(
     Surface(tonalElevation = 8.dp) {
         when (currentSelector) {
             InputSelector.EMOJI -> EmojiSelector(onTextAdded, focusRequester)
-            InputSelector.PICTURE -> TODO()
+            InputSelector.PICTURE -> ImageSelector(onImageAdded, focusRequester)
             InputSelector.MAP -> MapPickerDialog(onTextAdded, onCloseRequested)
             InputSelector.PHONE -> TODO()
             else -> {
@@ -329,7 +336,7 @@ private fun SelectorExpanded(
 private fun UserInputSelector(
     onSelectorChange: (InputSelector) -> Unit,
     sendMessageEnabled: Boolean,
-    onMessageSent: (String?) -> Unit,
+    onMessageSent: () -> Unit,
     currentInputSelector: InputSelector,
     modifier: Modifier = Modifier
 ) {
@@ -371,12 +378,6 @@ private fun UserInputSelector(
             selected = currentInputSelector == InputSelector.MAP,
             description = "Map selector"
         )
-//        InputSelectorButton(
-//            onClick = { showMapPicker = true },
-//            icon = Icons.Map,
-//            selected = currentInputSelector == InputSelector.MAP,
-//            description = "Map selector"
-//        )
         InputSelectorButton(
             onClick = { onSelectorChange(InputSelector.PHONE) },
             icon = Icons.Voice,
@@ -405,7 +406,7 @@ private fun UserInputSelector(
         Button(
             modifier = Modifier.height(36.dp),
             enabled = sendMessageEnabled,
-            onClick = { onMessageSent("") },
+            onClick = onMessageSent,
             colors = buttonColors,
             border = border,
             contentPadding = PaddingValues(0.dp)
@@ -466,7 +467,9 @@ private fun UserInputText(
     textFieldValue: TextFieldValue,
     keyboardShown: Boolean,
     onTextFieldFocused: (Boolean) -> Unit,
-    focusState: Boolean
+    focusState: Boolean,
+    imageUri: Uri?,
+    onImageRemoved: () -> Unit
 ) {
     val swipeOffset = remember { mutableFloatStateOf(0f) }
     var isRecordingMessage by remember { mutableStateOf(false) }
@@ -477,6 +480,21 @@ private fun UserInputText(
             .height(64.dp),
         horizontalArrangement = Arrangement.End
     ) {
+        if (imageUri != null) {
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .padding(start = 8.dp, bottom = 8.dp, top = 8.dp )
+                    .background(Color.Gray)
+                    .clickable(onClick = onImageRemoved)
+            ) {
+                AsyncImage(
+                    model = imageUri,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
         AnimatedContent(
             targetState = isRecordingMessage,
             label = "text-field",
@@ -636,9 +654,19 @@ fun EmojiSelector(
     onTextAdded: (String) -> Unit,
     focusRequester: FocusRequester
 ) {
-    var selected by remember { mutableStateOf(EmojiStickerSelector.EMOJI) }
+    //var selected by remember { mutableStateOf(EmojiStickerSelector.EMOJI) }
 
     val a11yLabel = "Emoji selector"
+    var selected by rememberSaveable { mutableStateOf(EmojiStickerSelector.EMOJI) }
+
+    val emojiModifier = Modifier
+        .clipToBounds()
+        .focusRequester(focusRequester)
+        .focusTarget()
+    val stickerModifier = Modifier
+        .clipToBounds()
+        .focusRequester(focusRequester)
+        .focusTarget()
     Column(
         modifier = Modifier
             .focusRequester(focusRequester) // Requests focus when the Emoji selector is displayed
@@ -664,8 +692,13 @@ fun EmojiSelector(
                 modifier = Modifier.weight(1f)
             )
         }
-        Row(modifier = Modifier.verticalScroll(rememberScrollState())) {
-            EmojiTable(onTextAdded, modifier = Modifier.padding(8.dp))
+//        Row(modifier = Modifier.verticalScroll(rememberScrollState())) {
+//            EmojiTable(onTextAdded, modifier = Modifier.padding(8.dp))
+//
+//        }
+        when (selected) {
+            EmojiStickerSelector.EMOJI -> EmojiTable(onTextAdded = onTextAdded, modifier = emojiModifier)
+            EmojiStickerSelector.STICKER -> StickerTable(onTextAdded = onTextAdded, modifier = stickerModifier)
         }
     }
 //    if (selected == EmojiStickerSelector.STICKER) {
@@ -699,6 +732,33 @@ fun ExtendedSelectorInnerButton(
             text = text,
             style = MaterialTheme.typography.titleSmall
         )
+    }
+}
+@Composable
+fun StickerTable(
+    onTextAdded: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val stickers = listOf(
+        "🎉", "🎁", "🎈", "🎂", "🎄", "🎃", "🎆", "🎇",
+        "🎉", "🎁", "🎈", "🎂", "🎄", "🎃", "🎆", "🎇",
+    )
+    Column(modifier = modifier.padding(8.dp)) {
+        for (i in stickers.indices step 8) {
+            Row {
+                for (j in 0..7) {
+                    if (i + j < stickers.size) {
+                        Text(
+                            text = stickers[i + j],
+                            fontSize = 30.sp,
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .clickable { onTextAdded(stickers[i + j]) }
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 

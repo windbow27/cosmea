@@ -17,7 +17,7 @@ class ChannelData(
     }
 
     override fun toString(): String {
-        return "ChannelData(id='$id', name='$name', members=$members, messages=$messages)"
+        return "ChannelData(channelId='$id', name='$name', members=$members, messages=$messages)"
     }
 }
 

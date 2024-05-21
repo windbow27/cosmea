@@ -159,6 +159,15 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
             }.await()
     }
 
+    suspend fun updateProfileImageUrl(userId: String, imageUrl: String) {
+        try {
+            firestore.collection("profiles").document(userId).update("avatar", imageUrl).await()
+            Log.d("FIRESTORE", "Updated user's profile image URL successfully: $imageUrl")
+        } catch (exception: Exception) {
+            Log.e("FIRESTORE ERROR", "Error updating user's profile image URL in Firestore: $exception")
+        }
+    }
+
     override suspend fun getUserProfile(userId: String): ProfileData? {
         var profile: ProfileData? = null
         firestore.collection("profiles").document(userId).get()
