@@ -17,9 +17,10 @@ interface UserRepository {
     suspend fun getUserProfile(userId: String): ProfileData?
     fun addFCMToken(token: String, userId: String)
     suspend fun getFCMToken(userId: String): String
-    suspend fun getUsernameById(userId: String): String
+    suspend fun getUsernameById(userId: String): String?
     suspend fun addFriendRequest(currentUserId: String, friendId: String)
     suspend fun removeFriendRequest(currentUserId: String, friendId: String)
 
     suspend fun acceptFriendRequest(currentUserId: String, friendId: String)
+    suspend fun getFriendRequests(userId: String): List<String>
 }

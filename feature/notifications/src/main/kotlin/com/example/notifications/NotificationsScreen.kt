@@ -1,5 +1,6 @@
 package com.example.notifications
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,23 +11,35 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.data.service.UserService
 import com.example.designsystem.component.Background
 import com.example.ui.UserHead
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 internal fun NotificationsRoute(
-    onTopicClick: (String) -> Unit
 ) {
-    NotificationsScreen()
+    val userService = UserService(FirebaseFirestore.getInstance())
+    val userId = LocalContext.current.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE).getString("currentUserId", null) ?: ""
+    val notificationsViewModel: NotificationsViewModel = viewModel(factory = NotificationViewModelFactory(userService, userId))
+
+    NotificationsScreen(
+        notifications = notificationsViewModel.notifications.collectAsState().value
+    )
 }
 
 @Preview
 @Composable
-fun NotificationsScreen() {
+fun NotificationsScreen(
+    notifications: List<Notification>
+) {
     Background{
         Column(
             modifier = Modifier
@@ -69,9 +82,9 @@ data class Notification(
     val message: String
 )
 
-val notifications = listOf(
-    Notification(userId = "1", userName = "User 1", message = "You have a new message!"),
-    Notification(userId = "2", userName = "User 2", message = "Your post was liked!"),
-    Notification(userId = "3", userName = "User 3", message = "Tulali talula"),
-
-)
+//val notifications = listOf(
+//    Notification(userId = "1", userName = "User 1", message = "You have a new message!"),
+//    Notification(userId = "2", userName = "User 2", message = "Your post was liked!"),
+//    Notification(userId = "3", userName = "User 3", message = "Tulali talula"),
+//
+//)

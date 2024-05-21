@@ -196,21 +196,23 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
         return token.toString()
     }
 
-    override suspend fun getUsernameById(userId: String): String {
+    override suspend fun getUsernameById(userId: String): String? {
         var username: String? = null
-        firestore.collection("users").document(userId).get()
-            .addOnSuccessListener { document ->
-                username = document.data?.get("username").toString()
-                Log.d("FIRESTORE", "Get username successfully: $username")
-            }
-        return username.toString()
+        try {
+            val document = firestore.collection("users").document(userId).get().await()
+            username = document.data?.get("username").toString()
+            Log.d("FIRESTORE", "Get username successfully: $username")
+        } catch (e: Exception) {
+            Log.e("FIRESTORE ERROR", "Error getting username: ", e)
+        }
+        return username
     }
 
     override suspend fun addFriendRequest(currentUserId: String, friendId: String) {
         firestore.collection("users").document(friendId).get()
             .addOnCompleteListener {task ->
                 val pendingList: MutableList<String> = task.result.data?.get("pendingFriends") as MutableList<String>
-                pendingList.add(friendId)
+                pendingList.add(currentUserId)
                 firestore.collection("users").document(friendId).update("pendingFriends", pendingList)
                 Log.d("FIRESTORE", "Add friend request successfully: $currentUserId to $friendId")
             }
@@ -220,7 +222,7 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
         firestore.collection("users").document(friendId).get()
             .addOnCompleteListener {task ->
                 val pendingList: MutableList<String> = task.result.data?.get("pendingFriends") as MutableList<String>
-                pendingList.remove(friendId)
+                pendingList.remove(currentUserId)
                 firestore.collection("users").document(friendId).update("pendingFriends", pendingList)
             }
     }
@@ -238,5 +240,18 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
                 friendsList.add(currentUserId)
                 firestore.collection("users").document(friendId).update("friends", friendsList)
             }
+    }
+
+    override suspend fun getFriendRequests(userId: String): List<String> {
+        var pendingFriends: MutableList<String> = mutableListOf()
+        firestore.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                pendingFriends = document.data?.get("pendingFriends") as MutableList<String>
+                Log.d("FIRESTORE", "Get pending friends successfully: $pendingFriends")
+            }
+            .addOnFailureListener() { exception ->
+                Log.e("FIRESTORE ERROR", "Error getting pending friends: $exception")
+            }.await()
+        return pendingFriends
     }
 }

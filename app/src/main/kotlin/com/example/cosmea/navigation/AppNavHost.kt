@@ -44,7 +44,7 @@ fun AppNavHost(
         conversationScreen(onBackPressed = navController::popBackStack)
         messagesScreen(onChannelClick = navController::navigateToConversation, onAddFriendScreenClick = navController::navigateToAddFriend)
         addFriendScreen(onBackPressed = navController::popBackStack)
-        notificationsScreen {}
+        notificationsScreen()
         profileScreen (onLogoutClick = navController::navigateToLogin, onClickProfile = navController::navigateToProfileView)
         profileViewScreen (onBackClick = navController::navigateToProfile)
         registerScreen (onRegisterClick = navController::navigateToLogin, redirectToLogin = navController::navigateToLogin)
