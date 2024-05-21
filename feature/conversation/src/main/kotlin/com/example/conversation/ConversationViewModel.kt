@@ -34,6 +34,7 @@ class ConversationViewModel(private val channelService: ChannelService, private 
         }
     }
 
+
     private fun fetchMessageData(channelId: String) {
         viewModelScope.launch {
             messageService.getMessageData(channelId).collect { messages ->
