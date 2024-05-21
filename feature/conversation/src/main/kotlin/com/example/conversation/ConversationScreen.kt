@@ -1,8 +1,10 @@
 package com.example.conversation
 
+//import coil.transform.BlurTransformation
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -30,6 +32,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -62,6 +65,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.example.common.sightengine.SightEngineClient
 import com.example.data.mockChannel
 import com.example.data.mockMessages
 import com.example.data.service.ChannelService
@@ -97,6 +101,7 @@ fun ConversationRoute(
         onBackPressed = onBackPressed,
     )
 }
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -151,27 +156,30 @@ fun ConversationScreen(
                 onMessageSent = { messageText, imageUri ->
                     println("Message sent: $messageText with image: $imageUri")
                     if (imageUri != null) {
-                        coroutineScope.launch {
-                            userId?.let {it1 ->
-                                uploadImageAndSaveMessage(
-                                    imageUri = imageUri,
-                                    messageContent = messageText,
-                                    userId = it1,
-                                    conversationId = conversation.id
-                                ) { success, url ->
-                                    if (success) {
-                                        println("Image uploaded and message saved: $url")
-                                        val message1 = MessageData(author = it1,
-                                            receiver = conversation.id,
-                                            content = messageText,
-                                            image = url,
-                                            timestamp = System.currentTimeMillis().toString())
-                                        println(message1.image)
-                                        coroutineScope.launch {
-                                            addMessageToChannel(message1, conversation.id)
+                        SightEngineClient.checkImageForNSFW(imageUri, context) {
+                            coroutineScope.launch {
+                                userId?.let {it1 ->
+                                    uploadImageAndSaveMessage(
+                                        imageUri = imageUri,
+                                        messageContent = messageText,
+                                        userId = it1,
+                                        conversationId = conversation.id
+                                    ) { success, url ->
+                                        if (success) {
+                                            println("Image uploaded and message saved: $url")
+                                            val message1 = MessageData(author = it1,
+                                                receiver = conversation.id,
+                                                content = messageText,
+                                                image = url,
+                                                nsfw = it,
+                                                timestamp = System.currentTimeMillis().toString())
+                                            println(message1.image)
+                                            coroutineScope.launch {
+                                                addMessageToChannel(message1, conversation.id)
+                                            }
+                                        } else {
+                                            println("Failed to upload image and save message")
                                         }
-                                    } else {
-                                        println("Failed to upload image and save message")
                                     }
                                 }
                             }
@@ -442,6 +450,7 @@ fun ChatItemBubble(
     isUserMe: Boolean,
     authorClicked: (String) -> Unit
 ) {
+    val context = LocalContext.current
 
     val backgroundBubbleColor = if (isUserMe) {
         MaterialTheme.colorScheme.primary
@@ -469,12 +478,25 @@ fun ChatItemBubble(
                 color = backgroundBubbleColor,
                 shape = ChatBubbleShape
             ) {
-                Image(
-                    painter = rememberAsyncImagePainter(messageData.image),
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(160.dp),
-                    contentDescription = null
-                )
+                val isNSFW = remember {mutableStateOf(messageData.nsfw)}
+               Box(modifier = Modifier, contentAlignment = Alignment.Center) {
+                   Log.e("IMAGE", messageData.nsfw.toString())
+                   Log.e("IMAGE1", isNSFW.value.toString())
+                   Image(
+                       painter = rememberAsyncImagePainter(
+                            if(isNSFW.value){
+                               R.drawable.blackk} else {it}
+                       ),
+                       contentScale = ContentScale.Fit,
+                       modifier = Modifier.size(160.dp),
+                       contentDescription = null
+                   )
+                   if(isNSFW.value){
+                       Button(onClick = { isNSFW.value = false }) {
+                           Text(text = "Click")
+                       }
+                   }
+               }
 //                AsyncImage(
 //                    model = imageUrl,
 //                    contentDescription = null,

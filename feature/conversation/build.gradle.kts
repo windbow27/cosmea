@@ -42,3 +42,9 @@ dependencies {
     testImplementation("io.mockk:mockk-android:1.13.10")
     implementation("io.coil-kt:coil-compose:2.2.2")
 }
+
+//configurations.all {
+//    resolutionStrategy {
+//        force("io.coil-kt:coil-compose:1.4.0") // Force the specific version
+//    }
+//}
