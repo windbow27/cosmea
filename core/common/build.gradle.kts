@@ -29,4 +29,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.squareup.retrofit)
     implementation(libs.squareup.converter.gson)
+    implementation("io.coil-kt:coil-compose:1.4.0")
 }

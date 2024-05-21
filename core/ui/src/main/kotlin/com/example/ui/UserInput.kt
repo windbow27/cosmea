@@ -154,15 +154,6 @@ fun UserInput(
                 imageUri = imageUri,
                 onImageRemoved = { imageUri = null }
             )
-//            if (imageUri != null) {
-//                Image(
-//                    painter = rememberImagePainter(imageUri),
-//                    contentDescription = null,
-//                    modifier = Modifier
-//                        .size(100.dp)
-//                        .padding(8.dp)
-//                )
-//            }
             UserInputSelector(
                 onSelectorChange = { currentInputSelector = it },
                 sendMessageEnabled = textState.text.isNotBlank() || imageUri != null,
@@ -183,7 +174,6 @@ fun UserInput(
                 currentSelector = currentInputSelector,
                 onImageAdded = { uri ->
                     imageUri = uri
-//                    onImageAdded(uri)
                 }
             )
         }
