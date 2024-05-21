@@ -197,13 +197,13 @@ suspend fun login(
     if (acceptLogin) {
         // Save currentUserId to SharedPreferences
         runBlocking {
-            var FCMToken: String = ""
-            val job: Unit = launch {
+            var token: String
+            launch {
                 FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        FCMToken = task.getResult()
-                        userService.addFCMToken(FCMToken, currentUserId!!)
-                        Log.d("FCM", "Current user token: $FCMToken")
+                        token = task.getResult()
+                        userService.addFCMToken(token, currentUserId!!)
+                        Log.d("FCM", "Current user token: $token")
                     }
                 }
             }.join()

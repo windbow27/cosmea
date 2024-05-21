@@ -65,6 +65,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.example.common.notification.FCMClient
 import com.example.common.sightengine.SightEngineClient
 import com.example.data.mockChannel
 import com.example.data.mockMessages
@@ -81,6 +82,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -122,6 +126,7 @@ fun ConversationScreen(
     val context = LocalContext.current
     val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
     val userId = sharedPref.getString("currentUserId", null)
+    val username = sharedPref.getString("currentUsername", null)
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -175,7 +180,7 @@ fun ConversationScreen(
                                                 timestamp = System.currentTimeMillis().toString())
                                             println(message1.image)
                                             coroutineScope.launch {
-                                                addMessageToChannel(message1, conversation.id)
+                                                addMessageToChannel(message1, conversation.id, username!!)
                                             }
                                         } else {
                                             println("Failed to upload image and save message")
@@ -196,7 +201,7 @@ fun ConversationScreen(
                                     timestamp = System.currentTimeMillis().toString()
                                 )
                             }
-                            newMessage?.let { it1 -> addMessageToChannel(it1, conversation.id) }
+                            newMessage?.let { it1 -> addMessageToChannel(it1, conversation.id, username!!) }
                         }
                     }
                 },
@@ -213,9 +218,26 @@ fun ConversationScreen(
     }
 }
 
-suspend fun addMessageToChannel(message: MessageData, channelId: String) {
+@OptIn(DelicateCoroutinesApi::class)
+suspend fun addMessageToChannel(message: MessageData, channelId: String, username: String) {
     val messageService = MessageService(FirebaseDatabase.getInstance())
-    messageService.addMessageData(channelId, message)
+
+    val addMessageDeferred = GlobalScope.async {
+        messageService.addMessageData(channelId, message)
+    }
+
+    val tokensDeferred = GlobalScope.async {
+        messageService.getAllFCMToken(channelId)
+    }
+
+    addMessageDeferred.await()
+    val tokens: List<String> = tokensDeferred.await()
+
+    Log.d("USERNAME", username)
+    Log.d("MESSAGE", message.toString())
+    Log.d("TOKENS", tokens.toString())
+
+    FCMClient.sendMessageNotification(message.content, message.author, username, tokens)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -540,7 +562,7 @@ fun ClickableMessage(
     )
 }
 
-suspend fun uploadImageAndSaveMessage(
+fun uploadImageAndSaveMessage(
     imageUri: Uri,
     messageContent: String,
     userId: String,

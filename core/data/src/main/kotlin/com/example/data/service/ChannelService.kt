@@ -122,27 +122,24 @@ class ChannelService(private val firestore: FirebaseFirestore): ChannelRepositor
     }
 
     override suspend fun getChannelById(channelId: String): ChannelData? {
-        var channel: ChannelData? = null
-        firestore.collection("channels").document(channelId).get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    val id: String = document.data?.get("id").toString()
-                    val adminId: String = document.data?.get("adminId").toString()
-                    val serverId: String = document.data?.get("serverId").toString()
-                    val name: String = document.data?.get("name").toString()
-                    val members: MutableList<String> = document.data?.get("members") as MutableList<String>? ?: mutableListOf()
-                    val messages: MutableList<String> = document.data?.get("messages") as MutableList<String>? ?: mutableListOf()
-                    Log.d("FIRESTORE", "Get channel with ID: $serverId successfully")
-                    channel = ChannelData(name, adminId, serverId, members, messages, id = id)
-                    Log.d("FIRESTORE", "Channel: $channel")
-                } else {
-                    Log.d("FIRESTORE ERROR", "Channel not found with ID: $channelId")
-                }
+        try {
+            val document = firestore.collection("channels").document(channelId).get().await()
+            if (document != null) {
+                val id: String = document.data?.get("id").toString()
+                val adminId: String = document.data?.get("adminId").toString()
+                val serverId: String = document.data?.get("serverId").toString()
+                val name: String = document.data?.get("name").toString()
+                val members: MutableList<String> = document.data?.get("members") as MutableList<String>? ?: mutableListOf()
+                val messages: MutableList<String> = document.data?.get("messages") as MutableList<String>? ?: mutableListOf()
+                Log.d("FIRESTORE", "Get channel with ID: $serverId successfully")
+                return ChannelData(name, adminId, serverId, members, messages, id = id)
+            } else {
+                Log.d("FIRESTORE ERROR", "Channel not found with ID: $channelId")
             }
-            .addOnFailureListener { exception ->
-                Log.e("FIRESTORE ERROR", "Error getting channel: ", exception)
-            }.await()
-        return channel
+        } catch (e: Exception) {
+            Log.e("FIRESTORE ERROR", "Error getting channel: ", e)
+        }
+        return null
     }
 
     override suspend fun getLastMessage(channelId: String): String {
