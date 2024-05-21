@@ -1,6 +1,12 @@
 package com.example.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Location
+import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.RepeatMode
@@ -65,6 +71,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -78,7 +85,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat
 import com.example.designsystem.icon.Icons
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
 import kotlin.time.Duration
@@ -125,6 +136,10 @@ fun UserInput(
     // Used to decide if the keyboard should be shown
     var textFieldFocusState by remember { mutableStateOf(false) }
 
+    var location by rememberSaveable { mutableStateOf<Location?>(null) }
+
+    val context = LocalContext.current
+
     Surface(tonalElevation = 2.dp, contentColor = MaterialTheme.colorScheme.secondary) {
         Column(modifier = modifier) {
             UserInputText(
@@ -143,10 +158,12 @@ fun UserInput(
                 focusState = textFieldFocusState
             )
             UserInputSelector(
-                onSelectorChange = { currentInputSelector = it },
+                onSelectorChange = {
+                    currentInputSelector = it
+                },
                 sendMessageEnabled = textState.text.isNotBlank(),
-                onMessageSent = {
-                    onMessageSent(textState.text)
+                onMessageSent = {it
+                    onMessageSent(it.toString())
                     // Reset text field and close keyboard
                     textState = TextFieldValue()
                     // Move scroll to bottom
@@ -160,6 +177,106 @@ fun UserInput(
                 onTextAdded = { textState = textState.addText(it) },
                 currentSelector = currentInputSelector
             )
+        }
+    }
+}
+
+@Composable
+fun MapPickerDialog(
+    onMessageSent: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    var locationPermissionGranted by remember { mutableStateOf(false) }
+    var currentLocation by remember { mutableStateOf<Location?>(null) }
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { granted ->
+            locationPermissionGranted = granted
+            if (granted) {
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    fusedLocationClient.lastLocation
+                        .addOnSuccessListener { location->
+                            if (location != null) {
+                                currentLocation = location
+                                Log.d("LOCATION", "Current location: $currentLocation")
+                            }
+                        }
+                        .addOnFailureListener {
+                            Log.e("LOCATION ERROR", "Exception: $it")
+                        }
+                }
+                Log.d("LOCATION", "Current location: $currentLocation")
+            }
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        // Request location permission
+        locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 8.dp
+        ) {
+            Column {
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)) {
+                    if (currentLocation != null) {
+                        val latitude = currentLocation!!.latitude
+                        val longitude = currentLocation!!.longitude
+                        Log.d("LOCATION", "Latitude: $latitude ; Longitude: $longitude")
+                        val htmlContent = """
+                        <iframe width="400px" height="400px" src="https://maps.google.com/maps?q=$latitude,$longitude&hl=es;z=14&amp;output=embed"></iframe>
+                        <style>
+                        iframe {
+                            border: none;
+                        }
+                        </style>
+                    """.trimIndent()
+                        AndroidView(
+                            factory = { context ->
+                                android.webkit.WebView(context).apply {
+                                    settings.javaScriptEnabled = true
+                                    loadData(htmlContent, "text/html", "UTF-8")
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth().height(400.dp)
+                        )
+                    } else {
+                        Text("Loading location...", modifier = Modifier.padding(16.dp))
+                    }
+                }
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(8.dp)
+                ) {
+                    Text("Close")
+                }
+
+                Button(
+                    onClick = {
+                        currentLocation?.let {
+                            onMessageSent("https://maps.google.com/maps?q=${currentLocation!!.latitude},${currentLocation!!.longitude}&hl=es;z=14&amp;output=embed")
+                        }
+                        onDismiss()
+                    }
+                ) {
+                    Text("Send my position")
+                }
+            }
         }
     }
 }
@@ -182,7 +299,7 @@ private fun TextFieldValue.addText(newString: String): TextFieldValue {
 private fun SelectorExpanded(
     currentSelector: InputSelector,
     onCloseRequested: () -> Unit,
-    onTextAdded: (String) -> Unit
+    onTextAdded: (String) -> Unit,
 ) {
     if (currentSelector == InputSelector.NONE) return
 
@@ -199,7 +316,7 @@ private fun SelectorExpanded(
         when (currentSelector) {
             InputSelector.EMOJI -> EmojiSelector(onTextAdded, focusRequester)
             InputSelector.PICTURE -> TODO()
-            InputSelector.MAP -> TODO()
+            InputSelector.MAP -> MapPickerDialog(onTextAdded, onCloseRequested)
             InputSelector.PHONE -> TODO()
             else -> {
                 throw NotImplementedError()
@@ -212,10 +329,23 @@ private fun SelectorExpanded(
 private fun UserInputSelector(
     onSelectorChange: (InputSelector) -> Unit,
     sendMessageEnabled: Boolean,
-    onMessageSent: () -> Unit,
+    onMessageSent: (String?) -> Unit,
     currentInputSelector: InputSelector,
     modifier: Modifier = Modifier
 ) {
+    var showMapPicker by remember { mutableStateOf(false) }
+
+    if (showMapPicker) {
+        MapPickerDialog(
+            onMessageSent = {it ->
+                onMessageSent(it)
+            },
+            onDismiss = {
+                showMapPicker = false
+            }
+        )
+    }
+
     Row(
         modifier = modifier
             .height(72.dp)
@@ -241,6 +371,12 @@ private fun UserInputSelector(
             selected = currentInputSelector == InputSelector.MAP,
             description = "Map selector"
         )
+//        InputSelectorButton(
+//            onClick = { showMapPicker = true },
+//            icon = Icons.Map,
+//            selected = currentInputSelector == InputSelector.MAP,
+//            description = "Map selector"
+//        )
         InputSelectorButton(
             onClick = { onSelectorChange(InputSelector.PHONE) },
             icon = Icons.Voice,
@@ -269,7 +405,7 @@ private fun UserInputSelector(
         Button(
             modifier = Modifier.height(36.dp),
             enabled = sendMessageEnabled,
-            onClick = onMessageSent,
+            onClick = { onMessageSent("") },
             colors = buttonColors,
             border = border,
             contentPadding = PaddingValues(0.dp)
