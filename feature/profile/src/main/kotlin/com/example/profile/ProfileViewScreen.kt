@@ -1,6 +1,5 @@
 package com.example.profile
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -27,15 +26,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -60,6 +64,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.example.data.service.UserService
 import com.example.designsystem.component.Background
+import com.example.designsystem.icon.Icons
+import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.ProfileData
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -86,8 +92,7 @@ suspend fun getCurrentProfileData(id: String, coroutineScope: CoroutineScope): P
 
 
 
-@SuppressLint("CoroutineCreationDuringComposition")
-@Preview
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileViewScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
@@ -151,18 +156,17 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Nút Back
-                Button(
-                    onClick = { onBackClick() },
-                    modifier = Modifier.padding(end = 16.dp)
-                ) {
-                    Text("Back")
+            TopAppBar(
+                title = {},
+                navigationIcon = {
+                    IconButton(onClick = { onBackClick() }) {
+                        Icon(
+                            imageVector = Icons.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
                 }
-            }
+            )
             bitmap.value?.let {
                 Image(
                     bitmap = it.asImageBitmap(),
@@ -181,7 +185,7 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
             }
 //            if (bitmap.value == null) {
 //                Image(
-//                    painter = painterResource(id = avatarResource.value),
+//                    painter = painterResource(channelId = avatarResource.value),
 //                    contentDescription = "User Avatar",
 //                    modifier = Modifier
 //                        .size(120.dp)
@@ -232,7 +236,7 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
             }
 //            if (userData?.avatar == null && bitmap.value  == null) {
 //                Image(
-//                    painter = painterResource(id = avatarResource.value),
+//                    painter = painterResource(channelId = avatarResource.value),
 //                    contentDescription = "User Avatar",
 //                    modifier = Modifier
 //                        .size(120.dp)
@@ -278,7 +282,7 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
             }) {
                 Text("Change Avatar")
             }
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
@@ -287,120 +291,116 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Text field for user name
-                userNameState?.let {
-                    OutlinedTextField(
-                        value = userNameState!!.value,
-                        onValueChange = { userNameState!!.value = it },
-                        label = { Text("Display Name", style = MaterialTheme.typography.bodyLarge) },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = { /* Handle user name change */ }
+                item {
+                    // Text field for user name
+                    userNameState?.let {
+                        OutlinedTextField(
+                            value = userNameState!!.value,
+                            onValueChange = { userNameState!!.value = it },
+                            label = { Text("Display Name", style = MaterialTheme.typography.bodyLarge) },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = { /* Handle user name change */ }
+                            )
                         )
-                    )
+                    }
+
                 }
 
-                // Text field for email
-                dobState?.let {
-                    OutlinedTextField(
-                        value = dobState!!.value,
-                        onValueChange = { dobState!!.value = it },
-                        label = { Text("Date Of Birth", style = MaterialTheme.typography.bodyLarge) },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email,
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = { /* Handle email change */ }
+                item {
+                    // Text field for email
+                    dobState?.let {
+                        OutlinedTextField(
+                            value = dobState!!.value,
+                            onValueChange = { dobState!!.value = it },
+                            label = { Text("Date Of Birth", style = MaterialTheme.typography.bodyLarge) },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Email,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = { /* Handle email change */ }
+                            )
                         )
-                    )
+                    }
                 }
 
-                // Text field for password
-                bioState?.let {
-                    OutlinedTextField(
-                        value = bioState!!.value,
-                        onValueChange = { bioState!!.value = it },
-                        label = { Text("Story", style = MaterialTheme.typography.bodyLarge) },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = { /* Handle password change */ }
+                item {
+                    // Text field for password
+                    bioState?.let {
+                        OutlinedTextField(
+                            value = bioState!!.value,
+                            onValueChange = { bioState!!.value = it },
+                            label = { Text("Story", style = MaterialTheme.typography.bodyLarge) },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = { /* Handle password change */ }
+                            )
                         )
-                    )
+                    }
                 }
 
-                // Button to save changes
-                Button(
-                    onClick = {
-                        // Handle saving changes
-                        isUploading.value = true
-//                        bitmap.value?.let { bitmap ->
-//                            uploadImageToFirebase(bitmap, userData?.id, context as ComponentActivity) {success ->
-//                                isUploading.value = false
-//                                if (success) {
-//                                    Toast.makeText(context, "Uploaded Successfully", Toast.LENGTH_SHORT).show()
-//                                }
-//                                else {
-//                                    Toast.makeText(context, "Failed to Upload", Toast.LENGTH_SHORT).show()
-//                                }
-//                            }
-//                        }
-//                    }
-                        coroutineScope.launch {
-                            if (bitmap.value != null && idUser != null) {
-                                uploadImageToFirebase(bitmap.value!!, idUser, context as ComponentActivity) { success, imageUrl ->
-                                    if (success && imageUrl != null) {
-                                        coroutineScope.launch {
-                                            val userService = UserService(FirebaseFirestore.getInstance())
-                                            userService.updateProfileImageUrl(idUser, imageUrl)
-                                            val updatedProfile = ProfileData(
-                                                displayName = userNameState?.value,
-                                                dob = dobState?.value,
-                                                bio = bioState?.value,
-                                                avatar = imageUrl,
-                                                id = idUser
-                                            )
-                                            println(imageUrl)
-                                            userService.updateUserProfile(idUser, updatedProfile)
-                                            Toast.makeText(context, "Uploaded Successfully", Toast.LENGTH_SHORT).show()
+                item {
+                    // Button to save changes
+                    Button(
+                        onClick = {
+                            // Handle saving changes
+                            isUploading.value = true
+                            coroutineScope.launch {
+                                if (bitmap.value != null && idUser != null) {
+                                    uploadImageToFirebase(bitmap.value!!, idUser, context as ComponentActivity) { success, imageUrl ->
+                                        if (success && imageUrl != null) {
+                                            coroutineScope.launch {
+                                                val userService = UserService(FirebaseFirestore.getInstance())
+                                                userService.updateProfileImageUrl(idUser, imageUrl)
+                                                val updatedProfile = ProfileData(
+                                                    displayName = userNameState?.value,
+                                                    dob = dobState?.value,
+                                                    bio = bioState?.value,
+                                                    avatar = imageUrl,
+                                                    id = idUser
+                                                )
+                                                println(imageUrl)
+                                                userService.updateUserProfile(idUser, updatedProfile)
+                                                Toast.makeText(context, "Uploaded Successfully", Toast.LENGTH_SHORT).show()
+                                                isUploading.value = false
+                                            }
+                                        } else {
+                                            Toast.makeText(context, "Failed to upload image", Toast.LENGTH_SHORT).show()
                                             isUploading.value = false
                                         }
-                                    } else {
-                                        Toast.makeText(context, "Failed to upload image", Toast.LENGTH_SHORT).show()
-                                        isUploading.value = false
+                                    }
+                                } else {
+                                    val updatedProfile = ProfileData(
+                                        displayName = userNameState?.value,
+                                        dob = dobState?.value,
+                                        bio = bioState?.value,
+                                        avatar = userData?.avatar,
+                                        id = idUser ?: ""
+                                    )
+                                    coroutineScope.launch {
+                                        if (idUser != null) {
+                                            val userService = UserService(FirebaseFirestore.getInstance())
+                                            userService.updateUserProfile(idUser, updatedProfile)
+                                            isUploading.value = false
+                                        }
                                     }
                                 }
-                            } else {
-                                val updatedProfile = ProfileData(
-                                    displayName = userNameState?.value,
-                                    dob = dobState?.value,
-                                    bio = bioState?.value,
-                                    avatar = userData?.avatar,
-                                    id = idUser ?: ""
-                                )
-                                coroutineScope.launch {
-                                    if (idUser != null) {
-                                        val userService = UserService(FirebaseFirestore.getInstance())
-                                        userService.updateUserProfile(idUser, updatedProfile)
-                                        isUploading.value = false
-                                    }
-                                }
+                                Toast.makeText(context, "Changed Profile Successfully", Toast.LENGTH_SHORT).show()
                             }
-                            Toast.makeText(context, "Changed Profile Successfully", Toast.LENGTH_SHORT).show()
-                        }
-                    },
-                    enabled = !isUploading.value
-                ) {
-                    Text("Save Changes")
+                        },
+                        enabled = !isUploading.value
+                    ) {
+                        Text("Save Changes")
+                    }
                 }
             }
-
         }
 
         Column(
@@ -421,7 +421,8 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
                         .background(MaterialTheme.colorScheme.primary)
                 ) {
                     Column(modifier = Modifier.padding(start = 60.dp)) {
-                        Image(painter = painterResource(id = R.drawable.camera),
+                        Image(
+                            imageVector = Icons.Camera,
                             contentDescription = null,
                             modifier = Modifier
                                 .size(50.dp)
@@ -432,7 +433,7 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
                                         Toast
                                             .makeText(
                                                 context,
-                                                "Không có ứng dụng camera khả dụng",
+                                                "No camera available",
                                                 Toast.LENGTH_SHORT
                                             )
                                             .show()
@@ -507,4 +508,35 @@ fun uploadImageToFirebase(bitmap: Bitmap, userId: String?, context: ComponentAct
     }
 }
 
+@Preview
+@Composable
+fun ProfileViewScreenPreview() {
+    CosmeaTheme(darkTheme = false) {
+        ProfileViewScreen(onBackClick = {})
+    }
+}
+
+@Preview
+@Composable
+fun ProfileViewScreenDarkPreview() {
+    CosmeaTheme(darkTheme = true) {
+        ProfileViewScreen(onBackClick = {})
+    }
+}
+
+@Preview
+@Composable
+fun ProfileViewScreenPreviewWithAvatar() {
+    CosmeaTheme(darkTheme = false) {
+        ProfileViewScreen(onBackClick = {})
+    }
+}
+
+@Preview
+@Composable
+fun ProfileViewScreenDarkPreviewWithAvatar() {
+    CosmeaTheme(darkTheme = true) {
+        ProfileViewScreen(onBackClick = {})
+    }
+}
 

@@ -36,6 +36,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
+import com.example.designsystem.component.Background
+import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.ProfileData
 
 @Composable
@@ -47,66 +49,33 @@ internal fun ProfileRoute(
     ProfileScreen(onLogoutClick, onClickProfile, onClickAccount)
 }
 
-@Preview
 @Composable
 fun ProfileScreen(onLogoutClick: () -> Unit, onClickProfile: () -> Unit, onClickAccount: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        val context = LocalContext.current
-        val bitmap = remember { mutableStateOf<Bitmap?>(null) }
-        val avatarResource = remember { mutableStateOf(R.drawable.avatar_default) }
+    Background {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            val context = LocalContext.current
+            val bitmap = remember { mutableStateOf<Bitmap?>(null) }
+            val avatarResource = remember { mutableStateOf(R.drawable.avatar_default) }
 
-        val coroutineScope = rememberCoroutineScope()
-        val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
-        val idUser: String? = sharedPref.getString("currentUserId", null)
-        var userData by remember { mutableStateOf<ProfileData?>(null) }
+            val coroutineScope = rememberCoroutineScope()
+            val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
+            val idUser: String? = sharedPref.getString("currentUserId", null)
+            var userData by remember { mutableStateOf<ProfileData?>(null) }
 
-        LaunchedEffect(idUser) {
-            if (idUser != null) {
-                userData = getCurrentProfileData(idUser,coroutineScope)
+            LaunchedEffect(idUser) {
+                if (idUser != null) {
+                    userData = getCurrentProfileData(idUser,coroutineScope)
+                }
             }
-        }
-        bitmap.value?.let {
-            Image(
-                bitmap = it.asImageBitmap(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(150.dp)
-                    .clip(CircleShape)
-                    .background(Color.Transparent)
-                    .border(
-                        width = 1.dp,
-                        color = Color.White,
-                        shape = CircleShape
-                    )
-            )
-        }
-        if(bitmap.value == null){
-            if(userData?.avatar == null){
+            bitmap.value?.let {
                 Image(
-                    painter = painterResource(id = avatarResource.value),
-                    contentDescription = "User Avatar",
-                    modifier = Modifier
-                        .size(150.dp)
-                        .clip(CircleShape)
-                        .background(Color.Transparent)
-                        .border(
-                            width = 1.dp,
-                            color = Color.White,
-                            shape = CircleShape
-                        ),
-                    colorFilter = ColorFilter.tint(Color.Gray)
-                )
-            }
-            else {
-                Image(
-                    painter = rememberImagePainter(userData?.avatar),
-                    contentDescription = "User Avatar",
+                    bitmap = it.asImageBitmap(),
+                    contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(150.dp)
@@ -119,27 +88,61 @@ fun ProfileScreen(onLogoutClick: () -> Unit, onClickProfile: () -> Unit, onClick
                         )
                 )
             }
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        Text(text = userData?.displayName.toString(), style = MaterialTheme.typography.titleLarge)
-        Spacer(modifier = Modifier.height(10.dp))
-        Button(onClick = { /* Handle Edit Profile */
-            onClickProfile()
-        }) {
-            Text("Edit Profile")
-        }
-        Button(onClick = { /* Handle Edit Profile */
-            onClickAccount()
-        }) {
-            Text("Account Management")
-        }
-        Button(onClick = { /* Handle Add Status */
-            onLogoutClick()
+            if(bitmap.value == null){
+                if(userData?.avatar == null){
+                    Image(
+                        painter = painterResource(id = avatarResource.value),
+                        contentDescription = "User Avatar",
+                        modifier = Modifier
+                            .size(150.dp)
+                            .clip(CircleShape)
+                            .background(Color.Transparent)
+                            .border(
+                                width = 1.dp,
+                                color = Color.White,
+                                shape = CircleShape
+                            ),
+                        colorFilter = ColorFilter.tint(Color.Gray)
+                    )
+                }
+                else {
+                    Image(
+                        painter = rememberImagePainter(userData?.avatar),
+                        contentDescription = "User Avatar",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(150.dp)
+                            .clip(CircleShape)
+                            .background(Color.Transparent)
+                            .border(
+                                width = 1.dp,
+                                color = Color.White,
+                                shape = CircleShape
+                            )
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(text = userData?.displayName.toString(), style = MaterialTheme.typography.titleLarge)
+            Spacer(modifier = Modifier.height(10.dp))
+            Button(onClick = { /* Handle Edit Profile */
+                onClickProfile()
+            }) {
+                Text("Edit Profile")
+            }
+            Button(onClick = { /* Handle Edit Profile */
+                onClickAccount()
+            }) {
+                Text("Account Management")
+            }
+            Button(onClick = { /* Handle Add Status */
+                onLogoutClick()
 
-        }) {
-            Text("Logout")
+            }) {
+                Text("Logout")
+            }
+            userData?.let { AboutMeCard(it) }
         }
-        userData?.let { AboutMeCard(it) }
     }
 }
 
@@ -165,4 +168,28 @@ fun AboutMeCard(userData : ProfileData) {
 @Composable
 fun Friends() {
     // Replace with actual implementation
+}
+
+@Preview
+@Composable
+fun ProfileScreenPreview() {
+    CosmeaTheme(darkTheme = false) {
+        ProfileScreen({}, {}, {})
+    }
+}
+
+@Preview
+@Composable
+fun AboutMeCardPreview() {
+    CosmeaTheme(darkTheme = false) {
+        AboutMeCard(ProfileData("John Doe", "This is a sample bio", "https://www.example.com/avatar.jpg", "1", "1"))
+    }
+}
+
+@Preview
+@Composable
+fun FriendsPreview() {
+    CosmeaTheme(darkTheme = false) {
+        Friends()
+    }
 }

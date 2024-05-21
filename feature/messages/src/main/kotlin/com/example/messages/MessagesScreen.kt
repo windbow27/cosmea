@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.data.mockDirectMessages
 import com.example.data.service.ChannelService
+import com.example.data.service.MessageService
 import com.example.data.service.UserService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
@@ -32,6 +33,7 @@ import com.example.model.ChannelListener
 import com.example.model.DirectMessage
 import com.example.ui.SearchToolbar
 import com.example.ui.UserHead
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
@@ -41,8 +43,9 @@ internal fun MessagesRoute(
 ) {
     val userService = UserService(FirebaseFirestore.getInstance())
     val channelService = ChannelService(FirebaseFirestore.getInstance())
+    val messageService = MessageService(FirebaseDatabase.getInstance())
     val userId = LocalContext.current.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE).getString("currentUserId", null) ?: ""
-    val messagesViewModel : MessagesViewModel = viewModel(factory = MessagesViewModelFactory(userService, channelService, userId))
+    val messagesViewModel : MessagesViewModel = viewModel(factory = MessagesViewModelFactory(userService, channelService, messageService, userId))
 
     MessagesScreen(
         directMessages = messagesViewModel.directMessages.collectAsState().value,
@@ -92,7 +95,7 @@ fun MessageItem(message: DirectMessage, listener: ChannelListener) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .clickable { listener.onChannelSelected(message.id) },
+            .clickable { listener.onChannelSelected(message.channelId) },
         verticalAlignment = Alignment.CenterVertically
     ) {
         UserHead(id = message.friendId, name = message.friendUsername)

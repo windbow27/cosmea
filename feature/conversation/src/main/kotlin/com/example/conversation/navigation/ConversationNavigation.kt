@@ -6,7 +6,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.example.conversation.ConversationRoute
 
-const val CONVERSATION_ROUTE = "conversation/{id}"
+const val CONVERSATION_ROUTE = "conversation/{channelId}"
 
 fun NavController.navigateToConversation(id: String, navOptions: NavOptions? = null) {
     val route = "conversation/$id"

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.data.service.ChannelService
+import com.example.data.service.MessageService
 import com.example.data.service.UserService
 import com.example.model.DirectMessage
 import com.google.firebase.firestore.FirebaseFirestore
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 class MessagesViewModel (
     private var userService: UserService,
     private var channelService: ChannelService,
+    private var messageService : MessageService,
     private val userId: String
 ): ViewModel() {
     private val _directMessages = MutableStateFlow(listOf<DirectMessage>())
@@ -71,10 +73,11 @@ class MessagesViewModel (
         val directMessages = mutableListOf<DirectMessage>()
         val jobs = friends.value.map { (friendId, friendUsername) ->
             viewModelScope.launch {
-                val id = async { channelService.getDirectMessageId(userId, friendId) }.await()
-                val lastMessage = async { channelService.getLastMessage(id) }.await()
+                val channelId = async { channelService.getDirectMessageId(userId, friendId) }.await()
+                val lastMessageId = async { channelService.getLastMessage(channelId) }.await()
+                val lastMessage = async { messageService.getMessageContent(channelId, lastMessageId) }.await()
                 val directMessage = DirectMessage(
-                    id = id,
+                    channelId = channelId,
                     friendId = friendId,
                     friendUsername = friendUsername,
                     lastMessage = lastMessage,
@@ -90,11 +93,11 @@ class MessagesViewModel (
     }
 }
 
-class MessagesViewModelFactory(private val userService: UserService, private val channelService: ChannelService, private val userId: String): ViewModelProvider.Factory {
+class MessagesViewModelFactory(private val userService: UserService, private val channelService: ChannelService, private var messageService: MessageService, private val userId: String): ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MessagesViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MessagesViewModel(userService, channelService, userId) as T
+            return MessagesViewModel(userService, channelService, messageService, userId) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
 //            "",mutableListOf(), mutableListOf(),
 //        )
 //        val server =  ServerData(
-//            adminId = user.id,
+//            adminId = user.channelId,
 //            name = "Loi choi",
 //            avatar = null,
 //            members = mutableListOf(),
@@ -31,20 +31,20 @@ class MainActivity : ComponentActivity() {
 //        )
 //        val channel1 = ChannelData(
 //            name = "Category 1",
-//            adminId = user.id,
-//            serverId = server.id,
+//            adminId = user.channelId,
+//            serverId = server.channelId,
 //            members = mutableListOf(),
 //            messages = mutableListOf()
 //        )
 //        val channel2 = ChannelData(
 //            name = "Category 2",
-//            adminId = user.id,
-//            serverId = server.id,
+//            adminId = user.channelId,
+//            serverId = server.channelId,
 //            members = mutableListOf(),
 //            messages = mutableListOf()
 //        )
-//        val message = MessageData(user.id, "26fc3ff5c", "How are you")
-//        val profile = ProfileData("nghia", "08-06-2004", "avatar.png", "Fuck this life", user.id)
+//        val message = MessageData(user.channelId, "26fc3ff5c", "How are you")
+//        val profile = ProfileData("nghia", "08-06-2004", "avatar.png", "Fuck this life", user.channelId)
 //        val userService = UserService(FirebaseFirestore.getInstance())
 //        val serverService = ServerService(FirebaseFirestore.getInstance())
 //        val channelService = ChannelService(FirebaseFirestore.getInstance())
@@ -63,14 +63,14 @@ class MainActivity : ComponentActivity() {
 //            serverService.getAdminId("c8d7bfb00")
 //            channelService.addChannel(channel2, "9d3fb2ef0")
 //            channelService.addChannel("c8d7bfb00",  channel2, "c8d7bfb00")
-//            channelService.addMember("c8d7bfb00",  "a67d56694", user.id)
-//            serverService.addMember("c8d7bfb00", user.id)
+//            channelService.addMember("c8d7bfb00",  "a67d56694", user.channelId)
+//            serverService.addMember("c8d7bfb00", user.channelId)
 //            serverService.getAllMembers("c8d7bfb00")
-            //ChannelService.deleteCategory("5dbf0d697","bce7d151b", user.id)
+            //ChannelService.deleteCategory("5dbf0d697","bce7d151b", user.channelId)
 //            userService.verifyLoginInfo("windbow", "123")
-//            messageService.addMessageData(channel2.id, message)
+//            messageService.addMessageData(channel2.channelId, message)
 //            messageService.deleteMessageData("1a0dc0ea6")
-//            messageService.getMessageData(channel2.id)
+//            messageService.getMessageData(channel2.channelId)
 //            pushNotificationService.getFCMToken()
 //            messageService.getAllFCMToken("0d5f056e1")
 //        }

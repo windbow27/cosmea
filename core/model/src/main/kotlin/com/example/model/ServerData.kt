@@ -17,6 +17,6 @@ class ServerData(
     }
 
     override fun toString(): String {
-        return "ServerData(id='$id', adminId='$adminId', name='$name', avatar='$avatar', members=$members, channels=$channels"
+        return "ServerData(channelId='$id', adminId='$adminId', name='$name', avatar='$avatar', members=$members, channels=$channels"
     }
 }

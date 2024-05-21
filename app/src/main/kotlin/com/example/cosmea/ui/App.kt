@@ -25,7 +25,7 @@ fun App(appState: AppState) {
     println("currentRoute: $currentRoute")
     Scaffold(
         bottomBar = {
-            if (currentRoute != "conversation/{id}" && currentRoute != REGISTER_ROUTE && currentRoute != LOGIN_ROUTE) {
+            if (currentRoute != "conversation/{channelId}" && currentRoute != REGISTER_ROUTE && currentRoute != LOGIN_ROUTE) {
                 BottomBar(
                     destinations = appState.topLevelDestinations,
                     onNavigateToDestination = appState::navigateToTopLevelDestination,

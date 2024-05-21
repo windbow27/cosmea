@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,10 +14,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import com.example.data.service.UserService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
+import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.UserData
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
@@ -55,7 +58,7 @@ internal fun AccountManagementRoute(
 }
 
 
-@Preview
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountManagementScreen(
     onPasswordChangeClick: () -> Unit,
@@ -81,18 +84,17 @@ fun AccountManagementScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Nút Back
-                Button(
-                    onClick = { onBackClick() },
-                    modifier = Modifier.padding(end = 16.dp)
-                ) {
-                    Text("Back")
+            TopAppBar(
+                title = {},
+                navigationIcon = {
+                    IconButton(onClick = { onBackClick() }) {
+                        Icon(
+                            imageVector = Icons.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
                 }
-            }
+            )
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -102,7 +104,7 @@ fun AccountManagementScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(text = "Your Information!!", style = MaterialTheme.typography.titleLarge )
+                Text(text = "Your Profile", style = MaterialTheme.typography.titleLarge )
                 Spacer(modifier = Modifier.height(16.dp))
                 userData?.username?.let {
                     OutlinedTextField(
@@ -186,7 +188,7 @@ internal fun ChangePasswordRoute(
     ChangePasswordScreen(onBackClick)
 }
 
-@Preview
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChangePasswordScreen(
     onBackClick: () -> Unit,
@@ -217,18 +219,17 @@ fun ChangePasswordScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Nút Back
-                Button(
-                    onClick = { onBackClick() },
-                    modifier = Modifier.padding(end = 16.dp)
-                ) {
-                    Text("Back")
+            TopAppBar(
+                title = {},
+                navigationIcon = {
+                    IconButton(onClick = { onBackClick() }) {
+                        Icon(
+                            imageVector = Icons.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
                 }
-            }
+            )
 
             Column(
                 modifier = Modifier
@@ -356,4 +357,48 @@ fun ChangePasswordScreen(
 
 fun onPasswordChange(password: String){
 
+}
+
+@Preview
+@Composable
+fun AccountManagementScreenPreview() {
+    CosmeaTheme(darkTheme = false) {
+        AccountManagementScreen(
+            onPasswordChangeClick = {},
+            onBackClick = {},
+            onLogoutClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ChangePasswordScreenPreview() {
+    CosmeaTheme(darkTheme = false) {
+        ChangePasswordScreen(
+            onBackClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ChangePasswordScreenDarkPreview() {
+    CosmeaTheme(darkTheme = true) {
+        ChangePasswordScreen(
+            onBackClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun AccountManagementScreenDarkPreview() {
+    CosmeaTheme(darkTheme = true) {
+        AccountManagementScreen(
+            onPasswordChangeClick = {},
+            onBackClick = {},
+            onLogoutClick = {}
+        )
+    }
 }

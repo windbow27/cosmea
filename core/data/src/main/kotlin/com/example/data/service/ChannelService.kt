@@ -149,6 +149,7 @@ class ChannelService(private val firestore: FirebaseFirestore): ChannelRepositor
         try {
             val messages = firestore.collection("channels").document(channelId).get().await().data?.get("messages") as? MutableList<String>
             if (!messages.isNullOrEmpty()) {
+                Log.d("FIRESTORE", "Get last message successfully: ${messages.last()}")
                 return messages.last()
             }
         } catch (e: Exception) {
