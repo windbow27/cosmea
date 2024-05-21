@@ -61,7 +61,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.example.data.mockChannel
 import com.example.data.mockMessages
 import com.example.data.service.ChannelService
@@ -150,18 +150,6 @@ fun ConversationScreen(
             UserInput(
                 onMessageSent = { messageText, imageUri ->
                     println("Message sent: $messageText with image: $imageUri")
-                    coroutineScope.launch {
-                        val newMessage = userId?.let { it1 ->
-                            MessageData(
-                                author = it1,
-                                receiver = conversation.id,
-                                content = messageText,
-                                image = imageUri?.toString(),
-                                timestamp = System.currentTimeMillis().toString()
-                            )
-                        }
-//                        newMessage?.let { it1 -> addMessageToChannel(it1, conversation.id) }
-                    }
                     if (imageUri != null) {
                         coroutineScope.launch {
                             userId?.let {it1 ->
@@ -187,6 +175,20 @@ fun ConversationScreen(
                                     }
                                 }
                             }
+                        }
+                    }
+                    else {
+                        coroutineScope.launch {
+                            val newMessage = userId?.let { it1 ->
+                                MessageData(
+                                    author = it1,
+                                    receiver = conversation.id,
+                                    content = messageText,
+                                    image = null,
+                                    timestamp = System.currentTimeMillis().toString()
+                                )
+                            }
+                            newMessage?.let { it1 -> addMessageToChannel(it1, conversation.id) }
                         }
                     }
                 },
@@ -452,11 +454,13 @@ fun ChatItemBubble(
             color = backgroundBubbleColor,
             shape = ChatBubbleShape
         ) {
-            ClickableMessage(
-                messageData = messageData,
-                isUserMe = isUserMe,
-                authorClicked = authorClicked
-            )
+            if(messageData.content != ""){
+                ClickableMessage(
+                    messageData = messageData,
+                    isUserMe = isUserMe,
+                    authorClicked = authorClicked
+                )
+            }
         }
 
         messageData.image?.let {
@@ -466,7 +470,7 @@ fun ChatItemBubble(
                 shape = ChatBubbleShape
             ) {
                 Image(
-                    painter = rememberImagePainter(messageData.image),
+                    painter = rememberAsyncImagePainter(messageData.image),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.size(160.dp),
                     contentDescription = null
