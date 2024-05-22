@@ -30,7 +30,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -302,15 +301,15 @@ fun ChannelNameBar(
                 contentDescription = "Search"
             )
             // Info icon
-            Icon(
-                imageVector = Icons.Outlined.Info,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .clickable(onClick = { functionalityNotAvailablePopupShown = true })
-                    .padding(horizontal = 12.dp, vertical = 16.dp)
-                    .height(24.dp),
-                contentDescription = "Info"
-            )
+//            Icon(
+//                imageVector = Icons.Outlined.Info,
+//                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+//                modifier = Modifier
+//                    .clickable(onClick = { functionalityNotAvailablePopupShown = true })
+//                    .padding(horizontal = 12.dp, vertical = 16.dp)
+//                    .height(24.dp),
+//                contentDescription = "Info"
+//            )
         }
     )
 }

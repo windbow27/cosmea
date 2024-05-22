@@ -2,6 +2,7 @@ package com.example.designsystem.icon
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.automirrored.rounded.ShortText
 import androidx.compose.material.icons.filled.MoreVert
@@ -17,17 +18,20 @@ import androidx.compose.material.icons.rounded.CameraEnhance
 import androidx.compose.material.icons.rounded.ChatBubbleOutline
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Grid3x3
 import androidx.compose.material.icons.rounded.Group
 import androidx.compose.material.icons.rounded.GroupAdd
 import androidx.compose.material.icons.rounded.HomeWork
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardVoice
+import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PinDrop
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material.icons.rounded.Upcoming
 import androidx.compose.material.icons.rounded.ViewDay
 import androidx.compose.material.icons.rounded.Visibility
@@ -38,6 +42,7 @@ object Icons {
     val ArrowBack = Icons.AutoMirrored.Rounded.ArrowBack
     val ArrowDown = Icons.Rounded.KeyboardArrowDown
     val ArrowUp = Icons.Rounded.KeyboardArrowDown
+    val ArrowRight = Icons.AutoMirrored.Rounded.KeyboardArrowRight
     val Bookmark = Icons.Rounded.Bookmark
     val BookmarkBorder = Icons.Rounded.BookmarkBorder
     val Bookmarks = Icons.Rounded.Bookmarks
@@ -68,4 +73,7 @@ object Icons {
     val Accept = Icons.Rounded.Check
     val Decline = Icons.Rounded.Close
     val Camera = Icons.Rounded.CameraEnhance
+    val Password = Icons.Rounded.Lock
+    val DarkMode = Icons.Rounded.DarkMode
+    val Gallery = Icons.Rounded.Storage
 }
