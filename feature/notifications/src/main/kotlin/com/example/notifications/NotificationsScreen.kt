@@ -14,8 +14,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,6 +35,7 @@ import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.ChannelData
 import com.example.model.Notification
+import com.example.model.ProfileData
 import com.example.ui.UserHead
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
@@ -75,14 +81,22 @@ fun NotificationItem(
     notification: Notification,
     userId: String
 ) {
+    val userService = UserService(FirebaseFirestore.getInstance())
     val coroutineScope = rememberCoroutineScope()
+    var currentUserProfile by remember { mutableStateOf<ProfileData?>(null) }
+
+    LaunchedEffect(userId) {
+        coroutineScope.launch {
+            currentUserProfile = userService.getUserProfile(userId)
+        }
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        UserHead(id = notification.userId, name = notification.userName)
+        currentUserProfile?.avatar?.let { UserHead(id = notification.userId, name = notification.userName/*, avatarUrl = it*/) }
         Column(
             modifier = Modifier
                 .weight(1f)

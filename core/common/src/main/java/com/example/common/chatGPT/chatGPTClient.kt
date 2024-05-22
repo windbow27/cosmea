@@ -34,7 +34,7 @@ object ChatGPTClient {
     fun chatWithGPT(chatMessage: String, nextStep: (Message) -> Unit) {
         val message = Message(role = "user", content = chatMessage)
         conversation.add(message)
-        messages.add(0, MessageData("Me", "bot", chatMessage))
+        messages.add(0, MessageData("Me", "Cosmea Bot", chatMessage))
 
         val request = ChatGPTRequest(model = "gpt-3.5-turbo-16k", messages = conversation)
         val call = chatGPTApi.chatWithGPT(request)
@@ -45,7 +45,7 @@ object ChatGPTClient {
                     chatResponse?.choices?.firstOrNull()?.let {
                         //add new message into conversation
                         conversation.add(it.message)
-                        messages.add(0, MessageData("bot", "Me", it.message.content))
+                        messages.add(0, MessageData("Cosmea Bot", "Me", it.message.content))
                         nextStep(it.message)
                     }
                     val reply = chatResponse?.choices?.firstOrNull()?.message?.content ?: "No response"
