@@ -53,7 +53,7 @@ fun AppNavHost(
         ChangePasswordScreen (onBackClick = navController::navigateToProfileAccount)
         profileScreen (onLogoutClick = navController::navigateToLogin, onClickProfile = navController::navigateToProfileView, onClickAccount = navController::navigateToProfileAccount)
         profileViewScreen (onBackClick = navController::navigateToProfile)
-        registerScreen (onRegisterClick = navController::navigateToLogin, redirectToLogin = navController::navigateToProfile)
+        registerScreen (onRegisterClick = navController::navigateToLogin, redirectToLogin = navController::navigateToLogin)
         loginScreen (onLoginClick = navController::navigateToServers , redirectToRegister = navController::navigateToRegister)
     }
 }

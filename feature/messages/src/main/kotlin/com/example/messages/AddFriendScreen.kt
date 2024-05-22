@@ -13,6 +13,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
@@ -54,6 +56,7 @@ fun AddFriendScreen(
     val userId = sharedPref.getString("currentUserId", null)
     var friendUsername by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Background {
         LazyColumn {
@@ -92,7 +95,7 @@ fun AddFriendScreen(
                         text = "Add by Username",
                         style = MaterialTheme.typography.titleLarge
                     )
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
 
                     TextField(
@@ -105,9 +108,19 @@ fun AddFriendScreen(
                     // Add a Button for sending the friend request
                     Button(
                         onClick = {
-                            println()
                             if (userId != null) {
-                                addFriendRequest(userId, friendUsername, coroutineScope)
+                                if (getCurrentFriends(userId, coroutineScope).contains(friendUsername)) {
+                                    // Show a Snackbar that the user is already a friend
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar("User is already a friend")
+                                    }
+                                } else {
+                                    // Show a Snackbar that the friend request has been sent
+                                    addFriendRequest(userId, friendUsername, coroutineScope)
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar("Friend request sent")
+                                    }
+                                }
                             }
                         },
                         modifier = Modifier.padding(top = 16.dp)
@@ -117,7 +130,18 @@ fun AddFriendScreen(
                 }
             }
         }
+
+        SnackbarHost(hostState = snackbarHostState)
     }
+}
+
+fun getCurrentFriends(userId: String, coroutineScope: CoroutineScope): List<String> {
+    val userService = UserService(FirebaseFirestore.getInstance())
+    var friends: List<String> = emptyList()
+    coroutineScope.launch {
+        friends = userService.getFriends(userId)
+    }
+    return friends
 }
 
 fun addFriendRequest(currentUserId: String, friendUsername: String, coroutineScope: CoroutineScope) {

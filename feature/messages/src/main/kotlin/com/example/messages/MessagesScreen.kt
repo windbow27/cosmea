@@ -126,8 +126,8 @@ fun GPTItem(listener: ChannelListener) {
                 .weight(1f)
                 .padding(start = 16.dp)
         ) {
-            Text(text = "ChatGPT near you", style = MaterialTheme.typography.bodyLarge)
-            Text(text = "Touch me", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Cosmea Bot", style = MaterialTheme.typography.bodyLarge)
+            Text(text = "Let's have a chat", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

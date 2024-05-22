@@ -87,6 +87,8 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.UUID
 
 @Composable
@@ -444,12 +446,19 @@ private fun AuthorNameTimestamp(msg: MessageData) {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = msg.timestamp,
+            text = convertTimestampToReadableDate(msg.timestamp),
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.alignBy(LastBaseline),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
+}
+
+@SuppressLint("SimpleDateFormat")
+fun convertTimestampToReadableDate(timestamp: String): String {
+    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
+    val date = Date(timestamp.toLong())
+    return sdf.format(date)
 }
 
 private val ChatBubbleShape = RoundedCornerShape(4.dp, 20.dp, 20.dp, 20.dp)
@@ -536,12 +545,6 @@ fun ChatItemBubble(
                        }
                    }
                }
-//                AsyncImage(
-//                    model = imageUrl,
-//                    contentDescription = null,
-//                    modifier = Modifier.size(160.dp),
-//                    contentScale = ContentScale.Crop
-//                )
             }
         }
     }
@@ -634,18 +637,11 @@ fun GPTConversationScreen(
     val topBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
 
-    val context = LocalContext.current
-    /*val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
-    val userId = sharedPref.getString("currentUserId", null)
-    val username = sharedPref.getString("currentUsername", null)*/
-
-    val coroutineScope = rememberCoroutineScope()
-
     Scaffold(
         topBar = {
             ChannelNameBar(
-                channelName = "ChatGPT near you",
-                channelMembers = 100,
+                channelName = "Cosmea Bot",
+                channelMembers = 2,
                 onBackPressed = onBackPressed,
                 scrollBehavior = scrollBehavior,
             )
@@ -693,15 +689,13 @@ fun GPTMessages(
     scrollState: LazyListState,
     modifier: Modifier = Modifier
 ) {
-    val scope = rememberCoroutineScope()
     Box(modifier = modifier) {
 
-        val authorMe = "Me"
+        val authorMe = "me"
         LazyColumn(
             reverseLayout = true,
             state = scrollState,
             modifier = Modifier
-                .testTag(ConversationTestTag)
                 .fillMaxSize()
         ) {
             for (index in messageData.indices) {
@@ -711,16 +705,6 @@ fun GPTMessages(
                 val isFirstMessageByAuthor = prevAuthor != content.author
                 val isLastMessageByAuthor = nextAuthor != content.author
 
-                // Hardcode day dividers for simplicity
-//                if (index == messageData.size - 1) {
-//                    item {
-//                        DayHeader("20 Aug")
-//                    }
-//                } else if (index == 2) {
-//                    item {
-//                        DayHeader("Today")
-//                    }
-//                }
 
                 item {
                     Message(
