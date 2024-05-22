@@ -14,11 +14,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -66,6 +69,10 @@ internal fun ServersRoute(
 
     var selectedServerId by remember { mutableStateOf(servers.firstOrNull()?.id) }
 
+    LaunchedEffect(servers) {
+        selectedServerId = servers.firstOrNull()?.id
+    }
+
     ServersScreen(
         listener = { channel -> onChannelClick(channel) },
         servers = servers,
@@ -103,6 +110,7 @@ fun ServersScreen(
                             modifier = Modifier
                                 .width(4.dp)
                                 .height(40.dp)
+                                .clip(RoundedCornerShape(8.dp))
                                 .padding(end = 2.dp)
                                 .background(if (selectedServerId == server.id) MaterialTheme.colorScheme.onSurface else Color.Transparent)
                         )
@@ -147,18 +155,27 @@ fun ServersScreen(
                                     onCreateChannelClick(server.id) },
                             ) {
                                 Icon(
-                                    imageVector = Icons.Settings,
+                                    imageVector = Icons.ArrowRight,
                                     contentDescription = "Settings"
                                 )
                             }
                         }
+
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
                         channels[selectedServerId]?.forEach { channelData ->
                             channelData?.let {
                                 Text(
                                     text = it.name,
                                     style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier
-                                        .padding(start = 32.dp, top = 8.dp)
+                                        .padding(start = 32.dp, top = 8.dp, bottom = 8.dp)
                                         .clickable {
                                             listener.onChannelSelected(it.id)
                                         }

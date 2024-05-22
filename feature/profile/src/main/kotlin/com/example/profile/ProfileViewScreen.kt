@@ -25,12 +25,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,6 +39,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -61,7 +62,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.example.data.service.UserService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
@@ -107,7 +108,8 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
         }
 
     }
-    // Kiểm tra xem thiết bị có ứng dụng camera không
+
+    // Check if camera is available
     val packageManager: PackageManager = context.packageManager
     val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
     val cameraAvailable = cameraIntent.resolveActivity(packageManager) != null
@@ -183,22 +185,6 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
                         )
                 )
             }
-//            if (bitmap.value == null) {
-//                Image(
-//                    painter = painterResource(channelId = avatarResource.value),
-//                    contentDescription = "User Avatar",
-//                    modifier = Modifier
-//                        .size(120.dp)
-//                        .clip(CircleShape)
-//                        .background(Color.Transparent)
-//                        .border(
-//                            width = 1.dp,
-//                            color = Color.White,
-//                            shape = CircleShape
-//                        ),
-//                    colorFilter = ColorFilter.tint(Color.Gray)
-//                )
-//            }
             
             if(bitmap.value == null){
                 if(userData?.avatar == null){
@@ -206,7 +192,7 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
                         painter = painterResource(id = avatarResource.value),
                         contentDescription = "User Avatar",
                         modifier = Modifier
-                            .size(120.dp)
+                            .size(80.dp)
                             .clip(CircleShape)
                             .background(Color.Transparent)
                             .border(
@@ -219,11 +205,11 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
                 }
                 else {
                     Image(
-                        painter = rememberImagePainter(userData?.avatar),
+                        painter = rememberAsyncImagePainter(userData?.avatar),
                         contentDescription = "User Avatar",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(120.dp)
+                            .size(80.dp)
                             .clip(CircleShape)
                             .background(Color.Transparent)
                             .border(
@@ -234,39 +220,6 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
                     )
                 }
             }
-//            if (userData?.avatar == null && bitmap.value  == null) {
-//                Image(
-//                    painter = painterResource(channelId = avatarResource.value),
-//                    contentDescription = "User Avatar",
-//                    modifier = Modifier
-//                        .size(120.dp)
-//                        .clip(CircleShape)
-//                        .background(Color.Transparent)
-//                        .border(
-//                            width = 1.dp,
-//                            color = Color.White,
-//                            shape = CircleShape
-//                        ),
-//                    colorFilter = ColorFilter.tint(Color.Gray)
-//                )
-//            } else {
-//                if(bitmap.value == null) {
-//                    Image(
-//                        painter = rememberImagePainter(userData?.avatar),
-//                        contentDescription = "User Avatar",
-//                        contentScale = ContentScale.Crop,
-//                        modifier = Modifier
-//                            .size(120.dp)
-//                            .clip(CircleShape)
-//                            .background(Color.Transparent)
-//                            .border(
-//                                width = 1.dp,
-//                                color = Color.White,
-//                                shape = CircleShape
-//                            )
-//                    )
-//                }
-//            }
 
             if(userNameState == null) {
                 Text(text = "User Name", style = MaterialTheme.typography.titleLarge)
@@ -334,7 +287,7 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
                         OutlinedTextField(
                             value = bioState!!.value,
                             onValueChange = { bioState!!.value = it },
-                            label = { Text("Story", style = MaterialTheme.typography.bodyLarge) },
+                            label = { Text("About", style = MaterialTheme.typography.bodyLarge) },
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Password,
                                 imeAction = ImeAction.Done
@@ -403,74 +356,72 @@ fun ProfileViewScreen(onBackClick: () -> Unit) {
             }
         }
 
-        Column(
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = 10.dp)
-        ) {
-            if (showDialog) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .width(300.dp)
-                        .height(100.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(MaterialTheme.colorScheme.primary)
-                ) {
-                    Column(modifier = Modifier.padding(start = 60.dp)) {
-                        Image(
-                            imageVector = Icons.Camera,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(50.dp)
-                                .clickable {
-                                    if (cameraAvailable) {
-                                        launcherCamera.launch()
-                                    } else {
-                                        Toast
-                                            .makeText(
-                                                context,
-                                                "No camera available",
-                                                Toast.LENGTH_SHORT
-                                            )
-                                            .show()
-                                    }
-                                }
-                        )
-                        Text(
-                            text = "Camera",
-                            color = Color.White
-                        )
-                    }
-                    Spacer(modifier = Modifier.padding(30.dp))
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = { Text(text = "Choose an option") },
+                text = {
                     Column {
-                        Image(painter = painterResource(id = R.drawable.picture),
-                            contentDescription = null,
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
                             modifier = Modifier
-                                .size(50.dp)
-                                .clickable {
-                                    launcherImage.launch("image/*")
-                                    showDialog = false
-                                }
-                        )
-                        Text(
-                            text = "Gallery",
-                            color = Color.White
-                        )
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Column {
+                                Image(
+                                    imageVector = Icons.Camera,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(50.dp)
+                                        .clickable {
+                                            if (cameraAvailable) {
+                                                launcherCamera.launch()
+                                            } else {
+                                                Toast
+                                                    .makeText(
+                                                        context,
+                                                        "No camera available",
+                                                        Toast.LENGTH_SHORT
+                                                    )
+                                                    .show()
+                                            }
+                                            showDialog = false
+                                        }
+                                )
+                                Text(
+                                    text = "Camera",
+                                )
+                            }
+                            Spacer(modifier = Modifier.padding(30.dp))
+                            Column {
+                                Image(
+                                    imageVector = Icons.Gallery,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(50.dp)
+                                        .clickable {
+                                            launcherImage.launch("image/*")
+                                            showDialog = false
+                                        }
+                                )
+                                Text(
+                                    text = "Gallery",
+                                )
+                            }
+                        }
                     }
-                    Column(modifier = Modifier.padding(start = 50.dp, bottom = 80.dp)) {
-                        Text(text = "X",
-                            color = Color.White,
-                            modifier = Modifier
-                                .clickable { showDialog = false }
-                        )
+                },
+                confirmButton = { },
+                dismissButton = {
+                    TextButton(onClick = { showDialog = false }) {
+                        Text("Close")
                     }
                 }
-            }
+            )
         }
+
         Column (horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier

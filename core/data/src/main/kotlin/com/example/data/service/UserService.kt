@@ -169,20 +169,31 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
     }
 
     override suspend fun getUserProfile(userId: String): ProfileData? {
-        var profile: ProfileData? = null
-        firestore.collection("profiles").document(userId).get()
-            .addOnSuccessListener {documentSnapshot ->
-                val displayName = documentSnapshot.data?.get("displayName").toString()
-                val dob = documentSnapshot.data?.get("dob").toString()
-                val avatar = documentSnapshot.data?.get("avatar").toString()
-                val bio = documentSnapshot.data?.get("bio").toString()
-                profile = ProfileData(displayName, dob, avatar, bio, userId)
-                Log.d("FIRESTORE", "Get user's profile successfully: ${profile.toString()}")
-            }
-            .addOnFailureListener { exception ->
-                Log.e("FIRESTORE ERROR", "Error getting user's profile data to Firestore: $exception")
-            }.await()
-        return profile
+//        var profile: ProfileData? = null
+//        firestore.collection("profiles").document(userId).get()
+//            .addOnSuccessListener {documentSnapshot ->
+//                val displayName = documentSnapshot.data?.get("displayName").toString()
+//                val dob = documentSnapshot.data?.get("dob").toString()
+//                val avatar = documentSnapshot.data?.get("avatar").toString()
+//                val bio = documentSnapshot.data?.get("bio").toString()
+//                profile = ProfileData(displayName, dob, avatar, bio, userId)
+//                Log.d("FIRESTORE", "Get user's profile successfully: ${profile.toString()}")
+//            }
+//            .addOnFailureListener { exception ->
+//                Log.e("FIRESTORE ERROR", "Error getting user's profile data to Firestore: $exception")
+//            }.await()
+//        return profile
+        try {
+            val document = firestore.collection("profiles").document(userId).get().await()
+            val displayName = document.data?.get("displayName").toString()
+            val dob = document.data?.get("dob").toString()
+            val avatar = document.data?.get("avatar").toString()
+            val bio = document.data?.get("bio").toString()
+            return ProfileData(displayName, dob, avatar, bio, userId)
+        } catch (exception: Exception) {
+            Log.e("FIRESTORE ERROR", "Error getting user's profile data to Firestore: $exception")
+        }
+        return null
     }
 
     override fun addFCMToken(token: String, userId: String) {

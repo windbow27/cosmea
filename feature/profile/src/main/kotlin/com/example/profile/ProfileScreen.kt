@@ -5,7 +5,10 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,8 +39,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.example.designsystem.component.Background
+import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
 import com.example.model.ProfileData
 
@@ -51,6 +56,8 @@ internal fun ProfileRoute(
 
 @Composable
 fun ProfileScreen(onLogoutClick: () -> Unit, onClickProfile: () -> Unit, onClickAccount: () -> Unit) {
+    val context = LocalContext.current
+
     Background {
         Column(
             modifier = Modifier
@@ -58,7 +65,6 @@ fun ProfileScreen(onLogoutClick: () -> Unit, onClickProfile: () -> Unit, onClick
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val context = LocalContext.current
             val bitmap = remember { mutableStateOf<Bitmap?>(null) }
             val avatarResource = remember { mutableStateOf(R.drawable.avatar_default) }
 
@@ -69,7 +75,7 @@ fun ProfileScreen(onLogoutClick: () -> Unit, onClickProfile: () -> Unit, onClick
 
             LaunchedEffect(idUser) {
                 if (idUser != null) {
-                    userData = getCurrentProfileData(idUser,coroutineScope)
+                    userData = getCurrentProfileData(idUser, coroutineScope)
                 }
             }
             bitmap.value?.let {
@@ -88,8 +94,8 @@ fun ProfileScreen(onLogoutClick: () -> Unit, onClickProfile: () -> Unit, onClick
                         )
                 )
             }
-            if(bitmap.value == null){
-                if(userData?.avatar == null){
+            if (bitmap.value == null) {
+                if (userData?.avatar == null) {
                     Image(
                         painter = painterResource(id = avatarResource.value),
                         contentDescription = "User Avatar",
@@ -104,10 +110,9 @@ fun ProfileScreen(onLogoutClick: () -> Unit, onClickProfile: () -> Unit, onClick
                             ),
                         colorFilter = ColorFilter.tint(Color.Gray)
                     )
-                }
-                else {
+                } else {
                     Image(
-                        painter = rememberImagePainter(userData?.avatar),
+                        painter = rememberAsyncImagePainter(userData?.avatar),
                         contentDescription = "User Avatar",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -122,26 +127,88 @@ fun ProfileScreen(onLogoutClick: () -> Unit, onClickProfile: () -> Unit, onClick
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(text = userData?.displayName.toString(), style = MaterialTheme.typography.titleLarge)
-            Spacer(modifier = Modifier.height(10.dp))
-            Button(onClick = { /* Handle Edit Profile */
-                onClickProfile()
-            }) {
-                Text("Edit Profile")
-            }
-            Button(onClick = { /* Handle Edit Profile */
-                onClickAccount()
-            }) {
-                Text("Account Management")
-            }
-            Button(onClick = { /* Handle Add Status */
-                onLogoutClick()
 
-            }) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = userData?.displayName.toString(),
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(32.dp, 0.dp, 16.dp, 0.dp)
+//                    .clickable {
+//                        darkTheme = !darkTheme
+//                        context.setThemePreference(darkTheme)
+//                    },
+//                horizontalArrangement = Arrangement.SpaceBetween,
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Icon(
+//                    imageVector = Icons.DarkMode,
+//                    contentDescription = "Theme Icon"
+//                )
+//                Text("Dark Mode")
+//                Switch(
+//                    checked = darkTheme,
+//                    onCheckedChange = {
+//                        darkTheme = it
+//                        context.setThemePreference(darkTheme)
+//                    }
+//                )
+//            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp, 0.dp, 16.dp, 0.dp)
+                    .clickable {
+                        onClickProfile()
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Person,
+                    contentDescription = "Edit Profile Icon"
+                )
+                Text("Edit Profile")
+                Icon(
+                    imageVector = Icons.ArrowRight,
+                    contentDescription = "Arrow Right"
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+           Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp, 0.dp, 16.dp, 0.dp)
+                    .clickable(onClick = onClickAccount),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Settings,
+                    contentDescription = "Account Management Icon"
+                )
+                Text("Account Management")
+                Icon(
+                    imageVector = Icons.ArrowRight,
+                    contentDescription = "Arrow Right"
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = { onLogoutClick() },
+            ) {
                 Text("Logout")
             }
-            userData?.let { AboutMeCard(it) }
         }
     }
 }

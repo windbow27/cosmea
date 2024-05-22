@@ -75,7 +75,7 @@ fun RegisterScreen(onRegisterClick: () -> Unit, redirectToLogin: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Get chatting with friends and family today by signing up for our chat app!",
+                text = "Chat with friends and family today by signing up for our chat app!",
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 fontSize = 17.sp

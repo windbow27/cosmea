@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -95,7 +96,7 @@ fun AccountManagementScreen(
                     }
                 }
             )
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
@@ -104,69 +105,94 @@ fun AccountManagementScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(text = "Your Profile", style = MaterialTheme.typography.titleLarge )
-                Spacer(modifier = Modifier.height(16.dp))
-                userData?.username?.let {
-                    OutlinedTextField(
-                        value = it,
-                        onValueChange = { userData?.username = it },
-                        label = { Text("User Name", style = MaterialTheme.typography.titleMedium) },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = { /* Handle user name change */ }
-                        )
-                    )
+                item {
+                    Text(text = "Your Profile", style = MaterialTheme.typography.titleLarge)
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
-                userData?.email?.let {
-                    OutlinedTextField(
-                        value = it,
-                        onValueChange = { userData?.email = it },
-                        label = { Text("Email", style = MaterialTheme.typography.titleMedium) },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = { /* Handle user name change */ }
-                        )
-                    )
-                }
-                userData?.password?.let {
-                    OutlinedTextField(
-                        value = it,
-                        onValueChange = { },
-                        label = { Text("Password", style = MaterialTheme.typography.titleMedium) },
-                        visualTransformation = if (passwordVisible) {
-                            // display password if passwordVisible is true
-                            VisualTransformation.None
-                        } else {
-                            // hide password if passwordVisible is false
-                            PasswordVisualTransformation()
-                        },
-                        trailingIcon = {
-                            // display an icon to toggle password visibility
-                            val icon = if (passwordVisible) Icons.Eye else Icons.EyeOff
-                            Icon(
-                                imageVector = icon,
-                                contentDescription = if (passwordVisible) "Hide Password" else "Show Password",
-                                modifier = Modifier.clickable {
-                                    passwordVisible = !passwordVisible
-                                }
+
+                item {
+                    userData?.username?.let {
+                        OutlinedTextField(
+                            value = it,
+                            onValueChange = { userData?.username = it },
+                            label = {
+                                Text(
+                                    "User Name",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = { /* Handle user name change */ }
                             )
-                        }
-                    )
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    userData?.email?.let {
+                        OutlinedTextField(
+                            value = it,
+                            onValueChange = { userData?.email = it },
+                            label = { Text("Email", style = MaterialTheme.typography.titleMedium) },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = { /* Handle user name change */ }
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    userData?.password?.let {
+                        OutlinedTextField(
+                            value = it,
+                            onValueChange = { },
+                            label = {
+                                Text(
+                                    "Password",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            },
+                            visualTransformation = if (passwordVisible) {
+                                // display password if passwordVisible is true
+                                VisualTransformation.None
+                            } else {
+                                // hide password if passwordVisible is false
+                                PasswordVisualTransformation()
+                            },
+                            trailingIcon = {
+                                // display an icon to toggle password visibility
+                                val icon = if (passwordVisible) Icons.Eye else Icons.EyeOff
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = if (passwordVisible) "Hide Password" else "Show Password",
+                                    modifier = Modifier.clickable {
+                                        passwordVisible = !passwordVisible
+                                    }
+                                )
+                            }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
-                Button(onClick = onPasswordChangeClick) {
-                    Text("Change Password")
-                }
-                Button(onClick = onPasswordChangeClick) {
-                    Text("Save")
-                }
-                Button(onClick = onLogoutClick) {
-                    Text("Logout")
+
+                item {
+                    Button(
+                        onClick = onPasswordChangeClick,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Text("Change Password")
+
+                    }
+                    Button(
+                        onClick = onPasswordChangeClick,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Text("Save")
+                    }
                 }
             }
         }
