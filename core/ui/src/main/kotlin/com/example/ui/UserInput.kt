@@ -2,7 +2,9 @@ package com.example.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.location.Location
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -79,12 +81,14 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import coil.compose.AsyncImage
 import com.example.designsystem.icon.Icons
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
 import kotlin.time.Duration
@@ -106,17 +110,15 @@ enum class EmojiStickerSelector {
 //@Preview
 //@Composable
 //fun UserInputPreview() {
-//    UserInput(onMessageSent =  , onImageAdded = {})
+//    UserInput(onMessageSent = {})
 //}
 
 @OptIn(ExperimentalFoundationApi::class)
-@Preview
 @Composable
 fun UserInput(
     onMessageSent: (String, Uri?) -> Unit,
     modifier: Modifier = Modifier,
     resetScroll: () -> Unit = {},
-//    onImageAdded: (Uri) -> Unit,
 ) {
     var currentInputSelector by rememberSaveable { mutableStateOf(InputSelector.NONE) }
     val dismissKeyboard = { currentInputSelector = InputSelector.NONE }
@@ -134,6 +136,10 @@ fun UserInput(
 
     // Used to decide if the keyboard should be shown
     var textFieldFocusState by remember { mutableStateOf(false) }
+
+    var location by rememberSaveable { mutableStateOf<Location?>(null) }
+
+    val context = LocalContext.current
 
     Surface(tonalElevation = 2.dp, contentColor = MaterialTheme.colorScheme.secondary) {
         Column(modifier = modifier) {
@@ -180,6 +186,106 @@ fun UserInput(
     }
 }
 
+@Composable
+fun MapPickerDialog(
+    onMessageSent: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    var locationPermissionGranted by remember { mutableStateOf(false) }
+    var currentLocation by remember { mutableStateOf<Location?>(null) }
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { granted ->
+            locationPermissionGranted = granted
+            if (granted) {
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    fusedLocationClient.lastLocation
+                        .addOnSuccessListener { location->
+                            if (location != null) {
+                                currentLocation = location
+                                Log.d("LOCATION", "Current location: $currentLocation")
+                            }
+                        }
+                        .addOnFailureListener {
+                            Log.e("LOCATION ERROR", "Exception: $it")
+                        }
+                }
+                Log.d("LOCATION", "Current location: $currentLocation")
+            }
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        // Request location permission
+        locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 8.dp
+        ) {
+            Column {
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)) {
+                    if (currentLocation != null) {
+                        val latitude = currentLocation!!.latitude
+                        val longitude = currentLocation!!.longitude
+                        Log.d("LOCATION", "Latitude: $latitude ; Longitude: $longitude")
+                        val htmlContent = """
+                        <iframe width="400px" height="400px" src="https://maps.google.com/maps?q=$latitude,$longitude&hl=es;z=14&amp;output=embed"></iframe>
+                        <style>
+                        iframe {
+                            border: none;
+                        }
+                        </style>
+                    """.trimIndent()
+                        AndroidView(
+                            factory = { context ->
+                                android.webkit.WebView(context).apply {
+                                    settings.javaScriptEnabled = true
+                                    loadData(htmlContent, "text/html", "UTF-8")
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth().height(400.dp)
+                        )
+                    } else {
+                        Text("Loading location...", modifier = Modifier.padding(16.dp))
+                    }
+                }
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(8.dp)
+                ) {
+                    Text("Close")
+                }
+
+                Button(
+                    onClick = {
+                        currentLocation?.let {
+                            onMessageSent("https://maps.google.com/maps?q=${currentLocation!!.latitude},${currentLocation!!.longitude}&hl=es;z=14&amp;output=embed")
+                        }
+                        onDismiss()
+                    }
+                ) {
+                    Text("Send my position")
+                }
+            }
+        }
+    }
+}
+
 private fun TextFieldValue.addText(newString: String): TextFieldValue {
     val newText = this.text.replaceRange(
         this.selection.start,
@@ -216,7 +322,7 @@ private fun SelectorExpanded(
         when (currentSelector) {
             InputSelector.EMOJI -> EmojiSelector(onTextAdded, focusRequester)
             InputSelector.PICTURE -> ImageSelector(onImageAdded, focusRequester)
-            InputSelector.MAP -> TODO()
+            InputSelector.MAP -> MapPickerDialog(onTextAdded, onCloseRequested)
             InputSelector.PHONE -> TODO()
             else -> {
                 throw NotImplementedError()
@@ -233,6 +339,17 @@ private fun UserInputSelector(
     currentInputSelector: InputSelector,
     modifier: Modifier = Modifier
 ) {
+    var showMapPicker by remember { mutableStateOf(false) }
+
+    if (showMapPicker) {
+        MapPickerDialog(
+            onMessageSent = {it},
+            onDismiss = {
+                showMapPicker = false
+            }
+        )
+    }
+
     Row(
         modifier = modifier
             .height(72.dp)
@@ -298,7 +415,6 @@ private fun UserInputSelector(
         }
     }
 }
-
 
 @Composable
 fun ImageSelector(
