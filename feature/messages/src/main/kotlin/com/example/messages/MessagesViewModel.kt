@@ -9,6 +9,7 @@ import com.example.data.service.ChannelService
 import com.example.data.service.MessageService
 import com.example.data.service.UserService
 import com.example.model.DirectMessage
+import com.example.model.ProfileData
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -25,14 +26,27 @@ class MessagesViewModel (
 ): ViewModel() {
     private val _directMessages = MutableStateFlow(listOf<DirectMessage>())
     private val _friends = MutableStateFlow(listOf<Pair<String, String>>())
+    private val _profiles = MutableStateFlow(listOf<String>())
 
     val directMessages: StateFlow<List<DirectMessage>> get() = _directMessages
     private val friends: StateFlow<List<Pair<String, String>>> get() = _friends
+    //val profiles: StateFlow<List<Pair<String, Any>>> get() = _profiles
 
     init {
         fetchFriends()
         observeDirectMessages()
+        //fetchProfiles()
     }
+
+//    private fun fetchProfiles() {
+//        viewModelScope.launch {
+//            viewModelScope.launch {
+//
+//                Log.d("MessagesViewModel", "fetchProfiles: $friends")
+//                _profiles.value = friends
+//            }
+//        }
+//    }
 
     private fun fetchFriends() {
         viewModelScope.launch {

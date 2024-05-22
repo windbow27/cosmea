@@ -31,10 +31,12 @@ import com.example.data.service.ServerService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
+import com.example.model.SERVER_AVATAR
 import com.example.model.ServerData
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 @Composable
 internal fun CreateServerRoute(
@@ -62,7 +64,7 @@ fun CreateServerScreen(
     val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
     val adminId = sharedPref.getString("currentUserId", null)
     val coroutineScope = rememberCoroutineScope()
-
+     val randomImage = Random.nextInt(0, SERVER_AVATAR.size)
     Background {
         LazyColumn {
             // Create a server
@@ -117,7 +119,7 @@ fun CreateServerScreen(
                         val newServer = ServerData(
                             adminId = adminId!!,
                             name = serverName,
-                            avatar = "https://example.com/avatar.jpg",
+                            avatar = SERVER_AVATAR[randomImage],
                         )
                         addServerData(newServer, coroutineScope)
                         onCreateServerClick()
