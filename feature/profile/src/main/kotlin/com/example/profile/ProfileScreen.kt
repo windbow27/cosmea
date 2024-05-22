@@ -205,7 +205,9 @@ fun ProfileScreen(onLogoutClick: () -> Unit, onClickProfile: () -> Unit, onClick
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { onLogoutClick() },
+                onClick = {
+                    onLogoutClick()
+                    logout(context) },
             ) {
                 Text("Logout")
             }
@@ -213,6 +215,14 @@ fun ProfileScreen(onLogoutClick: () -> Unit, onClickProfile: () -> Unit, onClick
     }
 }
 
+fun logout(context: Context) {
+    val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
+    with(sharedPref.edit()) {
+        putString("currentUserId", null)
+        putString("currentUserName", null)
+        apply()
+    }
+}
 
 @Composable
 fun AboutMeCard(userData : ProfileData) {

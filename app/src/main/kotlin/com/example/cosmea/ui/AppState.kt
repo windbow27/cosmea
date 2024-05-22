@@ -40,9 +40,10 @@ class AppState(
     val navController: NavHostController,
 ) {
     val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
+    val currentUserId = sharedPref.getString("currentUserId", null)
     val lastLoginTimestamp = sharedPref.getString("session", "0")
     val currentTimestamp = Instant.now().toEpochMilli()
-    val isTimeoutSession = (currentTimestamp > (lastLoginTimestamp!!.toLong() + EXPIRED_TIME))
+    val isTimeoutSession = (currentTimestamp > (lastLoginTimestamp!!.toLong() + EXPIRED_TIME) || currentUserId == null)
 
     val currentDestination: NavDestination?
         @Composable get() = navController

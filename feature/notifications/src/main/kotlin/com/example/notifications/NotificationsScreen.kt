@@ -1,6 +1,7 @@
 package com.example.notifications
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,6 +40,7 @@ internal fun NotificationsRoute(
 ) {
     val userService = UserService(FirebaseFirestore.getInstance())
     val userId = LocalContext.current.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE).getString("currentUserId", null) ?: ""
+    Log.d("NotificationsRoute", "userId: $userId")
     val notificationsViewModel: NotificationsViewModel = viewModel(factory = NotificationViewModelFactory(userService, userId))
 
     NotificationsScreen(
