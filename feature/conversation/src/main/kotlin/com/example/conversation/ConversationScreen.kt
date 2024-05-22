@@ -79,6 +79,7 @@ import com.example.model.MessageData
 import com.example.ui.AppBar
 import com.example.ui.UserHead
 import com.example.ui.UserInput
+import com.example.ui.YoutubeView
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -511,12 +512,28 @@ fun ChatItemBubble(
             color = backgroundBubbleColor,
             shape = ChatBubbleShape
         ) {
-            if(messageData.content != ""){
+            if(messageData.content != "") {
                 ClickableMessage(
                     messageData = messageData,
                     isUserMe = isUserMe,
                     authorClicked = authorClicked
                 )
+            }
+        }
+
+        // Regular expression pattern to match YouTube video URLs
+        val pattern = Regex("(?:https?://)?(?:www\\.)?(?:youtube\\.com/(?:[^/]+/.+/|(?:v|embed)/|.*[?&]v=)|youtu\\.be/)([a-zA-Z0-9_-]{11})")
+        // Find the match in the URL
+        val matchResult = pattern.find(messageData.content)
+        Log.e("check youtube url result", matchResult.toString())
+        // If a match is found, extract the video ID
+        matchResult?.groups?.get(1)?.value?.let {
+            Spacer(modifier = Modifier.height(4.dp))
+            Surface(
+                color = backgroundBubbleColor,
+                shape = ChatBubbleShape
+            ) {
+                YoutubeView(it)
             }
         }
 
