@@ -80,6 +80,7 @@ fun MessagesScreen(
                 onSearchTriggered = {},
             )
             val filteredMessages = directMessages.filter { it.friendUsername.contains(searchQuery.value,ignoreCase = true) }
+            GPTItem(listener = listener)
             LazyColumn {
                 items(filteredMessages) { message ->
                     MessageItem(message = message, listener = listener)
@@ -106,6 +107,27 @@ fun MessageItem(message: DirectMessage, listener: ChannelListener) {
         ) {
             Text(text = message.friendUsername, style = MaterialTheme.typography.bodyLarge)
             Text(text = message.lastMessage, style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+@Composable
+fun GPTItem(listener: ChannelListener) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clickable { listener.onChannelSelected("GPT") },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        UserHead(id = "GPT", name = "GPT")
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 16.dp)
+        ) {
+            Text(text = "ChatGPT near you", style = MaterialTheme.typography.bodyLarge)
+            Text(text = "Touch me", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
