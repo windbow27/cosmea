@@ -15,6 +15,8 @@ interface UserRepository {
     suspend fun verifyLoginInfo(userName: String, password: String): Boolean
     suspend fun getUserIdByUsername(userName: String): String?
     suspend fun getUserProfile(userId: String): ProfileData?
+    suspend fun getUserAvatarFromUserId(userId: String): String?
+    suspend fun getUserAvatarFromUsername(username: String): String?
     fun addFCMToken(token: String, userId: String)
     suspend fun getFCMToken(userId: String): String
     suspend fun getUsernameById(userId: String): String?

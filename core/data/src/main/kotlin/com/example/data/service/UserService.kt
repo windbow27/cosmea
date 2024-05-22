@@ -169,20 +169,6 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
     }
 
     override suspend fun getUserProfile(userId: String): ProfileData? {
-//        var profile: ProfileData? = null
-//        firestore.collection("profiles").document(userId).get()
-//            .addOnSuccessListener {documentSnapshot ->
-//                val displayName = documentSnapshot.data?.get("displayName").toString()
-//                val dob = documentSnapshot.data?.get("dob").toString()
-//                val avatar = documentSnapshot.data?.get("avatar").toString()
-//                val bio = documentSnapshot.data?.get("bio").toString()
-//                profile = ProfileData(displayName, dob, avatar, bio, userId)
-//                Log.d("FIRESTORE", "Get user's profile successfully: ${profile.toString()}")
-//            }
-//            .addOnFailureListener { exception ->
-//                Log.e("FIRESTORE ERROR", "Error getting user's profile data to Firestore: $exception")
-//            }.await()
-//        return profile
         try {
             val document = firestore.collection("profiles").document(userId).get().await()
             val displayName = document.data?.get("displayName").toString()
@@ -192,6 +178,39 @@ class UserService(private val firestore: FirebaseFirestore): UserRepository {
             return ProfileData(displayName, dob, avatar, bio, userId)
         } catch (exception: Exception) {
             Log.e("FIRESTORE ERROR", "Error getting user's profile data to Firestore: $exception")
+        }
+        return null
+    }
+
+    override suspend fun getUserAvatarFromUserId(userId: String): String? {
+        try {
+            val document = firestore.collection("profiles").document(userId).get().await()
+            if (document.exists()) {
+                val avatar = document.data?.get("avatar")
+                if (avatar != null) {
+                    Log.d("FIRESTORE", "Avatar for user $userId: $avatar")
+                    return avatar.toString()
+                } else {
+                    Log.d("FIRESTORE", "No avatar field for user $userId")
+                }
+            } else {
+                Log.d("FIRESTORE", "No document for user $userId")
+            }
+        } catch (exception: Exception) {
+            Log.e("FIRESTORE ERROR", "Error getting user's avatar URL from Firestore: $exception")
+        }
+        return null
+    }
+
+    override suspend fun getUserAvatarFromUsername(username: String): String? {
+        try {
+            val document = firestore.collection("users").whereEqualTo("username", username).get().await()
+            if (!document.isEmpty) {
+                val userId = document.documents[0].data?.get("id").toString()
+                return getUserAvatarFromUserId(userId)
+            }
+        } catch (exception: Exception) {
+            Log.e("FIRESTORE ERROR", "Error getting user's avatar URL from Firestore: $exception")
         }
         return null
     }

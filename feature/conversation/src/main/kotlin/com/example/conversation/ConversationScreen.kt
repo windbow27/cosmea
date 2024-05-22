@@ -47,7 +47,6 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -84,6 +83,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -228,8 +228,6 @@ fun ConversationScreen(
                 resetScroll = {
 
                 },
-                // let this element handle the padding so that the elevation is shown behind the
-                // navigation bar
                 modifier = Modifier
                     .navigationBarsPadding()
                     .imePadding()
@@ -270,9 +268,6 @@ fun ChannelNameBar(
     onBackPressed: () -> Unit = { }
 ) {
     var functionalityNotAvailablePopupShown by remember { mutableStateOf(false) }
-//    if (functionalityNotAvailablePopupShown) {
-//        FunctionalityNotAvailablePopup { functionalityNotAvailablePopupShown = false }
-//    }
     AppBar(
         modifier = modifier,
         scrollBehavior = scrollBehavior,
@@ -303,16 +298,6 @@ fun ChannelNameBar(
                     .height(24.dp),
                 contentDescription = "Search"
             )
-            // Info icon
-//            Icon(
-//                imageVector = Icons.Outlined.Info,
-//                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-//                modifier = Modifier
-//                    .clickable(onClick = { functionalityNotAvailablePopupShown = true })
-//                    .padding(horizontal = 12.dp, vertical = 16.dp)
-//                    .height(24.dp),
-//                contentDescription = "Info"
-//            )
         }
     )
 }
@@ -326,7 +311,6 @@ fun Messages(
     scrollState: LazyListState,
     modifier: Modifier = Modifier
 ) {
-    val scope = rememberCoroutineScope()
     Box(modifier = modifier) {
 
         val authorMe = "Me"
@@ -343,17 +327,6 @@ fun Messages(
                 val content = messageData[index]
                 val isFirstMessageByAuthor = prevAuthor != content.author
                 val isLastMessageByAuthor = nextAuthor != content.author
-
-                // Hardcode day dividers for simplicity
-//                if (index == messageData.size - 1) {
-//                    item {
-//                        DayHeader("20 Aug")
-//                    }
-//                } else if (index == 2) {
-//                    item {
-//                        DayHeader("Today")
-//                    }
-//                }
 
                 item {
                     Message(
@@ -377,12 +350,7 @@ fun Message(
     isFirstMessageByAuthor: Boolean,
     isLastMessageByAuthor: Boolean
 ) {
-//    val borderColor = if (isUserMe) {
-//        MaterialTheme.colorScheme.primary
-//    } else {
-//        MaterialTheme.colorScheme.tertiary
-//    }
-
+    val coroutineScope = rememberCoroutineScope()
     val spaceBetweenAuthors = if (isLastMessageByAuthor) Modifier.padding(top = 8.dp) else Modifier
     Row(modifier = spaceBetweenAuthors) {
         if (isLastMessageByAuthor) {
@@ -391,7 +359,7 @@ fun Message(
                 modifier = Modifier
                     .padding(8.dp)
             ) {
-                UserHead(id = "4", name = "Test")
+                UserHead(id = msg.author, name = msg.author, avatarUrl = fetchAvatarUrl(msg.author, coroutineScope), size = 40.dp)
             }
         } else {
             // Space under avatar
@@ -408,6 +376,16 @@ fun Message(
                 .weight(1f)
         )
     }
+}
+
+fun fetchAvatarUrl(username: String, coroutineScope: CoroutineScope): String {
+    val userService = UserService(FirebaseFirestore.getInstance())
+    var avatarUrl = ""
+    coroutineScope.launch {
+        avatarUrl = userService.getUserAvatarFromUsername(username).toString()
+    }
+    Log.d("MessagesViewModel", "fetchAvatarUrl: $avatarUrl")
+    return avatarUrl
 }
 
 @Composable

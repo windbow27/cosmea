@@ -96,7 +96,7 @@ fun NotificationItem(
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        currentUserProfile?.avatar?.let { UserHead(id = notification.userId, name = notification.userName/*, avatarUrl = it*/) }
+        currentUserProfile?.avatar?.let { UserHead(id = notification.userId, name = notification.userName, avatarUrl = it) }
         Column(
             modifier = Modifier
                 .weight(1f)

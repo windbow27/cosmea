@@ -117,9 +117,10 @@ fun ServersScreen(
                         UserHead(
                             id = server.id,
                             name = server.name,
-//                            avatarUrl = server.avatar!!,
+                            avatarUrl = server.avatar!!,
                             modifier = Modifier
                                 .clickable { onServerSelected(server.id) },
+                            size = 36.dp
                         )
                     }
                 }

@@ -2,6 +2,7 @@ package com.example.messages
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,13 +16,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -36,14 +34,11 @@ import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.model.ChannelListener
 import com.example.model.DirectMessage
-import com.example.model.ProfileData
 import com.example.ui.SearchToolbar
 import com.example.ui.UserHead
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -59,7 +54,6 @@ internal fun MessagesRoute(
 
     MessagesScreen(
         directMessages = messagesViewModel.directMessages.collectAsState().value,
-//        avatars = messagesViewModel.profiles.collectAsState().value,
         listener = { channelId -> onChannelClick(channelId) },
         onAddFriendScreenClick = onAddFriendScreenClick
     )
@@ -67,7 +61,6 @@ internal fun MessagesRoute(
 @Composable
 fun MessagesScreen(
     directMessages: List<DirectMessage>,
-//    avatars: List<String>,
     listener: ChannelListener,
     onAddFriendScreenClick: () -> Unit
 ) {
@@ -105,7 +98,7 @@ fun MessagesScreen(
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun MessageItem(message: DirectMessage, listener: ChannelListener) {
-
+    val coroutineScope = rememberCoroutineScope()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -113,7 +106,7 @@ fun MessageItem(message: DirectMessage, listener: ChannelListener) {
             .clickable { listener.onChannelSelected(message.channelId) },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        UserHead(id = message.friendId, name = message.friendUsername/*, avatarUrl = messagesViewModel.profiles.collectAsState().value.toString()*/)
+        UserHead(message.friendId, message.friendUsername, fetchAvatarUrl(message.friendId, coroutineScope))
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -125,6 +118,16 @@ fun MessageItem(message: DirectMessage, listener: ChannelListener) {
     }
 }
 
+fun fetchAvatarUrl(username: String, coroutineScope: CoroutineScope): String {
+    val userService = UserService(FirebaseFirestore.getInstance())
+    var avatarUrl = ""
+    coroutineScope.launch {
+        avatarUrl = userService.getUserAvatarFromUsername(username).toString()
+    }
+    Log.d("MessagesViewModel", "fetchAvatarUrl: $avatarUrl")
+    return avatarUrl
+}
+
 @Composable
 fun GPTItem(listener: ChannelListener) {
     Row(
@@ -134,7 +137,7 @@ fun GPTItem(listener: ChannelListener) {
             .clickable { listener.onChannelSelected("GPT") },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        UserHead(id = "GPT", name = "Cosmea Bot" /*avatarUrl = "https://firebasestorage.googleapis.com/v0/b/cosmea-69930.appspot.com/o/avatar%2Fa29866353.jpg?alt=media&token=10f931e2-7159-4555-9027-473f8d29a3e5"*/)
+        UserHead(id = "GPT", name = "Cosmea Bot", avatarUrl = "https://firebasestorage.googleapis.com/v0/b/cosmea-69930.appspot.com/o/avatar%2Fa29866353.jpg?alt=media&token=10f931e2-7159-4555-9027-473f8d29a3e5")
         Column(
             modifier = Modifier
                 .weight(1f)
