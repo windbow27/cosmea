@@ -47,6 +47,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -64,6 +65,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.example.common.chatGPT.ChatGPTClient
 import com.example.common.notification.FCMClient
 import com.example.common.sightengine.SightEngineClient
 import com.example.data.mockChannel
@@ -93,16 +95,32 @@ fun ConversationRoute(
     onBackPressed: () -> Unit,
 ) {
     println("Conversation ID: $conversationId")
-    val channelService = ChannelService(FirebaseFirestore.getInstance())
-    val messageService = MessageService(FirebaseDatabase.getInstance())
-    val userService = UserService(FirebaseFirestore.getInstance())
-    val channelViewModel: ConversationViewModel = viewModel(factory = ConversationViewModelFactory(channelService, messageService, userService, conversationId!!))
 
-    ConversationScreen(
-        conversation = channelViewModel.channelData.collectAsState().value,
-        messages = channelViewModel.messageData.collectAsState().value,
-        onBackPressed = onBackPressed,
-    )
+    if (conversationId == "GPT") {
+        val GPTmessages = remember { ChatGPTClient.messages }
+        GPTConversationScreen(
+            messages = GPTmessages,
+            onBackPressed = onBackPressed,
+        )
+    } else {
+        val channelService = ChannelService(FirebaseFirestore.getInstance())
+        val messageService = MessageService(FirebaseDatabase.getInstance())
+        val userService = UserService(FirebaseFirestore.getInstance())
+        val channelViewModel: ConversationViewModel = viewModel(
+            factory = ConversationViewModelFactory(
+                channelService,
+                messageService,
+                userService,
+                conversationId!!
+            )
+        )
+
+        ConversationScreen(
+            conversation = channelViewModel.channelData.collectAsState().value,
+            messages = channelViewModel.messageData.collectAsState().value,
+            onBackPressed = onBackPressed,
+        )
+    }
 }
 
 
@@ -602,6 +620,121 @@ fun saveMessageToFirestore(message: MessageData, conversationId: String, onCompl
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GPTConversationScreen(
+    messages: List<MessageData>,
+    modifier: Modifier = Modifier,
+    onBackPressed: () -> Unit = {},
+) {
+    println("Conversation: GPT")
+    println("Messages: ${messages.toString()}")
+
+    val scrollState = rememberLazyListState()
+    val topBarState = rememberTopAppBarState()
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
+
+    val context = LocalContext.current
+    /*val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
+    val userId = sharedPref.getString("currentUserId", null)
+    val username = sharedPref.getString("currentUsername", null)*/
+
+    val coroutineScope = rememberCoroutineScope()
+
+    Scaffold(
+        topBar = {
+            ChannelNameBar(
+                channelName = "ChatGPT near you",
+                channelMembers = 100,
+                onBackPressed = onBackPressed,
+                scrollBehavior = scrollBehavior,
+            )
+        },
+        // Exclude ime and navigation bar padding so this can be added by the UserInput composable
+        contentWindowInsets = ScaffoldDefaults
+            .contentWindowInsets
+            .exclude(WindowInsets.navigationBars)
+            .exclude(WindowInsets.ime),
+        modifier = modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
+    ) { paddingValues ->
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(paddingValues)) {
+            GPTMessages(
+                messageData = messages, // temporary
+                modifier = Modifier.weight(1f),
+                scrollState = scrollState
+            )
+            UserInput(
+                onMessageSent = { messageText, imageUri ->
+                    println("Message sent: $messageText with image: $imageUri")
+                    ChatGPTClient.chatWithGPT(messageText) {
+
+                    }
+                },
+                resetScroll = {
+
+                },
+                // let this element handle the padding so that the elevation is shown behind the
+                // navigation bar
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .imePadding()
+            )
+        }
+    }
+}
+
+@Composable
+fun GPTMessages(
+    messageData: List<MessageData>,
+    scrollState: LazyListState,
+    modifier: Modifier = Modifier
+) {
+    val scope = rememberCoroutineScope()
+    Box(modifier = modifier) {
+
+        val authorMe = "Me"
+        LazyColumn(
+            reverseLayout = true,
+            state = scrollState,
+            modifier = Modifier
+                .testTag(ConversationTestTag)
+                .fillMaxSize()
+        ) {
+            for (index in messageData.indices) {
+                val prevAuthor = messageData.getOrNull(index - 1)?.author
+                val nextAuthor = messageData.getOrNull(index + 1)?.author
+                val content = messageData[index]
+                val isFirstMessageByAuthor = prevAuthor != content.author
+                val isLastMessageByAuthor = nextAuthor != content.author
+
+                // Hardcode day dividers for simplicity
+//                if (index == messageData.size - 1) {
+//                    item {
+//                        DayHeader("20 Aug")
+//                    }
+//                } else if (index == 2) {
+//                    item {
+//                        DayHeader("Today")
+//                    }
+//                }
+
+                item {
+                    Message(
+                        onAuthorClick = {  },
+                        msg = content,
+                        isUserMe = content.author == authorMe,
+                        isFirstMessageByAuthor = isFirstMessageByAuthor,
+                        isLastMessageByAuthor = isLastMessageByAuthor
+                    )
+                }
+            }
+        }
+    }
+}
 
 @Preview
 @Composable
