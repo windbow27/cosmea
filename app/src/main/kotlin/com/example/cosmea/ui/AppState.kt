@@ -1,6 +1,7 @@
 package com.example.cosmea.ui
 
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.tooling.preview.Preview
@@ -14,26 +15,36 @@ import androidx.navigation.navOptions
 import com.example.cosmea.navigation.TopLevelDestination
 import com.example.messages.navigation.MESSAGES_ROUTE
 import com.example.messages.navigation.navigateToMessages
+import com.example.model.EXPIRED_TIME
 import com.example.notifications.navigation.NOTIFICATIONS_ROUTE
 import com.example.notifications.navigation.navigateToNotifications
 import com.example.profile.navigation.PROFILE_ROUTE
 import com.example.profile.navigation.navigateToProfile
 import com.example.servers.navigation.SERVERS_ROUTE
 import com.example.servers.navigation.navigateToServers
+import java.time.Instant
 
 
 @Preview
 @Composable
 fun rememberAppState(
+    context: Context,
     navController: NavHostController = rememberNavController()
 ): AppState {
-    return AppState(navController)
+    return AppState(context, navController)
 }
 
 @Stable
 class AppState(
+    private val context: Context,
     val navController: NavHostController,
 ) {
+    val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
+    val currentUserId = sharedPref.getString("currentUserId", null)
+    val lastLoginTimestamp = sharedPref.getString("session", "0")
+    val currentTimestamp = Instant.now().toEpochMilli()
+    val isTimeoutSession = (currentTimestamp > (lastLoginTimestamp!!.toLong() + EXPIRED_TIME) || currentUserId == null)
+
     val currentDestination: NavDestination?
         @Composable get() = navController
             .currentBackStackEntryAsState().value?.destination

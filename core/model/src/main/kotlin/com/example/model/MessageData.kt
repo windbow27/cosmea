@@ -1,12 +1,18 @@
 package com.example.model
 
+import java.time.Instant
+
 class MessageData(
     var author: String,
     var receiver: String,
-    var content: String,
-    var timestamp: String,
-    var image: Int? = null,
-    var file: Int? = null,
-    var authorImage: Int? = null,
-    var id: String = generateId(author + receiver + content + timestamp),
-)
+    var content: String = "",
+    var timestamp: String = Instant.now().toEpochMilli().toString(),
+    var image: String? = null,
+    var file: String? = null,
+    var nsfw: Boolean = false,
+    var id: String = generateId((author + receiver + content + timestamp)),
+) {
+    override fun toString(): String {
+        return "MessageData(channelId='$id', author='$author', receiver='$receiver', content='$content', timestamp='$timestamp', image='$image', file='$file')"
+    }
+}

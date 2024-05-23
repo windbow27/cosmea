@@ -3,6 +3,7 @@ package com.example.data.service
 import android.util.Log
 import com.example.data.repo.ChannelRepository
 import com.example.model.ChannelData
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -21,6 +22,38 @@ class ChannelService(private val firestore: FirebaseFirestore): ChannelRepositor
         return
     }
 
+    override suspend fun addDirectMessage(channelData: ChannelData, currentUserId: String, targetUserId: String) {
+        firestore.collection("channels").document(channelData.id).set(channelData)
+            .addOnSuccessListener {
+                Log.d("FIRESTORE", "Added direct message successfully: ${channelData}")
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FIRESTORE ERROR", "Error adding direct message: $exception")
+            }.await()
+        return
+    }
+
+    override suspend fun getDirectMessageId(currentUserId: String, targetUserId: String): String {
+        try {
+            val channels = firestore.collection("channels")
+                .whereArrayContains("members", currentUserId)
+                .get().await().documents
+
+            val channel = channels.firstOrNull {
+                (it.get("members") as? List<String>)?.contains(targetUserId) == true &&
+                        (it.get("serverId") as? String).isNullOrEmpty()
+            }
+
+            if (channel != null) {
+                Log.d("FIRESTORE", "Get direct message ID successfully: ${channel.id}")
+                return channel.id
+            }
+        } catch (e: Exception) {
+            Log.e("FIRESTORE ERROR", "Error getting direct message ID: ", e)
+        }
+        return ""
+    }
+
     override suspend fun addChannelIntoServerList(serverId: String, channelId: String) {
         firestore.collection("servers").document(serverId).get()
             .addOnSuccessListener {documentSnapshot ->
@@ -35,9 +68,7 @@ class ChannelService(private val firestore: FirebaseFirestore): ChannelRepositor
         return
     }
 
-    override suspend fun updateChannelData( channelId: String,
-                                            channelData: ChannelData,
-                                            currentUserId: String) {
+    override suspend fun updateChannelData(channelId: String, channelData: ChannelData, currentUserId: String) {
         val channelService = ChannelService(firestore)
         val channel = channelService.getChannelById(channelId)
         val adminId = channel?.adminId
@@ -91,26 +122,40 @@ class ChannelService(private val firestore: FirebaseFirestore): ChannelRepositor
     }
 
     override suspend fun getChannelById(channelId: String): ChannelData? {
-        var channel: ChannelData? = null
-        firestore.collection("channels").document(channelId).get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    val id: String = document.data?.get("id").toString()
-                    val adminId: String = document.data?.get("adminId").toString()
-                    val serverId: String = document.data?.get("serverId").toString()
-                    val name: String = document.data?.get("name").toString()
-                    val members: MutableList<String> = document.data?.get("members") as MutableList<String>? ?: mutableListOf()
-                    val messages: MutableList<String> = document.data?.get("messages") as MutableList<String>? ?: mutableListOf()
-                    Log.d("FIRESTORE", "Get channel with ID: $serverId successfully")
-                    channel = ChannelData(name, adminId, serverId, members, messages, id = id)
-                    Log.d("FIRESTORE", "Channel: $channel")
-                } else {
-                    Log.d("FIRESTORE ERROR", "Channel not found with ID: $channelId")
-                }
+        try {
+            val document = firestore.collection("channels").document(channelId).get().await()
+            if (document != null) {
+                val id: String = document.data?.get("id").toString()
+                val adminId: String = document.data?.get("adminId").toString()
+                val serverId: String = document.data?.get("serverId").toString()
+                val name: String = document.data?.get("name").toString()
+                val members: MutableList<String> = document.data?.get("members") as MutableList<String>? ?: mutableListOf()
+                val messages: MutableList<String> = document.data?.get("messages") as MutableList<String>? ?: mutableListOf()
+                Log.d("FIRESTORE", "Get channel with ID: $serverId successfully")
+                return ChannelData(name, adminId, serverId, members, messages, id = id)
+            } else {
+                Log.d("FIRESTORE ERROR", "Channel not found with ID: $channelId")
             }
-            .addOnFailureListener { exception ->
-                Log.e("FIRESTORE ERROR", "Error getting channel: ", exception)
-            }.await()
-        return channel
+        } catch (e: Exception) {
+            Log.e("FIRESTORE ERROR", "Error getting channel: ", e)
+        }
+        return null
+    }
+
+    override suspend fun getLastMessage(channelId: String): String {
+        try {
+            val messages = firestore.collection("channels").document(channelId).get().await().data?.get("messages") as? MutableList<String>
+            if (!messages.isNullOrEmpty()) {
+                Log.d("FIRESTORE", "Get last message successfully: ${messages.last()}")
+                return messages.last()
+            }
+        } catch (e: Exception) {
+            Log.e("FIRESTORE ERROR", "Error getting last message: ", e)
+        }
+        return ""
+    }
+
+    override fun getChannelDocument(channelId: String): DocumentReference {
+        return firestore.collection("channels").document(channelId)
     }
 }

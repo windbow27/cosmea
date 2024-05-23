@@ -1,6 +1,8 @@
 package com.example.login
 
 import android.content.Context
+import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -28,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -39,7 +43,10 @@ import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.time.Instant
 
 @Composable
 fun LoginRoute(
@@ -72,6 +79,13 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Image(
+                painter = painterResource(R.drawable.logo_dark),
+                contentDescription = "App Logo",
+                modifier = Modifier
+                    .size(156.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
             Text(
                 text = "Log in to Cosmea",
                 style = MaterialTheme.typography.titleLarge,
@@ -83,20 +97,31 @@ fun LoginScreen(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(32.dp))
+
+            // Login Form
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
                     .background(MaterialTheme.colorScheme.secondaryContainer)
-                    .padding(20.dp),
+                    .padding(20.dp)
+                ,
             ) {
                 OutlinedTextField(
                     value = userNameState,
-                    onValueChange = {userNameState = it},
+                    onValueChange = { userNameState = it },
                     placeholder = { Text("Username") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Person,
+                            contentDescription = "Username"
+                        )
+                    }
                 )
+
                 Spacer(modifier = Modifier.height(16.dp))
+
                 OutlinedTextField(
                     value = passwordState,
                     onValueChange = {passwordState = it},
@@ -109,6 +134,12 @@ fun LoginScreen(
                     } else {
                         // hide password if passwordVisible is false
                         PasswordVisualTransformation()
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Password,
+                            contentDescription = "Password"
+                        )
                     },
                     trailingIcon = {
                         // display an icon to toggle password visibility
@@ -125,24 +156,21 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                val onLogin:() -> Unit = {
-                }
-
                 Button(
                     onClick = {
                         coroutineScope.launch {
-                            val success = login(
-                                userNameState.text,
-                                passwordState.text,
-                                context
-                            )
-                            if (success) {
-                                onLoginClick()
-                            } else {
-                                loginError = true
-                                kotlinx.coroutines.delay(1000L)
-                                loginError = false
-                            }
+                                val success = login(
+                                    userNameState.text,
+                                    passwordState.text,
+                                    context
+                                )
+                                if (success) {
+                                    onLoginClick()
+                                } else {
+                                    loginError = true
+                                    kotlinx.coroutines.delay(1000L)
+                                    loginError = false
+                                }
                         }
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -185,20 +213,36 @@ suspend fun login(
 ): Boolean {
     val userService = UserService(FirebaseFirestore.getInstance())
     val acceptLogin = userService.verifyLoginInfo(userName, password)
+    val currentUserId = userService.getUserIdByUsername(userName)
     if (acceptLogin) {
-        val currentUserId = userService.getUserIdByUsername(userName)
-
         // Save currentUserId to SharedPreferences
-        val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
-        with(sharedPref.edit()) {
-            putString("currentUserId", currentUserId)
-            apply()
+        runBlocking {
+            var token: String
+            launch {
+                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        token = task.getResult()
+                        userService.addFCMToken(token, currentUserId!!)
+                        Log.d("FCM", "Current user token: $token")
+                    }
+                }
+            }.join()
+            val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
+            val sessionTimeout = sharedPref.getString("session", "0")
+            Log.d("SESSION", sessionTimeout.toString())
+            with(sharedPref.edit()) {
+                putString("currentUserId", currentUserId)
+                putString("currentUsername", userName)
+                if (sessionTimeout == "0" || sessionTimeout == null) {
+                    putString("session", Instant.now().toEpochMilli().toString())
+                }
+                apply()
+            }
         }
     }
     return acceptLogin
 }
 
-// comment firebase part for preview
 @Preview
 @Composable
 fun LoginScreenPreview() {
@@ -214,43 +258,3 @@ fun LoginScreenDarkPreview() {
         LoginScreen(onLoginClick = {}, redirectToRegister = {})
     }
 }
-
-//@Composable
-//fun FacebookLoginButton(image: Int) {
-//    Box(
-//        modifier = Modifier
-//            .size(56.dp)
-//            .clip(RoundedCornerShape(8.dp))
-//            .background(Color.White)
-//            .clickable { /* Handle social login click */ },
-//        contentAlignment = Alignment.Center
-//    )
-//    {
-//        val icon: Painter = painterResource(id = image)
-//        Image(
-//            painter = icon,
-//            contentDescription = null,
-//            modifier = Modifier.size(32.dp)
-//        )
-//    }
-//}
-//
-//@Composable
-//fun GoogleLoginButton(image: Int) {
-//    Box(
-//        modifier = Modifier
-//            .size(56.dp)
-//            .clip(RoundedCornerShape(8.dp))
-//            .background(Color.White)
-//            .clickable { /* Handle social login click */ },
-//        contentAlignment = Alignment.Center
-//    )
-//    {
-//        val icon: Painter = painterResource(id = image)
-//        Image(
-//            painter = icon,
-//            contentDescription = null,
-//            modifier = Modifier.size(32.dp)
-//        )
-//    }
-//}

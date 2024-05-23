@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -6,6 +8,26 @@ plugins {
 
 android {
     namespace = "com.example.common"
+
+    defaultConfig {
+        //load the values from .properties file
+        val keystoreFile = project.rootProject.file("key.properties")
+        val properties = Properties()
+        properties.load(keystoreFile.inputStream())
+
+        //return empty key in case something goes wrong
+        val openAIKey = properties.getProperty("open_AI_key") ?: ""
+        buildConfigField(
+            type = "String",
+            name = "openAIkey",
+            value = "\"${openAIKey}\""
+        )
+    }
+
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
 }
 
 dependencies {
@@ -19,6 +41,10 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.database.ktx)
+    implementation(project(":core:data"))
+    implementation(project(":core:model"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -26,4 +52,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.squareup.retrofit)
     implementation(libs.squareup.converter.gson)
+    implementation("io.coil-kt:coil-compose:1.4.0")
 }

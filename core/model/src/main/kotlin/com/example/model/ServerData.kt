@@ -1,8 +1,8 @@
 package com.example.model
 
 class ServerData(
-    var adminId: String,
-    var name: String,
+    var adminId: String = "",
+    var name: String = "",
     var avatar: String? = null,
     var members: MutableList<String> = mutableListOf(),
     var channels: MutableList<String> = mutableListOf(),
@@ -17,6 +17,6 @@ class ServerData(
     }
 
     override fun toString(): String {
-        return "ServerData(id='$id', adminId='$adminId', name='$name', avatar='$avatar', members=$members, channels=$channels"
+        return "ServerData(channelId='$id', adminId='$adminId', name='$name', avatar='$avatar', members=$members, channels=$channels"
     }
 }

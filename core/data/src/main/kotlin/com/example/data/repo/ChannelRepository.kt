@@ -1,6 +1,7 @@
 package com.example.data.repo
 
 import com.example.model.ChannelData
+import com.google.firebase.firestore.DocumentReference
 
 interface ChannelRepository {
     suspend fun getChannelById(channelId: String): ChannelData?
@@ -13,4 +14,12 @@ interface ChannelRepository {
         currentUserId: String
     )
     suspend fun addMember(channelId: String, userId: String)
+    fun getChannelDocument(channelId: String): DocumentReference
+    suspend fun addDirectMessage(
+        channelData: ChannelData,
+        currentUserId: String,
+        targetUserId: String
+    )
+    suspend fun getDirectMessageId(currentUserId: String, targetUserId: String): String
+    suspend fun getLastMessage(channelId: String): String
 }

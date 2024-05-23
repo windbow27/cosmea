@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,19 +31,23 @@ import com.example.data.service.ServerService
 import com.example.designsystem.component.Background
 import com.example.designsystem.icon.Icons
 import com.example.designsystem.theme.CosmeaTheme
+import com.example.model.SERVER_AVATAR
 import com.example.model.ServerData
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 @Composable
 internal fun CreateServerRoute(
     onBackPressed: () -> Unit,
-    onCreateServerClick: () -> Unit
+    onCreateServerClick: () -> Unit,
+    onJoinServerClick: () -> Unit
 )  {
     CreateServerScreen(
         onBackPressed = onBackPressed,
-        onCreateServerClick = onCreateServerClick
+        onCreateServerClick = onCreateServerClick,
+        onJoinServerClick = onJoinServerClick
     )
 }
 
@@ -51,73 +56,115 @@ internal fun CreateServerRoute(
 fun CreateServerScreen(
     onBackPressed: () -> Unit,
     onCreateServerClick: () -> Unit,
+    onJoinServerClick: () -> Unit
 ) {
     var serverName by remember { mutableStateOf("My Server") }
+    var serverCode by remember { mutableStateOf("") }
     val context = LocalContext.current
     val sharedPref = context.getSharedPreferences("CosmeaApp", Context.MODE_PRIVATE)
     val adminId = sharedPref.getString("currentUserId", null)
     val coroutineScope = rememberCoroutineScope()
-
+     val randomImage = Random.nextInt(0, SERVER_AVATAR.size)
     Background {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            TopAppBar(
-                title = {},
-                navigationIcon = {
-                    IconButton(onClick = { onBackPressed() }) {
+        LazyColumn {
+            // Create a server
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    TopAppBar(
+                        title = {},
+                        navigationIcon = {
+                            IconButton(onClick = { onBackPressed() }) {
+                                Icon(
+                                    imageVector = Icons.ArrowBack,
+                                    contentDescription = "Back"
+                                )
+                            }
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Create Your Server",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    IconButton(onClick = { /* Handle upload image */ }) {
                         Icon(
-                            imageVector = Icons.ArrowBack,
-                            contentDescription = "Back"
+                            imageVector = Icons.Add,
+                            contentDescription = "Upload Server Image"
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    TextField(
+                        value = serverName,
+                        onValueChange = { serverName = it },
+                        label = { Text("Server Name") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    Button(onClick = {
+                        val newServer = ServerData(
+                            adminId = adminId!!,
+                            name = serverName,
+                            avatar = SERVER_AVATAR[randomImage],
+                        )
+                        addServerData(newServer, coroutineScope)
+                        onCreateServerClick()
+                    }) {
+                        Text("Create Server")
+                    }
                 }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Create Your Server",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            IconButton(onClick = { /* Handle upload image */ }) {
-                Icon(
-                    imageVector = Icons.Add,
-                    contentDescription = "Upload Server Image"
-                )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            item {
+                Spacer(modifier = Modifier.height(32.dp))
+            }
 
-            TextField(
-                value = serverName,
-                onValueChange = { serverName = it },
-                label = { Text("Server Name") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Button(onClick = {
-                coroutineScope.launch {
-                    // Create server
-                    val newServer = ServerData(
-                        adminId = adminId!!,
-                        name = serverName,
-                        avatar = "https://example.com/avatar.jpg",
+            // Join a server
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Join A Server",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
-                    addServerData(newServer, coroutineScope)
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    TextField(
+                        value = serverCode,
+                        onValueChange = { serverCode = it },
+                        label = { Text("Server Code") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    Button(onClick = {
+                        addMemberToServer(serverCode, adminId!!, coroutineScope)
+                        onJoinServerClick()
+                    }) {
+                        Text("Join Server")
+                    }
                 }
-                onCreateServerClick()
-            }) {
-                Text("Create Server")
             }
         }
     }
@@ -130,11 +177,18 @@ fun addServerData(serverData: ServerData, coroutineScope: CoroutineScope) {
     }
 }
 
+fun addMemberToServer(serverId: String, memberId: String, coroutineScope: CoroutineScope) {
+    coroutineScope.launch {
+        val serverService = ServerService(FirebaseFirestore.getInstance())
+        serverService.addMember(serverId, memberId)
+    }
+}
+
 @Preview
 @Composable
 fun CreateServerScreenPreview() {
     CosmeaTheme {
-        CreateServerScreen(onBackPressed = {}, onCreateServerClick = {})
+        CreateServerScreen(onBackPressed = {}, onCreateServerClick = {}, onJoinServerClick = {})
     }
 }
 
@@ -142,6 +196,6 @@ fun CreateServerScreenPreview() {
 @Composable
 fun CreateServerRoutePreview() {
     CosmeaTheme(darkTheme = true) {
-        CreateServerRoute(onBackPressed = {}, onCreateServerClick = {})
+        CreateServerRoute(onBackPressed = {}, onCreateServerClick = {}, onJoinServerClick = {})
     }
 }
